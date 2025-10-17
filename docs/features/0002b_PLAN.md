@@ -23,20 +23,10 @@ Tạo interface `Sellable` để định nghĩa hành vi chung cho các đối t
 
 ### 3.1 Cấu Trúc Interface Sellable
 
+**Lưu ý:** Service/Product sẽ implement cả `IEntity` và `Sellable`. Các phương thức `getId()`, `display()`, `input()` đã có trong `IEntity`, nên `Sellable` chỉ định nghĩa các phương thức **riêng cho việc bán hàng**.
+
 ```java
 public interface Sellable {
-
-    /**
-     * Lấy ID duy nhất của item
-     * @return ID của item
-     */
-    String getId();
-
-    /**
-     * Lấy tên của item có thể bán
-     * @return Tên item
-     */
-    String getName();
 
     /**
      * Lấy giá bán của item
@@ -49,16 +39,6 @@ public interface Sellable {
      * @return Giá dạng "1.000.000 VND"
      */
     String getPriceFormatted();
-
-    /**
-     * Hiển thị thông tin item ra console
-     */
-    void display();
-
-    /**
-     * Nhập thông tin item từ người dùng
-     */
-    void input();
 
     /**
      * Kiểm tra item có khả dụng (có thể bán) không
@@ -78,49 +58,29 @@ public interface Sellable {
 
 **Lợi ích:**
 
-1. **Polymorphism:** Service và Product có thể được sử dụng thay thế cho nhau ở những nơi cần Sellable
-2. **Contract:** Đảm bảo tất cả item có thể bán đều implement các phương thức cần thiết
-3. **Flexibility:** Dễ thêm loại item mới (ví dụ: Package, Bundle) chỉ cần implement Sellable
-4. **Separation of Concerns:** Tách rõ interface bán hàng từ business logic
+1. **Separation of Concerns:** Tách riêng interface quản lý Entity (`IEntity`) từ interface bán hàng (`Sellable`)
+2. **Single Responsibility:** `IEntity` xử lý ID, display, input chung; `Sellable` xử lý logic bán hàng (giá, khả dụng, mô tả)
+3. **Polymorphism:** Service và Product có thể được sử dụng thay thế cho nhau ở những nơi cần Sellable
+4. **Flexibility:** Dễ thêm loại item mới (ví dụ: Package, Bundle) chỉ cần implement `IEntity` + `Sellable`
+5. **Reusability:** Tất cả item có thể bán đều implement các phương thức bán hàng cần thiết
 
 **Ví dụ:**
 
 ```java
-// Trước (không có interface)
-List<Service> services = getAllServices();
-services.forEach(s -> s.display());
+// Quản lý tất cả item có thể bán chung một list
+Sellable[] items = getAllSellableItems();
 
-List<Product> products = getAllProducts();
-products.forEach(p -> p.display());
-// → Lặp code
-
-// Sau (có interface)
-List<Sellable> items = getAllSellableItems();
-items.forEach(item -> item.display());
-// → Chỉ một vòng lặp, xử lý tất cả
+// Hiển thị thông tin và giá tất cả item khả dụng
+for (Sellable item : items) {
+    if (item.isAvailable()) {
+        // item.display() từ IEntity
+        // item.getPrice() từ Sellable
+        System.out.println("Giá: " + item.getPriceFormatted());
+    }
+}
 ```
 
 ### 3.3 Phương Thức Chi Tiết
-
-#### **`getId(): String`**
-
-```
-Mục đích: Trả về ID duy nhất của item
-Implement:
-  - Service: trả về serviceId
-  - Product: trả về productId
-Ví dụ: "SVC_001", "PRD_001"
-```
-
-#### **`getName(): String`**
-
-```
-Mục đích: Trả về tên item
-Implement:
-  - Service: trả về serviceName
-  - Product: trả về productName
-Ví dụ: "Massage toàn thân", "Serum dưỡng da"
-```
 
 #### **`getPrice(): BigDecimal`**
 
@@ -141,36 +101,6 @@ Logic:
   2. Format với dấu phân cách: "500.000"
   3. Thêm đơn vị: "500.000 VND"
 Ví dụ: "500.000 VND", "1.000.000 VND"
-```
-
-#### **`display(): void`**
-
-```
-Mục đích: Hiển thị thông tin item ra console
-Logic:
-  1. In ID
-  2. In tên
-  3. In giá định dạng
-  4. In mô tả (nếu cần)
-Ví dụ:
-  ┌─────────────────────────────┐
-  │ ID: SVC_001                 │
-  │ Tên: Massage toàn thân      │
-  │ Giá: 500.000 VND            │
-  │ Thời gian: 60 phút          │
-  └─────────────────────────────┘
-```
-
-#### **`input(): void`**
-
-```
-Mục đích: Nhập thông tin item từ người dùng
-Logic:
-  1. Nhập ID
-  2. Nhập tên
-  3. Nhập giá
-  4. Nhập mô tả/thông tin bổ sung
-Logic có thể override ở lớp con nếu có input khác nhau
 ```
 
 #### **`isAvailable(): boolean`**
@@ -200,28 +130,12 @@ Ví dụ: "Xoa bóp toàn thân giúp thư giãn, giảm stress"
 ### 3.4 Implement trong Service
 
 ```java
-public class Service implements Sellable {
+public class Service implements IEntity, Sellable {
 
+    // Từ IEntity:
     @Override
     public String getId() {
         return this.serviceId;
-    }
-
-    @Override
-    public String getName() {
-        return this.serviceName;
-    }
-
-    @Override
-    public BigDecimal getPrice() {
-        return this.basePrice;
-    }
-
-    @Override
-    public String getPriceFormatted() {
-        // Format: "500.000 VND"
-        return String.format("%,d VND",
-            this.basePrice.longValue()).replace(",", ".");
     }
 
     @Override
@@ -237,7 +151,25 @@ public class Service implements Sellable {
 
     @Override
     public void input() {
-        // Nhập từ người dùng
+        // Nhập từ người dùng (ID, tên, giá, mô tả, v.v.)
+    }
+
+    @Override
+    public String getPrefix() {
+        return "SVC";
+    }
+
+    // Từ Sellable:
+    @Override
+    public BigDecimal getPrice() {
+        return this.basePrice;
+    }
+
+    @Override
+    public String getPriceFormatted() {
+        // Format: "500.000 VND"
+        return String.format("%,d VND",
+            this.basePrice.longValue()).replace(",", ".");
     }
 
     @Override
@@ -267,24 +199,39 @@ public class Service implements Sellable {
 ## 5. Mối Quan Hệ Với Các Lớp Khác
 
 ```
+IEntity (Interface)
+├── getId()
+├── display()
+├── input()
+└── getPrefix()
+
 Sellable (Interface)
-├── Service implements Sellable
-├── Product implements Sellable (nếu tạo)
-└── Có thể dùng chung trong List<Sellable>
+├── getPrice()
+├── getPriceFormatted()
+├── isAvailable()
+└── getDescription()
+
+Service implements IEntity, Sellable
+├── Từ IEntity: getId(), display(), input(), getPrefix()
+└── Từ Sellable: getPrice(), getPriceFormatted(), isAvailable(), getDescription()
+
+Product implements IEntity, Sellable (nếu tạo)
+├── Từ IEntity: getId(), display(), input(), getPrefix()
+└── Từ Sellable: getPrice(), getPriceFormatted(), isAvailable(), getDescription()
 ```
 
 **Cách Sử Dụng:**
 
 ```java
-// Quản lý tất cả item có thể bán chung một list
-List<Sellable> allItems = new ArrayList<>();
-allItems.addAll(serviceManager.getAll());  // Thêm services
-allItems.addAll(productManager.getAll());  // Thêm products
+// Quản lý tất cả item có thể bán (Service, Product, v.v.)
+Sellable[] allItems = getAllSellableItems();
 
-// Hiển thị tất cả
+// Hiển thị thông tin và kiểm tra khả dụng
 for (Sellable item : allItems) {
     if (item.isAvailable()) {
-        item.display();
+        // item.display() từ IEntity
+        System.out.println("Giá: " + item.getPriceFormatted());
+        System.out.println("Mô tả: " + item.getDescription());
     }
 }
 ```
@@ -302,5 +249,7 @@ for (Sellable item : allItems) {
 ## 7. Lưu Ý Quan Trọng
 
 - Interface `Sellable` nên được tạo **cùng lúc hoặc TRƯỚC** khi tạo Service.java
-- Khi implement Service, phải implement tất cả phương thức của Sellable
-- Product (nếu có) cũng phải implement Sellable
+- Service/Product phải implement **cả** `IEntity` **và** `Sellable`
+- Các phương thức `getId()`, `display()`, `input()` đã có trong `IEntity`, không lặp lại trong `Sellable`
+- Chỉ định nghĩa trong `Sellable` những phương thức **riêng cho việc bán hàng** (getPrice, getPriceFormatted, isAvailable, getDescription)
+- Comment bằng tiếng Việt cho Javadoc theo quy tắc

@@ -45,6 +45,19 @@ public abstract class Person implements IEntity {
         this.createdDate = LocalDate.now();
     }
 
+    /**
+     * Constructor tiện lợi khi chưa có một số thông tin (email, address).
+     *
+     * @param personId    Mã định danh
+     * @param fullName    Tên đầy đủ
+     * @param phoneNumber Số điện thoại
+     * @param isMale      Giới tính
+     * @param birthDate   Ngày sinh
+     */
+    public Person(String personId, String fullName, String phoneNumber, boolean isMale, LocalDate birthDate) {
+        this(personId, fullName, phoneNumber, isMale, birthDate, "", "");
+    }
+
     // Getter Methods
 
     /**
@@ -91,6 +104,27 @@ public abstract class Person implements IEntity {
      */
     public String getAddress() {
         return address;
+    }
+
+    /**
+     * Trả về tuổi hiện tại tính từ birthDate.
+     * Nếu birthDate là null, trả về -1 để biểu thị không xác định.
+     *
+     * @return tuổi (số nguyên >= 0) hoặc -1 nếu không có birthDate
+     */
+    public int getAge() {
+        if (birthDate == null) {
+            return -1;
+        }
+        LocalDate now = LocalDate.now();
+        int age = now.getYear() - birthDate.getYear();
+        // Nếu chưa tới sinh nhật trong năm hiện tại thì trừ 1
+        if (now.getMonthValue() < birthDate.getMonthValue()
+                || (now.getMonthValue() == birthDate.getMonthValue()
+                        && now.getDayOfMonth() < birthDate.getDayOfMonth())) {
+            age -= 1;
+        }
+        return age;
     }
 
     /**
@@ -177,6 +211,16 @@ public abstract class Person implements IEntity {
     }
 
     /**
+     * Trả về chuỗi mô tả giới tính: "Nam" hoặc "Nữ".
+     * Nếu không rõ, trả về "Không xác định".
+     *
+     * @return chuỗi giới tính
+     */
+    public String getGenderString() {
+        return isMale ? "Nam" : "Nữ";
+    }
+
+    /**
      * Kiểm tra trạng thái xóa mềm (soft delete).
      *
      * @return true nếu đã bị xóa
@@ -192,6 +236,40 @@ public abstract class Person implements IEntity {
      */
     public void setDeleted(boolean deleted) {
         this.isDeleted = deleted;
+    }
+
+    /**
+     * Cập nhật thông tin liên hệ: số điện thoại, email và địa chỉ.
+     * Các tham số null sẽ được bỏ qua (không cập nhật trường tương ứng).
+     *
+     * @param phoneNumber số điện thoại mới (hoặc null)
+     * @param email       email mới (hoặc null)
+     * @param address     địa chỉ mới (hoặc null)
+     */
+    public void updateContactInfo(String phoneNumber, String email, String address) {
+        if (phoneNumber != null) {
+            this.phoneNumber = phoneNumber;
+        }
+        if (email != null) {
+            this.email = email;
+        }
+        if (address != null) {
+            this.address = address;
+        }
+    }
+
+    /**
+     * Đánh dấu xóa mềm (soft delete).
+     */
+    public void softDelete() {
+        this.isDeleted = true;
+    }
+
+    /**
+     * Khôi phục từ trạng thái xóa mềm.
+     */
+    public void restore() {
+        this.isDeleted = false;
     }
 
     // Phương thức trừu tượng (Abstract Methods)
