@@ -182,7 +182,7 @@
 **Thay Đổi:**
 
 - ✅ Thêm kế hoạch 0002b (Interface Sellable)
-- ✅ Thêm file tạo mới: `Interfaces/Sellable.java`
+- ✅ Thêm file tạo mới: `interfaces/Sellable.java`
 
 **Dòng Thay Đổi:** +2 lines
 

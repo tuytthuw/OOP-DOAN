@@ -10,7 +10,7 @@ Tạo interface `Sellable` để định nghĩa hành vi chung cho các đối t
 
 ### Tệp TẠO MỚI:
 
-- `src/main/java/Interfaces/Sellable.java` - Interface cho các item có thể bán
+- `src/main/java/interfaces/Sellable.java` - Interface cho các item có thể bán
 
 ### Tệp THAY ĐỔI:
 

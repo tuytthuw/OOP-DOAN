@@ -33,9 +33,9 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
   - `REFUNDED` - Đã hoàn tiền
 - **Trạng thái**: ✅ Đã tồn tại và hoàn chỉnh
 
-### 2. **Interfaces** (Giao Diện)
+### 2. **interfaces** (Giao Diện)
 
-#### ✅ Interfaces/Sellable.java
+#### ✅ interfaces/Sellable.java
 
 - **Mô tả**: Interface định nghĩa hành vi cho các đối tượng có thể bán được
 - **Phương thức**:
@@ -234,7 +234,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 | Loại Tệp        | Số Lượng | Trạng Thái        |
 | --------------- | -------- | ----------------- |
 | **Enums**       | 2        | ✅ Hoàn chỉnh     |
-| **Interfaces**  | 1        | ✅ Hoàn chỉnh     |
+| **interfaces**  | 1        | ✅ Hoàn chỉnh     |
 | **Base Class**  | 1        | ✅ Hoàn chỉnh     |
 | **Core Models** | 6        | ✅ Hoàn chỉnh     |
 | **TỔNG CỘNG**   | **10**   | ✅ **HOÀN THÀNH** |

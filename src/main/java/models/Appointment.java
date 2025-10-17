@@ -3,7 +3,7 @@ package models;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import Interfaces.IEntity;
+import interfaces.IEntity;
 import enums.AppointmentStatus;
 
 /**

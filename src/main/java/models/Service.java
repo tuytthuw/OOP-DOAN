@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import Interfaces.IEntity;
-import Interfaces.Sellable;
+import interfaces.IEntity;
+import interfaces.Sellable;
 import enums.ServiceCategory;
 
 /**

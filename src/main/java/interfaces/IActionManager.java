@@ -1,4 +1,4 @@
-package Interfaces;
+package interfaces;
 
 public interface IActionManager<T> {
     public void displayList();

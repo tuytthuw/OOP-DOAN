@@ -46,7 +46,7 @@ Tạo kế hoạch **0002b - Interface Sellable** để định nghĩa hành vi 
 **Thay Đổi:**
 
 - Thêm bảng kế hoạch 0002b
-- File tạo mới: `Interfaces/Sellable.java`
+- File tạo mới: `interfaces/Sellable.java`
 
 ### ✏️ Cập Nhật FILE_MANIFEST.md
 

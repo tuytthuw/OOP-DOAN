@@ -23,7 +23,7 @@ Dự án được chia thành **10 kế hoạch chính**, bao gồm model, manag
 | --------- | ---------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------- |
 | **0001**  | [Xây Dựng Model Khách Hàng](./0001_PLAN.md)    | Lớp Customer kế thừa Person, Tier, chi tiêu               | `models/Customer.java`                                      |
 | **0002**  | [Xây Dựng Model Dịch Vụ](./0002_PLAN.md)       | Lớp Service với giá, danh mục, thời gian                  | `models/Service.java`<br>`enums/ServiceCategory.java`       |
-| **0002b** | [Xây Dựng Interface Sellable](./0002b_PLAN.md) | Interface cho các item có thể bán (Service, Product)      | `Interfaces/Sellable.java`                                  |
+| **0002b** | [Xây Dựng Interface Sellable](./0002b_PLAN.md) | Interface cho các item có thể bán (Service, Product)      | `interfaces/Sellable.java`                                  |
 | **0003**  | [Xây Dựng Model Lịch Hẹn](./0003_PLAN.md)      | Lớp Appointment với trạng thái, liên kết Customer/Service | `models/Appointment.java`                                   |
 | **0004**  | [Xây Dựng Model Chiết Khấu](./0004_PLAN.md)    | Lớp Discount với kiểu %, tiền cố định, điều kiện          | `models/Discount.java`                                      |
 | **0005**  | [Xây Dựng Model Giao Dịch](./0005_PLAN.md)     | Lớp Transaction với phương thức thanh toán, trạng thái    | `models/Transaction.java`<br>`enums/TransactionStatus.java` |

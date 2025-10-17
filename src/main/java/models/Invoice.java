@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-import Interfaces.IEntity;
+import interfaces.IEntity;
 import enums.PaymentMethod;
 
 /**

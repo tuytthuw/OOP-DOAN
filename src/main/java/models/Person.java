@@ -2,7 +2,7 @@ package models;
 
 import java.time.LocalDate;
 
-import Interfaces.IEntity;
+import interfaces.IEntity;
 
 /**
  * Lớp cơ sở (superclass) đại diện cho một người (khách hàng, nhân viên, v.v.).

@@ -196,7 +196,7 @@ Tổng:        ~120 KB
 
 ### Code Quality
 
-- ✅ OOP: Inheritance (Person), Generics (BaseManager), Interfaces (Sellable)
+- ✅ OOP: Inheritance (Person), Generics (BaseManager), interfaces (Sellable)
 - ✅ Design Patterns: Template Method, Factory, Singleton (AuthService)
 - ✅ SOLID: Single Responsibility, Open/Closed, Liskov Substitution
 
@@ -297,7 +297,7 @@ Tổng:        ~120 KB
 
 ### Lợi Ích
 
-✅ **OOP đúng cách** - Inheritance, Generics, Interfaces  
+✅ **OOP đúng cách** - Inheritance, Generics, interfaces  
 ✅ **Giảm code** - 60% duplicate code loại bỏ  
 ✅ **Dễ bảo trì** - Centralized changes  
 ✅ **Dễ mở rộng** - Thêm feature dễ  
