@@ -8,7 +8,7 @@ import java.util.Objects;
  * Lớp đại diện cho một lịch hẹn trong hệ thống Spa.
  */
 public class Appointment {
-    private String appointmentId;          // Mã lịch hẹn (ví dụ: APT_00001)
+    private String appointmentId;          // Mã lịch hẹn (ví dụ: APT_01)
     private String customerId;             // Mã khách hàng
     private String serviceId;              // Mã dịch vụ
     private LocalDateTime appointmentDateTime; // Ngày giờ hẹn
