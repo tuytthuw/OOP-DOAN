@@ -2,37 +2,46 @@ package models;
 
 import java.time.LocalDate;
 
+import Interfaces.IEntity;
+
 /**
  * Lớp cơ sở (superclass) đại diện cho một người (khách hàng, nhân viên, v.v.).
  * Chứa các thông tin cá nhân chung.
  */
-public abstract class Person {
+public abstract class Person implements IEntity {
 
-    // Thuộc tính (Attributes)
-    private String id;
+    // Thuộc tính (Attributes) theo UML
+    private String personId;
     private String fullName;
     private String phoneNumber;
+    private boolean isMale;
+    private LocalDate birthDate;
     private String email;
     private String address;
-    private LocalDate dateOfBirth;
-    private String gender; // "Nam", "Nữ", "Khác"
+    private boolean isDeleted;
     private LocalDate createdDate;
 
     /**
      * Constructor khởi tạo Person với các thông tin cơ bản.
      *
-     * @param id          Mã định danh duy nhất
+     * @param personId    Mã định danh duy nhất
      * @param fullName    Tên đầy đủ
      * @param phoneNumber Số điện thoại
+     * @param isMale      Giới tính (true = Nam, false = Nữ)
+     * @param birthDate   Ngày sinh
      * @param email       Email
      * @param address     Địa chỉ
      */
-    public Person(String id, String fullName, String phoneNumber, String email, String address) {
-        this.id = id;
+    public Person(String personId, String fullName, String phoneNumber, boolean isMale, LocalDate birthDate,
+            String email, String address) {
+        this.personId = personId;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
+        this.isMale = isMale;
+        this.birthDate = birthDate;
         this.email = email;
         this.address = address;
+        this.isDeleted = false;
         this.createdDate = LocalDate.now();
     }
 
@@ -43,8 +52,9 @@ public abstract class Person {
      *
      * @return ID
      */
+    @Override
     public String getId() {
-        return id;
+        return personId;
     }
 
     /**
@@ -88,8 +98,8 @@ public abstract class Person {
      *
      * @return Ngày sinh
      */
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
     /**
@@ -97,8 +107,8 @@ public abstract class Person {
      *
      * @return Giới tính
      */
-    public String getGender() {
-        return gender;
+    public boolean isMale() {
+        return isMale;
     }
 
     /**
@@ -151,19 +161,85 @@ public abstract class Person {
     /**
      * Cập nhật ngày sinh của người.
      *
-     * @param dateOfBirth Ngày sinh
+     * @param birthDate Ngày sinh
      */
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     /**
-     * Cập nhật giới tính của người.
+     * Cập nhật giới tính (true = Nam, false = Nữ)
      *
-     * @param gender Giới tính
+     * @param isMale Giới tính
      */
-    public void setGender(String gender) {
-        this.gender = gender;
+    public void setMale(boolean isMale) {
+        this.isMale = isMale;
+    }
+
+    /**
+     * Kiểm tra trạng thái xóa mềm (soft delete).
+     *
+     * @return true nếu đã bị xóa
+     */
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    /**
+     * Đánh dấu (hoặc bỏ đánh dấu) xóa mềm.
+     *
+     * @param deleted trạng thái xóa
+     */
+    public void setDeleted(boolean deleted) {
+        this.isDeleted = deleted;
+    }
+
+    // Phương thức trừu tượng (Abstract Methods)
+
+    /**
+     * Lấy vai trò của người (khách hàng, nhân viên, quản lý, v.v.).
+     *
+     * @return Vai trò của người
+     */
+    public abstract String getRole();
+
+    // Phương thức implement từ IEntity
+
+    /**
+     * Hiển thị thông tin của Person.
+     */
+    @Override
+    public void display() {
+        System.out.println("=== THÔNG TIN NGƯỜI ===");
+        System.out.println("ID: " + personId);
+        System.out.println("Tên: " + fullName);
+        System.out.println("SĐT: " + phoneNumber);
+        System.out.println("Email: " + email);
+        System.out.println("Địa chỉ: " + address);
+        System.out.println("Ngày sinh: " + birthDate);
+        System.out.println("Giới tính: " + (isMale ? "Nam" : "Nữ"));
+        System.out.println("Vai trò: " + getRole());
+        System.out.println("Ngày tạo: " + createdDate);
+        System.out.println("========================");
+    }
+
+    /**
+     * Nhập thông tin cho Person từ bàn phím.
+     */
+    @Override
+    public void input() {
+        // Phương thức này sẽ được implement trong các lớp con cụ thể
+        // vì mỗi loại Person có thể cần nhập thông tin khác nhau
+    }
+
+    /**
+     * Lấy tiền tố cho ID của Person.
+     *
+     * @return Tiền tố ID
+     */
+    @Override
+    public String getPrefix() {
+        return "PER"; // Tiền tố chung cho Person
     }
 
     // Phương thức chung (Common Methods)
@@ -183,7 +259,7 @@ public abstract class Person {
                         "Ngày sinh: %s\n" +
                         "Giới tính: %s\n" +
                         "Ngày tạo: %s",
-                id, fullName, phoneNumber, email, address, dateOfBirth, gender, createdDate);
+                personId, fullName, phoneNumber, email, address, birthDate, (isMale ? "Nam" : "Nữ"), createdDate);
     }
 
     /**
@@ -201,7 +277,7 @@ public abstract class Person {
             return false;
         }
         Person person = (Person) obj;
-        return id != null && id.equals(person.id);
+        return personId != null && personId.equals(person.personId);
     }
 
     /**
@@ -211,7 +287,7 @@ public abstract class Person {
      */
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return personId != null ? personId.hashCode() : 0;
     }
 
     /**
@@ -222,7 +298,7 @@ public abstract class Person {
     @Override
     public String toString() {
         return String.format(
-                "Person{id='%s', fullName='%s', phoneNumber='%s', email='%s'}",
-                id, fullName, phoneNumber, email);
+                "Person{personId='%s', fullName='%s', phoneNumber='%s', email='%s'}",
+                personId, fullName, phoneNumber, email);
     }
 }
