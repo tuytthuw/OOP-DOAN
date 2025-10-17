@@ -1,5 +1,5 @@
 package enums;
 
 public enum Tier {
-    STANDARD, SILVER, GOLD
+    PLATINUM, SILVER, GOLD, BRONZE
 }
