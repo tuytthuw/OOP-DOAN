@@ -28,22 +28,28 @@ public class Appointment {
         this.createdDate = LocalDateTime.now();
     }
 
-    // Gán nhân viên
+    // Gán nhân viên thực hiện
     public void assignStaff(String staffId) {
         this.staffId = staffId;
     }
 
-    // Cập nhật trạng thái
+    // Cập nhật trạng thái lịch hẹn
     public void updateStatus(AppointmentStatus newStatus) {
-        if (status == AppointmentStatus.SCHEDULED && (newStatus == AppointmentStatus.SPENDING || newStatus == AppointmentStatus.CANCELLED)) {
+        if (status == AppointmentStatus.SCHEDULED &&
+                (newStatus == AppointmentStatus.SPENDING || newStatus == AppointmentStatus.CANCELLED)) {
+
             this.status = newStatus;
-        } else if (status == AppointmentStatus.SPENDING && (newStatus == AppointmentStatus.COMPLETED || newStatus == AppointmentStatus.CANCELLED)) {
+        }
+        else if (status == AppointmentStatus.SPENDING &&
+                (newStatus == AppointmentStatus.COMPLETED || newStatus == AppointmentStatus.CANCELLED)) {
+
             this.status = newStatus;
             if (newStatus == AppointmentStatus.COMPLETED) {
                 this.completedDate = LocalDateTime.now();
             }
-        } else {
-            System.out.println(" Không thể chuyển trạng thái từ " + status + " sang " + newStatus);
+        }
+        else {
+            System.out.printf("⚠️ Không thể chuyển trạng thái từ %s sang %s%n", status, newStatus);
         }
     }
 
@@ -53,7 +59,7 @@ public class Appointment {
             status = AppointmentStatus.COMPLETED;
             completedDate = LocalDateTime.now();
         } else {
-            System.out.println(" Không thể đánh dấu hoàn thành vì chưa ở trạng thái SPENDING!");
+            System.out.println("⚠️ Không thể đánh dấu hoàn thành vì chưa ở trạng thái SPENDING!");
         }
     }
 
@@ -62,16 +68,16 @@ public class Appointment {
         if (status == AppointmentStatus.SCHEDULED || status == AppointmentStatus.SPENDING) {
             status = AppointmentStatus.CANCELLED;
         } else {
-            System.out.println(" Không thể hủy lịch hẹn này!");
+            System.out.println("⚠️ Không thể hủy lịch hẹn này!");
         }
     }
 
-    // Kiểm tra hết hạn
+    // Kiểm tra xem lịch hẹn có bị quá hạn hay không
     public boolean isExpired() {
         return status == AppointmentStatus.SCHEDULED && appointmentDateTime.isBefore(LocalDateTime.now());
     }
 
-    // Trả về thông tin
+    // Trả về thông tin cơ bản của lịch hẹn
     public String getAppointmentInfo() {
         return String.format("Mã: %s | Khách: %s | Dịch vụ: %s | Thời gian: %s | Trạng thái: %s",
                 appointmentId, customerId, serviceId, appointmentDateTime, status);
@@ -94,13 +100,17 @@ public class Appointment {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Appointment)) return false;
-        Appointment that = (Appointment) o;
+        if (!(o instanceof Appointment that)) return false;
         return Objects.equals(appointmentId, that.appointmentId);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(appointmentId);
+    }
+
+    @Override
+    public String toString() {
+        return getAppointmentInfo();
     }
 }
