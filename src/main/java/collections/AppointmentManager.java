@@ -13,6 +13,22 @@ import models.Appointment;
 public class AppointmentManager extends BaseManager<Appointment> {
 
     /**
+     * Lấy tất cả lịch hẹn.
+     * 
+     * @return Mảy chứa tất cả lịch hẹn hiện tại
+     */
+    @Override
+    public Appointment[] getAll() {
+        // Tạo mảy Appointment mới và copy từng phần tử một
+        Appointment[] result = new Appointment[size];
+        for (int i = 0; i < size; i++) {
+            // Cast từng phần tử từ IEntity sang Appointment
+            result[i] = (Appointment) items[i];
+        }
+        return result;
+    }
+
+    /**
      * Tìm tất cả lịch hẹn của một khách hàng.
      * 
      * @param customerId ID khách hàng cần tìm

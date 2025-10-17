@@ -16,6 +16,7 @@ public class MainMenu extends MenuBase {
     private AppointmentMenu appointmentMenu;
     private PaymentMenu paymentMenu;
     private ReportMenu reportMenu;
+    private EmployeeMenu employeeMenu;
 
     // ============ CONSTRUCTOR ============
 
@@ -36,13 +37,15 @@ public class MainMenu extends MenuBase {
      * @param appointmentMenu Menu quản lý lịch hẹn
      * @param paymentMenu     Menu thanh toán
      * @param reportMenu      Menu báo cáo
+     * @param employeeMenu    Menu quản lý nhân viên
      */
     public void setSubmenus(CustomerMenu customerMenu, AppointmentMenu appointmentMenu,
-            PaymentMenu paymentMenu, ReportMenu reportMenu) {
+            PaymentMenu paymentMenu, ReportMenu reportMenu, EmployeeMenu employeeMenu) {
         this.customerMenu = customerMenu;
         this.appointmentMenu = appointmentMenu;
         this.paymentMenu = paymentMenu;
         this.reportMenu = reportMenu;
+        this.employeeMenu = employeeMenu;
     }
 
     // ============ PHƯƠNG THỨC OVERRIDE (OVERRIDE METHODS) ============
@@ -58,7 +61,8 @@ public class MainMenu extends MenuBase {
         System.out.println("2. Quản lý Lịch hẹn");
         System.out.println("3. Quản lý Thanh toán");
         System.out.println("4. Xem Báo cáo");
-        System.out.println("5. Thoát");
+        System.out.println("5. Quản lý Nhân viên");
+        System.out.println("0. Thoát");
         System.out.println();
     }
 
@@ -102,6 +106,15 @@ public class MainMenu extends MenuBase {
                 return true;
 
             case 5:
+                // Quản lý nhân viên
+                if (employeeMenu != null) {
+                    employeeMenu.run();
+                } else {
+                    System.out.println("❌ Menu nhân viên chưa được khởi tạo!");
+                }
+                return true;
+
+            case 0:
                 // Thoát chương trình
                 System.out.println("\n✓ Cảm ơn bạn đã sử dụng ứng dụng. Tạm biệt!");
                 return false;

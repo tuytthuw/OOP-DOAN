@@ -10,6 +10,22 @@ import models.Customer;
 public class CustomerManager extends BaseManager<Customer> {
 
     /**
+     * Lấy tất cả khách hàng.
+     * 
+     * @return Mảy chứa tất cả khách hàng hiện tại
+     */
+    @Override
+    public Customer[] getAll() {
+        // Tạo mảy Customer mới và copy từng phần tử một
+        Customer[] result = new Customer[size];
+        for (int i = 0; i < size; i++) {
+            // Cast từng phần tử từ IEntity sang Customer
+            result[i] = (Customer) items[i];
+        }
+        return result;
+    }
+
+    /**
      * Tìm khách hàng theo số điện thoại.
      * 
      * @param phoneNumber Số điện thoại cần tìm

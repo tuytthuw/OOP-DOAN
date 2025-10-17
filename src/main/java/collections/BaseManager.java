@@ -36,6 +36,7 @@ public abstract class BaseManager<T extends IEntity> {
     @SuppressWarnings("unchecked")
     public BaseManager() {
         this.capacity = DEFAULT_CAPACITY;
+        // Tạo mảy IEntity vì tất cả phần tử đều implement IEntity
         this.items = (T[]) new IEntity[capacity];
         this.size = 0;
     }
@@ -159,20 +160,6 @@ public abstract class BaseManager<T extends IEntity> {
     }
 
     /**
-     * Lấy tất cả các phần tử hiện tại.
-     * 
-     * @return Mảy chứa tất cả phần tử (mảy con của kích thước size)
-     */
-    @SuppressWarnings("unchecked")
-    public T[] getAll() {
-        T[] result = (T[]) new IEntity[size];
-        for (int i = 0; i < size; i++) {
-            result[i] = items[i];
-        }
-        return result;
-    }
-
-    /**
      * Kiểm tra phần tử có tồn tại hay không theo ID.
      * 
      * @param id ID của phần tử
@@ -229,6 +216,7 @@ public abstract class BaseManager<T extends IEntity> {
     @SuppressWarnings("unchecked")
     protected void resize() {
         int newCapacity = capacity * 2;
+        // Tạo mảy IEntity vì tất cả phần tử đều implement IEntity
         T[] newItems = (T[]) new IEntity[newCapacity];
 
         // Copy tất cả phần tử từ mảy cũ sang mảy mới
@@ -239,6 +227,14 @@ public abstract class BaseManager<T extends IEntity> {
         items = newItems;
         capacity = newCapacity;
     }
+
+    /**
+     * Lấy tất cả phần tử trong danh sách.
+     * Phương thức trừu tượng - các lớp con phải cài đặt.
+     * 
+     * @return Mảy chứa tất cả phần tử hiện tại
+     */
+    public abstract T[] getAll();
 
     /**
      * Lấy dung lượng hiện tại của mảy.

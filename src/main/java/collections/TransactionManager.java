@@ -14,6 +14,22 @@ import models.Transaction;
 public class TransactionManager extends BaseManager<Transaction> {
 
     /**
+     * Lấy tất cả giao dịch.
+     * 
+     * @return Mảy chứa tất cả giao dịch hiện tại
+     */
+    @Override
+    public Transaction[] getAll() {
+        // Tạo mảy Transaction mới và copy từng phần tử một
+        Transaction[] result = new Transaction[size];
+        for (int i = 0; i < size; i++) {
+            // Cast từng phần tử từ IEntity sang Transaction
+            result[i] = (Transaction) items[i];
+        }
+        return result;
+    }
+
+    /**
      * Tìm tất cả giao dịch của một khách hàng.
      * 
      * @param customerId ID khách hàng cần tìm

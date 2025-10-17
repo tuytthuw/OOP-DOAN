@@ -12,6 +12,22 @@ import models.Discount;
 public class DiscountManager extends BaseManager<Discount> {
 
     /**
+     * Lấy tất cả chiết khấu.
+     * 
+     * @return Mảy chứa tất cả chiết khấu hiện tại
+     */
+    @Override
+    public Discount[] getAll() {
+        // Tạo mảy Discount mới và copy từng phần tử một
+        Discount[] result = new Discount[size];
+        for (int i = 0; i < size; i++) {
+            // Cast từng phần tử từ IEntity sang Discount
+            result[i] = (Discount) items[i];
+        }
+        return result;
+    }
+
+    /**
      * Tìm chiết khấu theo mã code.
      * 
      * @param discountCode Mã chiết khấu cần tìm

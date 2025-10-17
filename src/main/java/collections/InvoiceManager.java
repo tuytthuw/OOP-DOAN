@@ -12,6 +12,22 @@ import models.Invoice;
 public class InvoiceManager extends BaseManager<Invoice> {
 
     /**
+     * Lấy tất cả hóa đơn.
+     * 
+     * @return Mảy chứa tất cả hóa đơn hiện tại
+     */
+    @Override
+    public Invoice[] getAll() {
+        // Tạo mảy Invoice mới và copy từng phần tử một
+        Invoice[] result = new Invoice[size];
+        for (int i = 0; i < size; i++) {
+            // Cast từng phần tử từ IEntity sang Invoice
+            result[i] = (Invoice) items[i];
+        }
+        return result;
+    }
+
+    /**
      * Tìm tất cả hóa đơn của một khách hàng.
      * 
      * @param customerId ID khách hàng cần tìm

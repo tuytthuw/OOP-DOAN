@@ -12,6 +12,22 @@ import models.Service;
 public class ServiceManager extends BaseManager<Service> {
 
     /**
+     * Lấy tất cả dịch vụ.
+     * 
+     * @return Mảy chứa tất cả dịch vụ hiện tại
+     */
+    @Override
+    public Service[] getAll() {
+        // Tạo mảy Service mới và copy từng phần tử một
+        Service[] result = new Service[size];
+        for (int i = 0; i < size; i++) {
+            // Cast từng phần tử từ IEntity sang Service
+            result[i] = (Service) items[i];
+        }
+        return result;
+    }
+
+    /**
      * Tìm tất cả dịch vụ thuộc một category nhất định.
      * 
      * @param category Category cần tìm

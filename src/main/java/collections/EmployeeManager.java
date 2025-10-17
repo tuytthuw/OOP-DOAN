@@ -23,6 +23,24 @@ public class EmployeeManager extends BaseManager<Employee> {
         super();
     }
 
+    // ============ CÁC PHƯƠNG THỨC TRỪu TƯỢNG ============
+
+    /**
+     * Lấy tất cả nhân viên.
+     * 
+     * @return Mảy chứa tất cả nhân viên hiện tại
+     */
+    @Override
+    public Employee[] getAll() {
+        // Tạo mảy Employee mới và copy từng phần tử một
+        Employee[] result = new Employee[size];
+        for (int i = 0; i < size; i++) {
+            // Cast từng phần tử từ IEntity sang Employee
+            result[i] = (Employee) items[i];
+        }
+        return result;
+    }
+
     // ============ CÁC PHƯƠNG THỨC TÌM KIẾM ============
 
     /**
