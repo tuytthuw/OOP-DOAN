@@ -8,24 +8,35 @@ Dự án được chia thành **10 kế hoạch chính**, bao gồm model, manag
 
 ## Danh Sách Kế Hoạch
 
-### Phase 1: Xây Dựng Model (0001 - 0006)
+### Phase 0: Chuẩn Bị & Base Classes (0000, 0007a)
 
-| #        | Tên Kế Hoạch                                | Mô Tả                                                     | Tệp Tạo Mới                                                 |
-| -------- | ------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------- |
-| **0001** | [Xây Dựng Model Khách Hàng](./0001_PLAN.md) | Lớp Customer với Tier, chi tiêu, thông tin cá nhân        | `models/Customer.java`                                      |
-| **0002** | [Xây Dựng Model Dịch Vụ](./0002_PLAN.md)    | Lớp Service với giá, danh mục, thời gian                  | `models/Service.java`<br>`enums/ServiceCategory.java`       |
-| **0003** | [Xây Dựng Model Lịch Hẹn](./0003_PLAN.md)   | Lớp Appointment với trạng thái, liên kết Customer/Service | `models/Appointment.java`                                   |
-| **0004** | [Xây Dựng Model Chiết Khấu](./0004_PLAN.md) | Lớp Discount với kiểu %, tiền cố định, điều kiện          | `models/Discount.java`                                      |
-| **0005** | [Xây Dựng Model Giao Dịch](./0005_PLAN.md)  | Lớp Transaction với phương thức thanh toán, trạng thái    | `models/Transaction.java`<br>`enums/TransactionStatus.java` |
-| **0006** | [Xây Dựng Model Hóa Đơn](./0006_PLAN.md)    | Lớp Invoice tính toán tổng tiền, chiết khấu, thuế         | `models/Invoice.java`                                       |
+| #         | Tên Kế Hoạch                                    | Mô Tả                                                | Tệp Tạo Mới                    |
+| --------- | ----------------------------------------------- | ---------------------------------------------------- | ------------------------------ |
+| **0000**  | [Xây Dựng Person Base Class](./0000_PLAN.md)    | Lớp abstract cơ sở cho Customer, Employee            | `models/Person.java`           |
+| **0007a** | [Xây Dựng BaseManager Generic](./0007a_PLAN.md) | Lớp generic cơ sở cho tất cả Manager, tránh lặp code | `collections/BaseManager.java` |
 
 ---
 
-### Phase 2: Xây Dựng Manager (0007)
+### Phase 1: Xây Dựng Model (0001 - 0006)
 
-| #        | Tên Kế Hoạch                                  | Mô Tả                                    | Tệp Tạo Mới                                                                                                                                                                                                                          |
-| -------- | --------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **0007** | [Xây Dựng Collection Manager](./0007_PLAN.md) | Quản lý tập hợp dữ liệu cho tất cả model | `collections/CustomerManager.java`<br>`collections/ServiceManager.java`<br>`collections/AppointmentManager.java`<br>`collections/TransactionManager.java`<br>`collections/DiscountManager.java`<br>`collections/InvoiceManager.java` |
+| #         | Tên Kế Hoạch                                   | Mô Tả                                                     | Tệp Tạo Mới                                                 |
+| --------- | ---------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------- |
+| **0001**  | [Xây Dựng Model Khách Hàng](./0001_PLAN.md)    | Lớp Customer kế thừa Person, Tier, chi tiêu               | `models/Customer.java`                                      |
+| **0002**  | [Xây Dựng Model Dịch Vụ](./0002_PLAN.md)       | Lớp Service với giá, danh mục, thời gian                  | `models/Service.java`<br>`enums/ServiceCategory.java`       |
+| **0002b** | [Xây Dựng Interface Sellable](./0002b_PLAN.md) | Interface cho các item có thể bán (Service, Product)      | `Interfaces/Sellable.java`                                  |
+| **0003**  | [Xây Dựng Model Lịch Hẹn](./0003_PLAN.md)      | Lớp Appointment với trạng thái, liên kết Customer/Service | `models/Appointment.java`                                   |
+| **0004**  | [Xây Dựng Model Chiết Khấu](./0004_PLAN.md)    | Lớp Discount với kiểu %, tiền cố định, điều kiện          | `models/Discount.java`                                      |
+| **0005**  | [Xây Dựng Model Giao Dịch](./0005_PLAN.md)     | Lớp Transaction với phương thức thanh toán, trạng thái    | `models/Transaction.java`<br>`enums/TransactionStatus.java` |
+| **0006**  | [Xây Dựng Model Hóa Đơn](./0006_PLAN.md)       | Lớp Invoice tính toán tổng tiền, chiết khấu, thuế         | `models/Invoice.java`                                       |
+
+---
+
+### Phase 2: Xây Dựng Manager (0007) & Nhân Viên (0011)
+
+| #        | Tên Kế Hoạch                                  | Mô Tả                                                     | Tệp Tạo Mới                                                                                                                                                                                                                          |
+| -------- | --------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **0007** | [Xây Dựng Collection Manager](./0007_PLAN.md) | Quản lý tập hợp dữ liệu extends BaseManager               | `collections/CustomerManager.java`<br>`collections/ServiceManager.java`<br>`collections/AppointmentManager.java`<br>`collections/TransactionManager.java`<br>`collections/DiscountManager.java`<br>`collections/InvoiceManager.java` |
+| **0011** | [Xây Dựng Employee/Staff](./0011_PLAN.md)     | Lớp Employee, Receptionist, Technician, quản lý nhân viên | `models/Employee.java`<br>`models/Receptionist.java`<br>`models/Technician.java`<br>`enums/EmployeeRole.java`<br>`enums/EmployeeStatus.java`<br>`collections/EmployeeManager.java`                                                   |
 
 ---
 
@@ -37,7 +48,15 @@ Dự án được chia thành **10 kế hoạch chính**, bao gồm model, manag
 
 ---
 
-### Phase 4: Xây Dựng IO & UI (0009 - 0010)
+### Phase 4: Exception Handling (0012)
+
+| #        | Tên Kế Hoạch                                             | Mô Tả                 | Tệp Tạo Mới                                                                                                                                                                                                                                         |
+| -------- | -------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0012** | [Exception Handling & Custom Exceptions](./0012_PLAN.md) | Xử lý lỗi có hệ thống | `exceptions/BaseException.java`<br>`exceptions/EntityNotFoundException.java`<br>`exceptions/InvalidEntityException.java`<br>`exceptions/BusinessLogicException.java`<br>`exceptions/PaymentException.java`<br>`exceptions/ValidationException.java` |
+
+---
+
+### Phase 5: Xây Dựng IO & UI (0009 - 0010)
 
 | #        | Tên Kế Hoạch                                    | Mô Tả                      | Tệp Tạo Mới                                                                                                                |
 | -------- | ----------------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
@@ -60,19 +79,32 @@ Dự án được chia thành **10 kế hoạch chính**, bao gồm model, manag
 └────────────────────┬────────────────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────────────────┐
+│         Exception Handling Layer (0012)                     │
+│  BaseException, BusinessLogicException, ValidationEx...    │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────────────────────┐
 │            Business Logic Layer (0008)                      │
 │  CustomerService, AppointmentService, InvoiceService...    │
 └────────────────────┬────────────────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────────────────┐
 │             Collection Manager Layer (0007)                 │
-│  CustomerMgr, ServiceMgr, AppointmentMgr, TransactionMgr...│
+│  CustomerMgr extends BaseManager<Customer>                 │
+│  ServiceMgr extends BaseManager<Service>                   │
+│  AppointmentMgr, TransactionMgr, DiscountMgr, etc...      │
 └────────────────────┬────────────────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────────────────┐
-│               Model Layer (0001-0006)                       │
-│  Customer, Service, Appointment, Discount, Transaction...  │
-│                   + Enums                                   │
+│            BaseManager<T> Generic Layer (0007a)             │
+│  add, update, delete, getById, getAll, filter, sort...     │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────────────────────┐
+│               Model Layer (0000-0006, 0011)                 │
+│  Person, Customer, Employee, Technician, Receptionist      │
+│  Service, Appointment, Discount, Transaction, Invoice      │
+│  + All Enums (AppointmentStatus, ServiceCategory, etc)     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -80,23 +112,53 @@ Dự án được chia thành **10 kế hoạch chính**, bao gồm model, manag
 
 ## Quy Trình Phát Triển Đề Nghị
 
-### Bước 1: Xây Dựng Model Cơ Bản (0001-0006)
+### ✅ Bước 1: Chuẩn Bị Cơ Sở (0000, 0007a)
+
+- Tạo Person base class (0000)
+- Tạo BaseManager generic class (0007a)
+- Giảm lặp code, cải thiện kiến trúc
+
+### ✅ Bước 2: Xây Dựng Model Cơ Bản (0001-0006)
 
 - Tạo các lớp model với các thuộc tính và getter/setter
+- Customer kế thừa từ Person
 - Thêm các enum cần thiết
 - Implement phương thức `equals()`, `hashCode()`, `toString()`
 
-### Bước 2: Xây Dựng Manager (0007)
+### ✅ Bước 3: Xây Dựng Nhân Viên (0011)
 
-- Tạo các lớp manager để quản lý dữ liệu
+- Tạo Employee, Receptionist, Technician classes
+- Quản lý lương, kỹ năng, hóa hồng
+- Implement EmployeeManager
+
+### ✅ Bước 4: Xây Dựng Exception Handling (0012)
+
+- Tạo custom exception classes
+- Chuẩn bị cho error handling trong Manager/Service
+
+### ✅ Bước 5: Xây Dựng Manager (0007)
+
+- Tạo các lớp manager extends BaseManager<T>
 - Implement các phương thức CRUD cơ bản
 - Thêm các phương thức tìm kiếm cụ thể
 
-### Bước 3: Xây Dựng Business Logic (0008)
+### ✅ Bước 6: Xây Dựng Business Logic (0008)
 
 - Tạo các service xử lý logic phức tạp
 - Kết nối các model với manager
-- Implement các tính toán như cập nhật tier, tính hóa đơn, v.v.
+- Implement các tính toán như cập nhật tier, tính hóa đơn
+
+### ✅ Bước 7: Xây Dựng Input/Output (0009)
+
+- Tạo InputHandler với validation
+- Tạo OutputFormatter để hiển thị dữ liệu
+- Tạo FileHandler (tùy chọn) cho lưu trữ
+
+### ✅ Bước 8: Xây Dựng Giao Diện Menu (0010)
+
+- Tạo menu console tương tác
+- Kết nối tất cả Service
+- Implement error handling từ exceptions
 
 ### Bước 4: Xây Dựng IO Handler (0009)
 
