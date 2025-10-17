@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.Locale;
+import java.util.Objects;
 
 public class Service implements Sellable {
 
@@ -154,4 +155,15 @@ public class Service implements Sellable {
     public void setServiceCategory(ServiceCategory serviceCategory) {
         this.serviceCategory = serviceCategory;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Service service = (Service) o;
+        return Objects.equals(serviceId, service.serviceId);    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serviceId);    }
 }
