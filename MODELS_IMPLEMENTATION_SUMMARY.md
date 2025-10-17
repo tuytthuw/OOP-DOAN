@@ -11,6 +11,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 ### 1. **Enums** (Enum - Kiểu Liệt Kê)
 
 #### ✅ enums/ServiceCategory.java
+
 - **Mô tả**: Enum phân loại các dịch vụ spa
 - **Các giá trị**:
   - `MASSAGE` - Xoa bóp, massage
@@ -23,6 +24,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 - **Trạng thái**: ✅ Đã tồn tại và hoàn chỉnh
 
 #### ✅ enums/TransactionStatus.java
+
 - **Mô tả**: Enum trạng thái giao dịch thanh toán
 - **Các giá trị**:
   - `PENDING` - Đang chờ xử lý
@@ -34,6 +36,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 ### 2. **Interfaces** (Giao Diện)
 
 #### ✅ Interfaces/Sellable.java
+
 - **Mô tả**: Interface định nghĩa hành vi cho các đối tượng có thể bán được
 - **Phương thức**:
   - `BigDecimal getPrice()` - Lấy giá bán
@@ -46,6 +49,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 ### 3. **Models - Base Class**
 
 #### ✅ models/Person.java (Kế hoạch 0000)
+
 - **Loại**: Abstract class (Lớp trừu tượng)
 - **Mô tả**: Lớp cơ sở cho tất cả người dùng (Customer, Employee, Receptionist, Technician)
 - **Thuộc tính chính**:
@@ -68,6 +72,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 ### 4. **Models - Core Models**
 
 #### ✅ models/Customer.java (Kế hoạch 0001)
+
 - **Loại**: Concrete class
 - **Mô tả**: Lớp đại diện cho khách hàng spa
 - **Kế thừa**: Person
@@ -90,6 +95,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 - **Trạng thái**: ✅ Đã tồn tại và hoàn chỉnh
 
 #### ✅ models/Service.java (Kế hoạch 0002)
+
 - **Loại**: Concrete class
 - **Mô tả**: Lớp đại diện cho các dịch vụ spa
 - **Kế thừa**: Không kế thừa
@@ -112,6 +118,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 - **Trạng thái**: ✅ Đã tồn tại và hoàn chỉnh
 
 #### ✅ models/Appointment.java (Kế hoạch 0003)
+
 - **Loại**: Concrete class
 - **Mô tả**: Lớp đại diện cho lịch hẹn dịch vụ
 - **Implement**: IEntity
@@ -137,6 +144,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 - **Trạng thái**: ✅ Đã tồn tại và hoàn chỉnh
 
 #### ✅ models/Discount.java (Kế hoạch 0004)
+
 - **Loại**: Concrete class
 - **Mô tả**: Lớp quản lý chương trình khuyến mãi/chiết khấu
 - **Implement**: IEntity
@@ -164,6 +172,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 - **Trạng thái**: ✅ Đã tồn tại và hoàn chỉnh
 
 #### ✅ models/Transaction.java (Kế hoạch 0005)
+
 - **Loại**: Concrete class
 - **Mô tả**: Lớp ghi nhận giao dịch thanh toán
 - **Implement**: IEntity
@@ -187,6 +196,7 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 - **Trạng thái**: ✅ Đã tồn tại và hoàn chỉnh
 
 #### ✅ models/Invoice.java (Kế hoạch 0006)
+
 - **Loại**: Concrete class
 - **Mô tả**: Lớp quản lý hóa đơn chi tiết
 - **Implement**: IEntity
@@ -221,13 +231,13 @@ Toàn bộ các models đã được triển khai thành công theo kế hoạch
 
 ## 📊 TÓẢM LẠC THỐNG KÊ
 
-| Loại Tệp | Số Lượng | Trạng Thái |
-|----------|----------|----------|
-| **Enums** | 2 | ✅ Hoàn chỉnh |
-| **Interfaces** | 1 | ✅ Hoàn chỉnh |
-| **Base Class** | 1 | ✅ Hoàn chỉnh |
-| **Core Models** | 6 | ✅ Hoàn chỉnh |
-| **TỔNG CỘNG** | **10** | ✅ **HOÀN THÀNH** |
+| Loại Tệp        | Số Lượng | Trạng Thái        |
+| --------------- | -------- | ----------------- |
+| **Enums**       | 2        | ✅ Hoàn chỉnh     |
+| **Interfaces**  | 1        | ✅ Hoàn chỉnh     |
+| **Base Class**  | 1        | ✅ Hoàn chỉnh     |
+| **Core Models** | 6        | ✅ Hoàn chỉnh     |
+| **TỔNG CỘNG**   | **10**   | ✅ **HOÀN THÀNH** |
 
 ---
 
@@ -256,36 +266,42 @@ Invoice (Hóa đơn - Link: Appointment + Customer + Discount)
 ## ✨ TÍNH NĂNG CHÍNH ĐÃ TRIỂN KHAI
 
 ### ✅ Tính Năng Quản Lý Khách Hàng
+
 - Lưu trữ và cập nhật thông tin khách hàng
 - Quản lý tier membership dựa trên chi tiêu
 - Theo dõi lợi sử dụng dịch vụ gần nhất
 - Soft delete (xóa logic) không xóa vĩnh viễn
 
 ### ✅ Tính Năng Quản Lý Dịch Vụ
+
 - Định dạng thông tin dịch vụ (giá, thời gian)
 - Phân loại dịch vụ (MASSAGE, FACIAL, etc.)
 - Kiểm tra khả dụng (khối hạng động)
 - Implement Sellable interface cho quản lý bán hàng
 
 ### ✅ Tính Năng Quản Lý Lịch Hẹn
+
 - Quản lý trạng thái lịch hẹn (SCHEDULED → SPENDING → COMPLETED)
 - Gán nhân viên cho lịch hẹn
 - Kiểm tra lịch hẹn quá hạn
 - Lưu thời gian hoàn thành
 
 ### ✅ Tính Năng Quản Lý Chiết Khấu
+
 - Hỗ trợ hai loại chiết khấu (%, tiền cố định)
 - Kiểm tra hợp lệ theo ngày và điều kiện
 - Giới hạn sử dụng (unlimited hoặc cố định)
 - Tính toán chiết khấu tối đa
 
 ### ✅ Tính Năng Quản Lý Giao Dịch
+
 - Xử lý thanh toán (PENDING → SUCCESS)
 - Xử lý hoàn tiền (REFUNDED)
 - Theo dõi phương thức thanh toán
 - Định dạng số tiền
 
 ### ✅ Tính Năng Quản Lý Hóa Đơn
+
 - Tính toán tổng tiền (Subtotal - Chiết khấu + Thuế)
 - Áp dụng chiết khấu động
 - Tính thuế dựa trên tỷ lệ
@@ -296,23 +312,27 @@ Invoice (Hóa đơn - Link: Appointment + Customer + Discount)
 ## 🎯 TUÂN THỦ QUI TẮC
 
 ### ✅ Clean Code
+
 - Tên biến/method rõ ràng và có ý nghĩa
 - Phương thức ngắn gọn, mỗi phương thức một trách nhiệm
 - Không lặp lại logic (DRY principle)
 - Xử lý exception rõ ràng
 
 ### ✅ Google Java Style Guide
+
 - Thụt lề: 4 spaces (không dùng tab)
 - Giới hạn dòng: 100 ký tự
 - Dấu ngoặc: `{` cuối cùng, `}` bắt đầu dòng mới
 - Đặt tên: `lowerCamelCase` cho biến/method, `UpperCamelCase` cho class
 
 ### ✅ Comment Tiếng Việt
+
 - Javadoc bắt buộc cho class và public method
 - Comment logic phức tạp bằng tiếng Việt
 - Dùng `// TODO:` và `// FIXME:` khi cần
 
 ### ✅ Thiết Kế OOP
+
 - Sử dụng inheritance (Person base class)
 - Implement interface (IEntity, Sellable)
 - Encapsulation (private attributes + public getters/setters)
@@ -323,6 +343,7 @@ Invoice (Hóa đơn - Link: Appointment + Customer + Discount)
 ## 📝 GHI CHÚ TIẾP THEO
 
 Các kế hoạch tiếp theo sẽ triển khai:
+
 - **Kế hoạch 0007a**: BaseManager<T> generic class
 - **Kế hoạch 0007**: Manager classes (CustomerManager, ServiceManager, etc.)
 - **Kế hoạch 0008**: Business Logic Services
