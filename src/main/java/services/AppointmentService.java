@@ -6,13 +6,16 @@ import collections.AppointmentManager;
 import collections.CustomerManager;
 import collections.ServiceManager;
 import enums.AppointmentStatus;
+import exceptions.BusinessLogicException;
+import exceptions.EntityNotFoundException;
+import exceptions.ValidationException;
 import models.Appointment;
 import models.Customer;
-import models.Service;
 
 /**
  * Service quản lý logic nghiệp vụ lịch hẹn.
  * Xử lý các thao tác như đặt lịch, hủy, sắp xếp lại và hoàn thành lịch hẹn.
+ * Throws exceptions thay vì return false hoặc in error message.
  */
 public class AppointmentService {
 
@@ -40,74 +43,78 @@ public class AppointmentService {
      * @param customerId          ID khách hàng
      * @param serviceId           ID dịch vụ
      * @param appointmentDateTime Thời gian hẹn
-     * @return Lịch hẹn vừa tạo hoặc null nếu thất bại
+     * @return Lịch hẹn vừa tạo
+     * @throws EntityNotFoundException nếu khách hàng hoặc dịch vụ không tồn tại
+     * @throws ValidationException     nếu thời gian hẹn không hợp lệ
+     * @throws BusinessLogicException  nếu vi phạm business rule
      */
-    public Appointment bookAppointment(String customerId, String serviceId, LocalDateTime appointmentDateTime) {
-        // Kiểm tra khách hàng tồn tại
-        Customer customer = customerManager.getById(customerId);
-        if (customer == null) {
-            System.out.println("❌ Khách hàng không tồn tại!");
-            return null;
-        }
-
-        // Kiểm tra dịch vụ tồn tại
-        Service service = serviceManager.getById(serviceId);
-        if (service == null) {
-            System.out.println("❌ Dịch vụ không tồn tại!");
-            return null;
-        }
+    public Appointment bookAppointment(String customerId, String serviceId, LocalDateTime appointmentDateTime)
+            throws EntityNotFoundException, ValidationException, BusinessLogicException {
 
         // Kiểm tra thời gian hẹn không trong quá khứ
         if (appointmentDateTime.isBefore(LocalDateTime.now())) {
-            System.out.println("❌ Thời gian hẹn không được trong quá khứ!");
-            return null;
+            throw new ValidationException("Thời gian hẹn",
+                    "Không được là thời gian trong quá khứ");
         }
 
-        // Sinh ID mới
-        String appointmentId = generateAppointmentId();
+        try {
+            // Kiểm tra khách hàng tồn tại
+            customerManager.getById(customerId);
 
-        // Tạo lịch hẹn mới
-        Appointment appointment = new Appointment(appointmentId, customerId, serviceId, appointmentDateTime);
+            // Kiểm tra dịch vụ tồn tại
+            serviceManager.getById(serviceId);
 
-        // Thêm vào Manager
-        if (appointmentManager.add(appointment)) {
-            System.out.println("✅ Đặt lịch hẹn thành công!");
+            // Sinh ID mới
+            String appointmentId = generateAppointmentId();
+
+            // Tạo lịch hẹn mới
+            Appointment appointment = new Appointment(appointmentId, customerId, serviceId, appointmentDateTime);
+
+            // Thêm vào Manager
+            appointmentManager.add(appointment);
             return appointment;
-        }
 
-        System.out.println("❌ Lỗi khi tạo lịch hẹn!");
-        return null;
+        } catch (EntityNotFoundException e) {
+            throw e;
+        } catch (exceptions.InvalidEntityException | exceptions.EntityAlreadyExistsException e) {
+            throw new BusinessLogicException(
+                    "đặt lịch hẹn",
+                    e.getErrorMessage());
+        }
     }
 
     /**
      * Hủy lịch hẹn.
      *
      * @param appointmentId ID lịch hẹn
-     * @return true nếu hủy thành công, false nếu thất bại
+     * @return true nếu hủy thành công
+     * @throws EntityNotFoundException nếu lịch hẹn không tồn tại
+     * @throws BusinessLogicException  nếu không thể hủy ở trạng thái hiện tại
      */
-    public boolean cancelAppointment(String appointmentId) {
-        Appointment appointment = appointmentManager.getById(appointmentId);
-        if (appointment == null) {
-            System.out.println("❌ Lịch hẹn không tồn tại!");
-            return false;
-        }
+    public boolean cancelAppointment(String appointmentId)
+            throws EntityNotFoundException, BusinessLogicException {
 
-        // Chỉ có thể hủy lịch ở trạng thái SCHEDULED hoặc SPENDING
-        if (appointment.getStatus() != AppointmentStatus.SCHEDULED &&
-                appointment.getStatus() != AppointmentStatus.SPENDING) {
-            System.out.println("❌ Không thể hủy lịch hẹn ở trạng thái hiện tại!");
-            return false;
-        }
+        try {
+            Appointment appointment = appointmentManager.getById(appointmentId);
 
-        appointment.markAsCancelled();
+            // Chỉ có thể hủy lịch ở trạng thái SCHEDULED hoặc SPENDING
+            if (appointment.getStatus() != AppointmentStatus.SCHEDULED &&
+                    appointment.getStatus() != AppointmentStatus.SPENDING) {
+                throw new BusinessLogicException(
+                        "hủy lịch hẹn",
+                        "Lịch hẹn ở trạng thái " + appointment.getStatus() + " không thể hủy");
+            }
 
-        if (appointmentManager.update(appointment)) {
-            System.out.println("✅ Hủy lịch hẹn thành công!");
+            appointment.markAsCancelled();
+
+            appointmentManager.update(appointment);
             return true;
-        }
 
-        System.out.println("❌ Lỗi khi hủy lịch hẹn!");
-        return false;
+        } catch (EntityNotFoundException e) {
+            throw e;
+        } catch (exceptions.InvalidEntityException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -116,116 +123,130 @@ public class AppointmentService {
      *
      * @param appointmentId ID lịch hẹn
      * @param newDateTime   Thời gian mới
-     * @return true nếu sắp xếp thành công, false nếu thất bại
+     * @return true nếu sắp xếp thành công
+     * @throws EntityNotFoundException nếu lịch hẹn không tồn tại
+     * @throws ValidationException     nếu thời gian không hợp lệ
+     * @throws BusinessLogicException  nếu không thể sắp xếp lại ở trạng thái hiện
+     *                                 tại
      */
-    public boolean rescheduleAppointment(String appointmentId, LocalDateTime newDateTime) {
-        Appointment appointment = appointmentManager.getById(appointmentId);
-        if (appointment == null) {
-            System.out.println("❌ Lịch hẹn không tồn tại!");
-            return false;
-        }
-
-        // Chỉ có thể sắp xếp lại lịch ở trạng thái SCHEDULED
-        if (appointment.getStatus() != AppointmentStatus.SCHEDULED) {
-            System.out.println("❌ Chỉ có thể sắp xếp lại lịch ở trạng thái SCHEDULED!");
-            return false;
-        }
+    public boolean rescheduleAppointment(String appointmentId, LocalDateTime newDateTime)
+            throws EntityNotFoundException, ValidationException, BusinessLogicException {
 
         // Kiểm tra thời gian mới không trong quá khứ
         if (newDateTime.isBefore(LocalDateTime.now())) {
-            System.out.println("❌ Thời gian hẹn mới không được trong quá khứ!");
-            return false;
+            throw new ValidationException("Thời gian hẹn mới",
+                    "Không được là thời gian trong quá khứ");
         }
 
-        // Xóa lịch cũ
-        appointmentManager.delete(appointmentId);
+        try {
+            Appointment appointment = appointmentManager.getById(appointmentId);
 
-        // Tạo lịch hẹn mới với thời gian được cập nhật
-        Appointment newAppointment = new Appointment(
-                generateAppointmentId(),
-                appointment.getCustomerId(),
-                appointment.getServiceId(),
-                newDateTime);
+            // Chỉ có thể sắp xếp lại lịch ở trạng thái SCHEDULED
+            if (appointment.getStatus() != AppointmentStatus.SCHEDULED) {
+                throw new BusinessLogicException(
+                        "sắp xếp lại lịch hẹn",
+                        "Lịch hẹn phải ở trạng thái SCHEDULED");
+            }
 
-        // Gán lại nhân viên nếu có
-        if (appointment.getStaffId() != null) {
-            newAppointment.assignStaff(appointment.getStaffId());
-        }
+            // Xóa lịch cũ
+            appointmentManager.delete(appointmentId);
 
-        if (appointmentManager.add(newAppointment)) {
-            System.out.println("✅ Sắp xếp lại lịch hẹn thành công!");
+            // Tạo lịch hẹn mới với thời gian được cập nhật
+            Appointment newAppointment = new Appointment(
+                    generateAppointmentId(),
+                    appointment.getCustomerId(),
+                    appointment.getServiceId(),
+                    newDateTime);
+
+            // Gán lại nhân viên nếu có
+            if (appointment.getStaffId() != null) {
+                newAppointment.assignStaff(appointment.getStaffId());
+            }
+
+            appointmentManager.add(newAppointment);
             return true;
-        }
 
-        System.out.println("❌ Lỗi khi sắp xếp lại lịch hẹn!");
-        return false;
+        } catch (EntityNotFoundException | BusinessLogicException e) {
+            throw e;
+        } catch (exceptions.InvalidEntityException | exceptions.EntityAlreadyExistsException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Bắt đầu dịch vụ (cập nhật trạng thái từ SCHEDULED sang SPENDING).
      *
      * @param appointmentId ID lịch hẹn
-     * @return true nếu bắt đầu thành công, false nếu thất bại
+     * @return true nếu bắt đầu thành công
+     * @throws EntityNotFoundException nếu lịch hẹn không tồn tại
+     * @throws BusinessLogicException  nếu lịch hẹn không ở trạng thái SCHEDULED
      */
-    public boolean startAppointment(String appointmentId) {
-        Appointment appointment = appointmentManager.getById(appointmentId);
-        if (appointment == null) {
-            System.out.println("❌ Lịch hẹn không tồn tại!");
-            return false;
-        }
+    public boolean startAppointment(String appointmentId)
+            throws EntityNotFoundException, BusinessLogicException {
 
-        // Chỉ có thể bắt đầu từ trạng thái SCHEDULED
-        if (appointment.getStatus() != AppointmentStatus.SCHEDULED) {
-            System.out.println("❌ Lịch hẹn phải ở trạng thái SCHEDULED!");
-            return false;
-        }
+        try {
+            Appointment appointment = appointmentManager.getById(appointmentId);
 
-        appointment.updateStatus(AppointmentStatus.SPENDING);
+            // Chỉ có thể bắt đầu từ trạng thái SCHEDULED
+            if (appointment.getStatus() != AppointmentStatus.SCHEDULED) {
+                throw new BusinessLogicException(
+                        "bắt đầu dịch vụ",
+                        "Lịch hẹn phải ở trạng thái SCHEDULED");
+            }
 
-        if (appointmentManager.update(appointment)) {
-            System.out.println("✅ Bắt đầu dịch vụ thành công!");
+            appointment.updateStatus(AppointmentStatus.SPENDING);
+
+            appointmentManager.update(appointment);
             return true;
-        }
 
-        System.out.println("❌ Lỗi khi bắt đầu dịch vụ!");
-        return false;
+        } catch (EntityNotFoundException | BusinessLogicException e) {
+            throw e;
+        } catch (exceptions.InvalidEntityException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Hoàn thành dịch vụ (cập nhật trạng thái từ SPENDING sang COMPLETED).
      *
      * @param appointmentId ID lịch hẹn
-     * @return true nếu hoàn thành thành công, false nếu thất bại
+     * @return true nếu hoàn thành thành công
+     * @throws EntityNotFoundException nếu lịch hẹn không tồn tại
+     * @throws BusinessLogicException  nếu lịch hẹn không ở trạng thái SPENDING
      */
-    public boolean completeAppointment(String appointmentId) {
-        Appointment appointment = appointmentManager.getById(appointmentId);
-        if (appointment == null) {
-            System.out.println("❌ Lịch hẹn không tồn tại!");
-            return false;
-        }
+    public boolean completeAppointment(String appointmentId)
+            throws EntityNotFoundException, BusinessLogicException {
 
-        // Chỉ có thể hoàn thành từ trạng thái SPENDING
-        if (appointment.getStatus() != AppointmentStatus.SPENDING) {
-            System.out.println("❌ Lịch hẹn phải ở trạng thái SPENDING!");
-            return false;
-        }
+        try {
+            Appointment appointment = appointmentManager.getById(appointmentId);
 
-        appointment.markAsCompleted();
+            // Chỉ có thể hoàn thành từ trạng thái SPENDING
+            if (appointment.getStatus() != AppointmentStatus.SPENDING) {
+                throw new BusinessLogicException(
+                        "hoàn thành dịch vụ",
+                        "Lịch hẹn phải ở trạng thái SPENDING");
+            }
 
-        // Cập nhật ngày ghé thăm cuối cùng của khách hàng
-        Customer customer = customerManager.getById(appointment.getCustomerId());
-        if (customer != null) {
-            customer.setLastValidDate(java.time.LocalDate.now());
-            customerManager.update(customer);
-        }
+            appointment.markAsCompleted();
 
-        if (appointmentManager.update(appointment)) {
-            System.out.println("✅ Hoàn thành dịch vụ thành công!");
+            // Cập nhật ngày ghé thăm cuối cùng của khách hàng
+            try {
+                Customer customer = customerManager.getById(appointment.getCustomerId());
+                customer.setLastValidDate(java.time.LocalDate.now());
+                customerManager.update(customer);
+            } catch (exceptions.InvalidEntityException | exceptions.EntityNotFoundException e) {
+                // Log nhưng không throw - cập nhật appointment vẫn tiếp tục
+                System.err.println("Cảnh báo: Không thể cập nhật ngày ghé thăm khách hàng");
+            }
+
+            appointmentManager.update(appointment);
             return true;
-        }
 
-        System.out.println("❌ Lỗi khi hoàn thành dịch vụ!");
-        return false;
+        } catch (EntityNotFoundException | BusinessLogicException e) {
+            throw e;
+        } catch (exceptions.InvalidEntityException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -233,24 +254,25 @@ public class AppointmentService {
      *
      * @param appointmentId ID lịch hẹn
      * @param staffId       ID nhân viên
-     * @return true nếu gán thành công, false nếu thất bại
+     * @return true nếu gán thành công
+     * @throws EntityNotFoundException nếu lịch hẹn không tồn tại
      */
-    public boolean assignStaffToAppointment(String appointmentId, String staffId) {
-        Appointment appointment = appointmentManager.getById(appointmentId);
-        if (appointment == null) {
-            System.out.println("❌ Lịch hẹn không tồn tại!");
-            return false;
-        }
+    public boolean assignStaffToAppointment(String appointmentId, String staffId)
+            throws EntityNotFoundException {
 
-        appointment.assignStaff(staffId);
+        try {
+            Appointment appointment = appointmentManager.getById(appointmentId);
 
-        if (appointmentManager.update(appointment)) {
-            System.out.println("✅ Gán nhân viên thành công!");
+            appointment.assignStaff(staffId);
+
+            appointmentManager.update(appointment);
             return true;
-        }
 
-        System.out.println("❌ Lỗi khi gán nhân viên!");
-        return false;
+        } catch (EntityNotFoundException e) {
+            throw e;
+        } catch (exceptions.InvalidEntityException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

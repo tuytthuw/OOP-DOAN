@@ -1,5 +1,8 @@
 package collections;
 
+import exceptions.EntityAlreadyExistsException;
+import exceptions.EntityNotFoundException;
+import exceptions.InvalidEntityException;
 import interfaces.IEntity;
 
 /**
@@ -43,16 +46,23 @@ public abstract class BaseManager<T extends IEntity> {
      * Thêm một phần tử mới vào danh sách.
      * 
      * @param item Phần tử cần thêm
-     * @return true nếu thêm thành công, false nếu thất bại
+     * @return true nếu thêm thành công
+     * @throws InvalidEntityException       nếu item là null
+     * @throws EntityAlreadyExistsException nếu ID đã tồn tại
      */
-    public boolean add(T item) {
+    public boolean add(T item) throws InvalidEntityException, EntityAlreadyExistsException {
         if (item == null) {
-            return false;
+            throw new InvalidEntityException(
+                    item != null ? item.getClass().getSimpleName() : "Entity",
+                    "Đối tượng không được null");
         }
 
         // Nếu ID đã tồn tại
         if (exists(item.getId())) {
-            return false;
+            throw new EntityAlreadyExistsException(
+                    item.getClass().getSimpleName(),
+                    "ID",
+                    item.getId());
         }
 
         // Nếu mảy đầy, resize
@@ -69,16 +79,22 @@ public abstract class BaseManager<T extends IEntity> {
      * Cập nhật một phần tử trong danh sách.
      * 
      * @param item Phần tử cần cập nhật
-     * @return true nếu cập nhật thành công, false nếu thất bại
+     * @return true nếu cập nhật thành công
+     * @throws InvalidEntityException  nếu item là null
+     * @throws EntityNotFoundException nếu không tìm thấy phần tử cần cập nhật
      */
-    public boolean update(T item) {
+    public boolean update(T item) throws InvalidEntityException, EntityNotFoundException {
         if (item == null) {
-            return false;
+            throw new InvalidEntityException(
+                    "Entity",
+                    "Đối tượng không được null");
         }
 
         int index = findIndex(item.getId());
         if (index == -1) {
-            return false;
+            throw new EntityNotFoundException(
+                    item.getClass().getSimpleName(),
+                    item.getId());
         }
 
         items[index] = item;
@@ -89,16 +105,22 @@ public abstract class BaseManager<T extends IEntity> {
      * Xóa một phần tử từ danh sách theo ID.
      * 
      * @param id ID của phần tử cần xóa
-     * @return true nếu xóa thành công, false nếu thất bại
+     * @return true nếu xóa thành công
+     * @throws InvalidEntityException  nếu ID là null hoặc rỗng
+     * @throws EntityNotFoundException nếu không tìm thấy phần tử cần xóa
      */
-    public boolean delete(String id) {
+    public boolean delete(String id) throws InvalidEntityException, EntityNotFoundException {
         if (id == null || id.isEmpty()) {
-            return false;
+            throw new InvalidEntityException(
+                    "Entity",
+                    "ID không được null hoặc rỗng");
         }
 
         int index = findIndex(id);
         if (index == -1) {
-            return false;
+            throw new EntityNotFoundException(
+                    "Entity",
+                    id);
         }
 
         // Dịch chuyển các phần tử sau lên
@@ -115,15 +137,25 @@ public abstract class BaseManager<T extends IEntity> {
      * Lấy phần tử theo ID.
      * 
      * @param id ID của phần tử cần tìm
-     * @return Phần tử nếu tìm thấy, null nếu không
+     * @return Phần tử nếu tìm thấy
+     * @throws InvalidEntityException  nếu ID là null hoặc rỗng
+     * @throws EntityNotFoundException nếu không tìm thấy phần tử
      */
-    public T getById(String id) {
+    public T getById(String id) throws InvalidEntityException, EntityNotFoundException {
         if (id == null || id.isEmpty()) {
-            return null;
+            throw new InvalidEntityException(
+                    "Entity",
+                    "ID không được null hoặc rỗng");
         }
 
         int index = findIndex(id);
-        return index == -1 ? null : items[index];
+        if (index == -1) {
+            throw new EntityNotFoundException(
+                    "Entity",
+                    id);
+        }
+
+        return items[index];
     }
 
     /**
@@ -147,7 +179,10 @@ public abstract class BaseManager<T extends IEntity> {
      * @return true nếu tồn tại, false nếu không
      */
     public boolean exists(String id) {
-        return getById(id) != null;
+        if (id == null || id.isEmpty()) {
+            return false;
+        }
+        return findIndex(id) != -1;
     }
 
     /**
