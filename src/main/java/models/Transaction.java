@@ -1,5 +1,6 @@
 package models;
 
+import Interfaces.IEntity;
 import enums.PaymentMethod;
 import enums.TransactionStatus;
 
@@ -7,8 +8,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.Scanner;
 
-public class Transaction {
+public class Transaction implements IEntity {
     private String transactionId;
     private String appointmentId;
     private String customerId;
@@ -32,6 +34,40 @@ public class Transaction {
         this.notes = notes;
         this.refundedAmount = refundedAmount;
     }
+    // ===================== ENTITY METHODS =====================
+
+    @Override
+    public String getId() {
+        return transactionId;
+    }
+
+    @Override
+    public void display() {
+        System.out.println(getTransactionInfo());
+    }
+
+    @Override
+    public void input() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Nhập mã giao dịch: ");
+        this.transactionId = sc.nextLine();
+        System.out.print("Nhập mã lịch hẹn: ");
+        this.appointmentId = sc.nextLine();
+        System.out.print("Nhập mã khách hàng: ");
+        this.customerId = sc.nextLine();
+        System.out.print("Nhập số tiền: ");
+        this.amount = sc.nextBigDecimal();
+        System.out.print("Phương thức (CASH, CARD, TRANSFER, E_WALLET): ");
+        this.paymentMethod = PaymentMethod.valueOf(sc.next().toUpperCase());
+        this.transactionDate = LocalDateTime.now();
+        this.status = TransactionStatus.PENDING;
+        this.refundedAmount = BigDecimal.ZERO;
+    }
+    @Override
+    public String getPrefix() {
+        return "TXN";
+    }
+
     //Xử  lý thanh toán
     public void processPayment(){
         this.status = TransactionStatus.SUCCESS;
