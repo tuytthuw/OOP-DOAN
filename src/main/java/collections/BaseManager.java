@@ -1,5 +1,7 @@
 package collections;
 
+import java.lang.reflect.Array;
+
 import exceptions.EntityAlreadyExistsException;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidEntityException;
@@ -28,16 +30,21 @@ public abstract class BaseManager<T extends IEntity> {
     /** Dung lượng ban đầu mặc định */
     protected static final int DEFAULT_CAPACITY = 10;
 
+    /** Kiểu của generic class T */
+    protected Class<T> elementType;
+
     // ========== CONSTRUCTOR ==========
 
     /**
      * Khởi tạo Manager với dung lượng mặc định.
+     * 
+     * @param elementType Kiểu class của phần tử (T.class)
      */
-    @SuppressWarnings("unchecked")
-    public BaseManager() {
+    public BaseManager(Class<T> elementType) {
+        this.elementType = elementType;
         this.capacity = DEFAULT_CAPACITY;
-        // Tạo mảy IEntity vì tất cả phần tử đều implement IEntity
-        this.items = (T[]) new IEntity[capacity];
+        // Tạo mảy đúng loại T sử dụng java.lang.reflect.Array
+        this.items = (T[]) Array.newInstance(elementType, capacity);
         this.size = 0;
     }
 
@@ -216,8 +223,8 @@ public abstract class BaseManager<T extends IEntity> {
     @SuppressWarnings("unchecked")
     protected void resize() {
         int newCapacity = capacity * 2;
-        // Tạo mảy IEntity vì tất cả phần tử đều implement IEntity
-        T[] newItems = (T[]) new IEntity[newCapacity];
+        // Tạo mảy đúng loại T sử dụng java.lang.reflect.Array
+        T[] newItems = (T[]) Array.newInstance(elementType, newCapacity);
 
         // Copy tất cả phần tử từ mảy cũ sang mảy mới
         for (int i = 0; i < size; i++) {

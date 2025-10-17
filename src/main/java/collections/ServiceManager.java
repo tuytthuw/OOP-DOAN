@@ -12,6 +12,13 @@ import models.Service;
 public class ServiceManager extends BaseManager<Service> {
 
     /**
+     * Constructor khởi tạo ServiceManager.
+     */
+    public ServiceManager() {
+        super(Service.class);
+    }
+
+    /**
      * Lấy tất cả dịch vụ.
      * 
      * @return Mảy chứa tất cả dịch vụ hiện tại
@@ -21,8 +28,8 @@ public class ServiceManager extends BaseManager<Service> {
         // Tạo mảy Service mới và copy từng phần tử một
         Service[] result = new Service[size];
         for (int i = 0; i < size; i++) {
-            // Cast từng phần tử từ IEntity sang Service
-            result[i] = (Service) items[i];
+            // Các phần tử đã là Service nên không cần cast
+            result[i] = items[i];
         }
         return result;
     }

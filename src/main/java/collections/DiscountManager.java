@@ -12,6 +12,13 @@ import models.Discount;
 public class DiscountManager extends BaseManager<Discount> {
 
     /**
+     * Constructor khởi tạo DiscountManager.
+     */
+    public DiscountManager() {
+        super(Discount.class);
+    }
+
+    /**
      * Lấy tất cả chiết khấu.
      * 
      * @return Mảy chứa tất cả chiết khấu hiện tại
@@ -21,8 +28,8 @@ public class DiscountManager extends BaseManager<Discount> {
         // Tạo mảy Discount mới và copy từng phần tử một
         Discount[] result = new Discount[size];
         for (int i = 0; i < size; i++) {
-            // Cast từng phần tử từ IEntity sang Discount
-            result[i] = (Discount) items[i];
+            // Các phần tử đã là Discount nên không cần cast
+            result[i] = items[i];
         }
         return result;
     }

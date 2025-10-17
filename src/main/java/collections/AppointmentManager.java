@@ -13,6 +13,13 @@ import models.Appointment;
 public class AppointmentManager extends BaseManager<Appointment> {
 
     /**
+     * Constructor khởi tạo AppointmentManager.
+     */
+    public AppointmentManager() {
+        super(Appointment.class);
+    }
+
+    /**
      * Lấy tất cả lịch hẹn.
      * 
      * @return Mảy chứa tất cả lịch hẹn hiện tại
@@ -22,8 +29,8 @@ public class AppointmentManager extends BaseManager<Appointment> {
         // Tạo mảy Appointment mới và copy từng phần tử một
         Appointment[] result = new Appointment[size];
         for (int i = 0; i < size; i++) {
-            // Cast từng phần tử từ IEntity sang Appointment
-            result[i] = (Appointment) items[i];
+            // Các phần tử đã là Appointment nên không cần cast
+            result[i] = items[i];
         }
         return result;
     }

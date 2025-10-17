@@ -14,6 +14,13 @@ import models.Transaction;
 public class TransactionManager extends BaseManager<Transaction> {
 
     /**
+     * Constructor khởi tạo TransactionManager.
+     */
+    public TransactionManager() {
+        super(Transaction.class);
+    }
+
+    /**
      * Lấy tất cả giao dịch.
      * 
      * @return Mảy chứa tất cả giao dịch hiện tại
@@ -23,8 +30,8 @@ public class TransactionManager extends BaseManager<Transaction> {
         // Tạo mảy Transaction mới và copy từng phần tử một
         Transaction[] result = new Transaction[size];
         for (int i = 0; i < size; i++) {
-            // Cast từng phần tử từ IEntity sang Transaction
-            result[i] = (Transaction) items[i];
+            // Các phần tử đã là Transaction nên không cần cast
+            result[i] = items[i];
         }
         return result;
     }

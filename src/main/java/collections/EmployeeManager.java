@@ -20,7 +20,7 @@ public class EmployeeManager extends BaseManager<Employee> {
      * Constructor khởi tạo EmployeeManager với dung lượng mặc định.
      */
     public EmployeeManager() {
-        super();
+        super(Employee.class);
     }
 
     // ============ CÁC PHƯƠNG THỨC TRỪu TƯỢNG ============
@@ -35,8 +35,8 @@ public class EmployeeManager extends BaseManager<Employee> {
         // Tạo mảy Employee mới và copy từng phần tử một
         Employee[] result = new Employee[size];
         for (int i = 0; i < size; i++) {
-            // Cast từng phần tử từ IEntity sang Employee
-            result[i] = (Employee) items[i];
+            // Các phần tử đã là Employee nên không cần cast
+            result[i] = items[i];
         }
         return result;
     }

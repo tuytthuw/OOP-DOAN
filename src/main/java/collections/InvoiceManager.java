@@ -12,6 +12,13 @@ import models.Invoice;
 public class InvoiceManager extends BaseManager<Invoice> {
 
     /**
+     * Constructor khởi tạo InvoiceManager.
+     */
+    public InvoiceManager() {
+        super(Invoice.class);
+    }
+
+    /**
      * Lấy tất cả hóa đơn.
      * 
      * @return Mảy chứa tất cả hóa đơn hiện tại
@@ -21,8 +28,8 @@ public class InvoiceManager extends BaseManager<Invoice> {
         // Tạo mảy Invoice mới và copy từng phần tử một
         Invoice[] result = new Invoice[size];
         for (int i = 0; i < size; i++) {
-            // Cast từng phần tử từ IEntity sang Invoice
-            result[i] = (Invoice) items[i];
+            // Các phần tử đã là Invoice nên không cần cast
+            result[i] = items[i];
         }
         return result;
     }

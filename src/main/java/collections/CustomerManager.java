@@ -10,6 +10,13 @@ import models.Customer;
 public class CustomerManager extends BaseManager<Customer> {
 
     /**
+     * Constructor khởi tạo CustomerManager.
+     */
+    public CustomerManager() {
+        super(Customer.class);
+    }
+
+    /**
      * Lấy tất cả khách hàng.
      * 
      * @return Mảy chứa tất cả khách hàng hiện tại
@@ -19,8 +26,8 @@ public class CustomerManager extends BaseManager<Customer> {
         // Tạo mảy Customer mới và copy từng phần tử một
         Customer[] result = new Customer[size];
         for (int i = 0; i < size; i++) {
-            // Cast từng phần tử từ IEntity sang Customer
-            result[i] = (Customer) items[i];
+            // Các phần tử đã là Customer nên không cần cast
+            result[i] = items[i];
         }
         return result;
     }
