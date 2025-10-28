@@ -21,9 +21,10 @@ public class Service implements IEntity, Sellable {
     private LocalDate createdDate;
     private boolean active;
     private ServiceCategory category;
+    private boolean deleted;
 
     public Service() {
-        this("", "", BigDecimal.ZERO, 0, 0, "", null, true, ServiceCategory.MASSAGE);
+        this("", "", BigDecimal.ZERO, 0, 0, "", null, true, ServiceCategory.MASSAGE, false);
     }
 
     public Service(String serviceId,
@@ -34,7 +35,8 @@ public class Service implements IEntity, Sellable {
                    String description,
                    LocalDate createdDate,
                    boolean active,
-                   ServiceCategory category) {
+                   ServiceCategory category,
+                   boolean deleted) {
         this.serviceId = serviceId;
         this.serviceName = serviceName;
         this.basePrice = basePrice;
@@ -44,6 +46,7 @@ public class Service implements IEntity, Sellable {
         this.createdDate = createdDate;
         this.active = active;
         this.category = category;
+        this.deleted = deleted;
     }
 
     @Override
@@ -147,5 +150,13 @@ public class Service implements IEntity, Sellable {
 
     public boolean isAvailable() {
         return active;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

@@ -3,6 +3,7 @@ package com.spa.data;
 import com.spa.interfaces.IActionManager;
 import com.spa.interfaces.IDataManager;
 import com.spa.interfaces.IEntity;
+import com.spa.model.Person;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Kho dữ liệu dùng mảng thuần để quản lý thực thể.
@@ -267,6 +270,18 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
      * @return true nếu phần tử cần bỏ qua khi ghi file
      */
     protected boolean isDeleted(T item) {
+        if (item instanceof Person) {
+            return ((Person) item).isDeleted();
+        }
+        try {
+            Method method = item.getClass().getMethod("isDeleted");
+            Object result = method.invoke(item);
+            if (result instanceof Boolean) {
+                return (Boolean) result;
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
+            return false;
+        }
         return false;
     }
 
