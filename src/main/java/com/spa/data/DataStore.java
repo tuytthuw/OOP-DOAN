@@ -3,6 +3,15 @@ package com.spa.data;
 import com.spa.interfaces.IActionManager;
 import com.spa.interfaces.IDataManager;
 import com.spa.interfaces.IEntity;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Kho dữ liệu dùng mảng thuần để quản lý thực thể.
@@ -15,6 +24,7 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
 
     private T[] list;
     private int count;
+    protected String dataFilePath;
 
     public DataStore() {
         this(DEFAULT_CAPACITY);
@@ -26,6 +36,12 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
         }
         list = createArray(initialCapacity);
         count = 0;
+        dataFilePath = "";
+    }
+
+    public DataStore(String dataFilePath) {
+        this();
+        this.dataFilePath = dataFilePath;
     }
 
     @Override
@@ -88,16 +104,94 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
 
     @Override
     public void readFile() {
-        // Giai đoạn sau sẽ triển khai đọc file.
+        if (dataFilePath == null || dataFilePath.trim().isEmpty()) {
+            return;
+        }
+        File file = new File(dataFilePath);
+        if (!file.exists()) {
+            return;
+        }
+        list = createArray(DEFAULT_CAPACITY);
+        count = 0;
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line == null) {
+                    continue;
+                }
+                String trimmed = line.trim();
+                if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                    continue;
+                }
+                T item = parseLine(trimmed);
+                if (item == null) {
+                    continue;
+                }
+                ensureCapacity();
+                list[count] = item;
+                count++;
+            }
+        } catch (IOException ex) {
+            System.err.println("Không thể đọc file: " + dataFilePath + " - " + ex.getMessage());
+            list = createArray(DEFAULT_CAPACITY);
+            count = 0;
+        }
     }
 
     @Override
     public void writeFile() {
-        // Giai đoạn sau sẽ triển khai ghi file.
+        if (dataFilePath == null || dataFilePath.trim().isEmpty()) {
+            return;
+        }
+        File file = new File(dataFilePath);
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            boolean created = parent.mkdirs();
+            if (!created && !parent.exists()) {
+                System.err.println("Không thể tạo thư mục lưu file: " + parent.getAbsolutePath());
+                return;
+            }
+        }
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
+            for (int i = 0; i < count; i++) {
+                T item = list[i];
+                if (item == null || isDeleted(item)) {
+                    continue;
+                }
+                String line = convertToLine(item);
+                if (line == null || line.trim().isEmpty()) {
+                    continue;
+                }
+                writer.write(line);
+                writer.write(System.lineSeparator());
+            }
+        } catch (IOException ex) {
+            System.err.println("Không thể ghi file: " + dataFilePath + " - " + ex.getMessage());
+        }
     }
 
     public int getCount() {
         return count;
+    }
+
+    /**
+     * Thiết lập đường dẫn file dữ liệu cho kho.
+     *
+     * @param dataFilePath đường dẫn file
+     */
+    public void setDataFilePath(String dataFilePath) {
+        this.dataFilePath = dataFilePath;
+    }
+
+    /**
+     * Lấy đường dẫn file dữ liệu hiện tại.
+     *
+     * @return đường dẫn file
+     */
+    public String getDataFilePath() {
+        return dataFilePath;
     }
 
     private void ensureCapacity() {
@@ -144,6 +238,36 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
     @SuppressWarnings("unchecked")
     protected final T[] createArray(int size) {
         return (T[]) new IEntity[size];
+    }
+
+    /**
+     * Tạo bản ghi dạng chuỗi để ghi ra file.
+     *
+     * @param item đối tượng nguồn
+     * @return chuỗi dữ liệu đã chuẩn hóa
+     */
+    protected String convertToLine(T item) {
+        return item == null ? "" : item.getId();
+    }
+
+    /**
+     * Chuyển một dòng dữ liệu từ file thành đối tượng.
+     *
+     * @param line dòng dữ liệu
+     * @return đối tượng được tạo hoặc null nếu không hợp lệ
+     */
+    protected T parseLine(String line) {
+        return null;
+    }
+
+    /**
+     * Kiểm tra phần tử đã bị đánh dấu xóa hay chưa.
+     *
+     * @param item phần tử cần kiểm tra
+     * @return true nếu phần tử cần bỏ qua khi ghi file
+     */
+    protected boolean isDeleted(T item) {
+        return false;
     }
 
     /**
