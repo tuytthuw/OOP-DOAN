@@ -60,3 +60,6 @@ Với vai trò là Kiến trúc sư Giải pháp (Solution Architect), tạo m�
 ### 3.6. Yêu cầu Nghiệp vụ Cốt lõi
 - (Ví dụ: "Lớp Manager phải tự quản lý mảng, bao gồm logic nới rộng (resize) mảng khi đầy và logic dồn mảng (shift) khi xóa.")
 - (Ví dụ: "Khi xuất danh sách, phải sử dụng tính đa hình để in thông tin đặc thù của từng loại đối tượng (Student, Teacher)[cite_start].") [cite: 25, 38]
+
+toàn bộ kế hoạch phải được bổ sung vào docs/features với định dạng stt_tên kế hoạch.md
+kế hoạch phải được ghi bằng ngôn ngữ tiếng việt
