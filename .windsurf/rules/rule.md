@@ -83,4 +83,4 @@ Bộ quy tắc này được thiết kế để tuân thủ yêu cầu "giữ co
       * Thuộc tính/Phương thức `static`
       * Đọc/Ghi file text
 
-không cần viết quá nhiều docstring dư thừa giữ code gọn nhất có thể, chỉ giải thích những chỗ khó hiểu, getter setter mặc định thì không cần 
+không cần viết quá nhiều docstring dư thừa giữ code gọn nhất có thể, chỉ giải thích những chỗ khó hiểu, getter setter contructor mặc định thì không cần
