@@ -95,4 +95,8 @@ public class InvoiceService {
         invoice.calculateTotals();
         invoiceManager.update(invoice);
     }
+
+    public Invoice getInvoice(String invoiceId) {
+        return invoiceManager.getById(invoiceId);
+    }
 }
