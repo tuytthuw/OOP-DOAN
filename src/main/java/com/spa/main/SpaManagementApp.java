@@ -14,6 +14,9 @@ import com.spa.model.Supplier;
 import com.spa.service.AuthService;
 import com.spa.ui.MenuUI;
 import java.time.LocalDate;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Điểm khởi đầu của ứng dụng quản lý spa.
@@ -56,11 +59,32 @@ public final class SpaManagementApp {
         AuthService authService = AuthService.getInstance(employeeStore);
         Receptionist seed = new Receptionist("EMP001", "Quản trị viên", "0000000000", true,
                 LocalDate.now(), "admin@spa.com", "Head Office", false,
-                1000.0, "admin123", LocalDate.now(), 200.0);
+                1000.0, hashPassword("admin123"), LocalDate.now(), 200.0);
         authService.ensureSeedEmployee(seed);
 
-        MenuUI menu = new MenuUI(authService, customerStore, serviceStore, productStore,
+        MenuUI menu = new MenuUI(authService, employeeStore, customerStore, serviceStore, productStore,
                 appointmentStore, invoiceStore, promotionStore, supplierStore, paymentStore);
         menu.run();
+    }
+
+    private static String hashPassword(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
+            StringBuilder builder = new StringBuilder();
+            for (byte value : hash) {
+                String hex = Integer.toHexString(0xff & value);
+                if (hex.length() == 1) {
+                    builder.append('0');
+                }
+                builder.append(hex);
+            }
+            return builder.toString();
+        } catch (NoSuchAlgorithmException ex) {
+            return raw;
+        }
     }
 }

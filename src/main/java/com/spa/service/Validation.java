@@ -1,6 +1,7 @@
 package com.spa.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
@@ -94,6 +95,25 @@ public final class Validation {
                 return LocalDate.parse(value, formatter);
             } catch (DateTimeParseException ex) {
                 System.out.printf("Ngày không hợp lệ. Định dạng đúng: %s%n", formatter);
+            }
+        }
+    }
+
+    /**
+     * Đọc giá trị ngày giờ theo định dạng cho trước.
+     *
+     * @param prompt    lời nhắc
+     * @param formatter định dạng ngày giờ
+     * @return thời điểm hợp lệ
+     */
+    public static LocalDateTime getDateTime(String prompt, DateTimeFormatter formatter) {
+        while (true) {
+            System.out.print(prompt);
+            String value = SCANNER.nextLine().trim();
+            try {
+                return LocalDateTime.parse(value, formatter);
+            } catch (DateTimeParseException ex) {
+                System.out.printf("Ngày giờ không hợp lệ. Định dạng đúng: %s%n", formatter);
             }
         }
     }

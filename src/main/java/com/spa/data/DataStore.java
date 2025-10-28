@@ -78,6 +78,10 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
         if (index < 0) {
             return false;
         }
+        T item = list[index];
+        if (markAsDeleted(item)) {
+            return true;
+        }
         shiftLeftFrom(index);
         return true;
     }
@@ -283,6 +287,20 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
             return false;
         }
         return false;
+    }
+
+    private boolean markAsDeleted(T item) {
+        if (item instanceof Person) {
+            ((Person) item).setDeleted(true);
+            return true;
+        }
+        try {
+            Method method = item.getClass().getMethod("setDeleted", boolean.class);
+            method.invoke(item, true);
+            return true;
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
+            return false;
+        }
     }
 
     /**

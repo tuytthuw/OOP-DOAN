@@ -1,0 +1,14 @@
+package com.spa.ui;
+
+import java.time.format.DateTimeFormatter;
+
+/**
+ * Định nghĩa các hằng số dùng chung cho menu console.
+ */
+public final class MenuConstants {
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+    private MenuConstants() {
+    }
+}
