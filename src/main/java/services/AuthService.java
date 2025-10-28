@@ -63,4 +63,8 @@ public class AuthService {
         currentSession.refresh(newExpiry);
         authSessionManager.update(currentSession);
     }
+
+    public AuthSession[] getAllSessions() {
+        return authSessionManager.getAll();
+    }
 }

@@ -65,4 +65,8 @@ public class AppointmentService {
         appointment.updateStatus(enums.AppointmentStatus.COMPLETED);
         appointmentManager.update(appointment);
     }
+
+    public Appointment[] listAppointments() {
+        return appointmentManager.getAll();
+    }
 }

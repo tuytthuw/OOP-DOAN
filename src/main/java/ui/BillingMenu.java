@@ -43,14 +43,26 @@ public class BillingMenu {
             System.out.println("=== BILLING MENU ===");
             System.out.println("1. Thanh toán hóa đơn");
             System.out.println("2. Xem giao dịch theo trạng thái");
+            System.out.println("3. Danh sách hóa đơn");
+            System.out.println("4. Danh sách giao dịch");
+            System.out.println("5. Danh sách khuyến mãi");
             System.out.println("0. Quay lại");
-            int choice = inputHandler.readInt("Chọn chức năng", 0, 2);
+            int choice = inputHandler.readInt("Chọn chức năng", 0, 5);
             switch (choice) {
                 case 1:
                     processInvoice();
                     break;
                 case 2:
                     listTransactions();
+                    break;
+                case 3:
+                    listInvoices();
+                    break;
+                case 4:
+                    listAllTransactions();
+                    break;
+                case 5:
+                    listPromotions();
                     break;
                 case 0:
                     running = false;
@@ -120,5 +132,58 @@ public class BillingMenu {
             rows[i][3] = t.getAmount().toPlainString();
         }
         outputFormatter.printTable(new String[]{"ID", "Hóa đơn", "Trạng thái", "Số tiền"}, rows);
+    }
+
+    private void listInvoices() {
+        Invoice[] invoices = invoiceService.getAllInvoices();
+        if (invoices.length == 0) {
+            outputFormatter.printStatus("Chưa có hóa đơn", false);
+            return;
+        }
+        String[][] rows = new String[invoices.length][5];
+        for (int i = 0; i < invoices.length; i++) {
+            Invoice invoice = invoices[i];
+            rows[i][0] = invoice.getId();
+            rows[i][1] = invoice.getCustomerId();
+            rows[i][2] = invoice.getAppointmentId();
+            rows[i][3] = invoice.getTotalAmount().toPlainString();
+            rows[i][4] = invoice.isPaid() ? "Đã thanh toán" : "Chưa";
+        }
+        outputFormatter.printTable(new String[]{"ID", "Khách", "Lịch hẹn", "Tổng", "Trạng thái"}, rows);
+    }
+
+    private void listAllTransactions() {
+        Transaction[] transactions = paymentService.listAllTransactions();
+        if (transactions.length == 0) {
+            outputFormatter.printStatus("Chưa có giao dịch", false);
+            return;
+        }
+        String[][] rows = new String[transactions.length][4];
+        for (int i = 0; i < transactions.length; i++) {
+            Transaction t = transactions[i];
+            rows[i][0] = t.getId();
+            rows[i][1] = t.getInvoiceId();
+            rows[i][2] = t.getStatus().name();
+            rows[i][3] = t.getAmount().toPlainString();
+        }
+        outputFormatter.printTable(new String[]{"ID", "Hóa đơn", "Trạng thái", "Số tiền"}, rows);
+    }
+
+    private void listPromotions() {
+        models.Promotion[] promotions = promotionService.getAllPromotions();
+        if (promotions.length == 0) {
+            outputFormatter.printStatus("Chưa có khuyến mãi", false);
+            return;
+        }
+        String[][] rows = new String[promotions.length][5];
+        for (int i = 0; i < promotions.length; i++) {
+            models.Promotion promotion = promotions[i];
+            rows[i][0] = promotion.getId();
+            rows[i][1] = promotion.getCode();
+            rows[i][2] = promotion.getType().name();
+            rows[i][3] = promotion.getValue().toPlainString();
+            rows[i][4] = promotion.isActive() ? "Đang hoạt động" : "Ngưng";
+        }
+        outputFormatter.printTable(new String[]{"ID", "Mã", "Loại", "Giá trị", "Trạng thái"}, rows);
     }
 }

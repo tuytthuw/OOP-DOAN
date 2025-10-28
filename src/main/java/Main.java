@@ -75,7 +75,7 @@ public class Main {
         private final InventoryMenu inventoryMenu = new InventoryMenu(inventoryService, inputHandler, outputFormatter);
         private final AppointmentMenu appointmentMenu = new AppointmentMenu(appointmentService, inputHandler, outputFormatter);
         private final BillingMenu billingMenu = new BillingMenu(invoiceService, paymentService, promotionService, authService, inputHandler, outputFormatter);
-        private final MainMenu mainMenu = new MainMenu(inputHandler, outputFormatter, customerMenu, appointmentMenu, inventoryMenu, billingMenu, authService);
+        private final MainMenu mainMenu = new MainMenu(inputHandler, outputFormatter, customerMenu, appointmentMenu, inventoryMenu, billingMenu, employeeService, serviceCatalog, authService);
 
         public void run() {
             seedDemoData();

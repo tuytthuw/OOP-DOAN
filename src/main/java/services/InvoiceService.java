@@ -99,4 +99,8 @@ public class InvoiceService {
     public Invoice getInvoice(String invoiceId) {
         return invoiceManager.getById(invoiceId);
     }
+
+    public Invoice[] getAllInvoices() {
+        return invoiceManager.getAll();
+    }
 }

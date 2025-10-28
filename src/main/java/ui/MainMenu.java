@@ -7,6 +7,8 @@ public class MainMenu {
     private final ui.AppointmentMenu appointmentMenu;
     private final ui.InventoryMenu inventoryMenu;
     private final ui.BillingMenu billingMenu;
+    private final services.EmployeeService employeeService;
+    private final services.ServiceCatalog serviceCatalog;
     private final services.AuthService authService;
 
     public MainMenu(InputHandler inputHandler,
@@ -15,6 +17,8 @@ public class MainMenu {
                     ui.AppointmentMenu appointmentMenu,
                     ui.InventoryMenu inventoryMenu,
                     ui.BillingMenu billingMenu,
+                    services.EmployeeService employeeService,
+                    services.ServiceCatalog serviceCatalog,
                     services.AuthService authService) {
         this.inputHandler = inputHandler;
         this.outputFormatter = outputFormatter;
@@ -22,6 +26,8 @@ public class MainMenu {
         this.appointmentMenu = appointmentMenu;
         this.inventoryMenu = inventoryMenu;
         this.billingMenu = billingMenu;
+        this.employeeService = employeeService;
+        this.serviceCatalog = serviceCatalog;
         this.authService = authService;
     }
 
@@ -35,8 +41,10 @@ public class MainMenu {
             System.out.println("4. Quản lý lịch hẹn");
             System.out.println("5. Quản lý kho");
             System.out.println("6. Thanh toán hóa đơn");
+            System.out.println("7. Danh sách nhân viên");
+            System.out.println("8. Danh sách dịch vụ");
             System.out.println("0. Thoát");
-            int choice = inputHandler.readInt("Chọn chức năng", 0, 6);
+            int choice = inputHandler.readInt("Chọn chức năng", 0, 8);
             switch (choice) {
                 case 1:
                     loginFlow();
@@ -60,6 +68,12 @@ public class MainMenu {
                     if (requireRole(enums.EmployeeRole.MANAGER)) {
                         billingMenu.show();
                     }
+                    break;
+                case 7:
+                    listEmployees();
+                    break;
+                case 8:
+                    listServices();
                     break;
                 case 0:
                     running = false;
@@ -88,5 +102,42 @@ public class MainMenu {
         }
         authService.refreshSession();
         return true;
+    }
+
+    private void listEmployees() {
+        if (!requireRole(enums.EmployeeRole.MANAGER)) {
+            return;
+        }
+        models.Employee[] employees = employeeService.getAllEmployees();
+        if (employees.length == 0) {
+            outputFormatter.printStatus("Chưa có nhân viên", false);
+            return;
+        }
+        String[][] rows = new String[employees.length][4];
+        for (int i = 0; i < employees.length; i++) {
+            models.Employee employee = employees[i];
+            rows[i][0] = employee.getEmployeeCode();
+            rows[i][1] = employee.getFullName();
+            rows[i][2] = employee.getRole().name();
+            rows[i][3] = employee.getStatus().name();
+        }
+        outputFormatter.printTable(new String[]{"Mã", "Tên", "Vai trò", "Trạng thái"}, rows);
+    }
+
+    private void listServices() {
+        models.Service[] services = serviceCatalog.listAll();
+        if (services.length == 0) {
+            outputFormatter.printStatus("Chưa có dịch vụ", false);
+            return;
+        }
+        String[][] rows = new String[services.length][4];
+        for (int i = 0; i < services.length; i++) {
+            models.Service service = services[i];
+            rows[i][0] = service.getId();
+            rows[i][1] = service.getServiceName();
+            rows[i][2] = service.getCategory() == null ? "" : service.getCategory().name();
+            rows[i][3] = service.getPrice().toPlainString();
+        }
+        outputFormatter.printTable(new String[]{"ID", "Tên", "Loại", "Giá"}, rows);
     }
 }

@@ -50,4 +50,8 @@ public class EmployeeService {
     public Employee[] findByRole(EmployeeRole role) {
         return employeeManager.findByRole(role);
     }
+
+    public Employee[] getAllEmployees() {
+        return employeeManager.getAll();
+    }
 }

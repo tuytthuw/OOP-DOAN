@@ -26,8 +26,10 @@ public class InventoryMenu {
             System.out.println("1. Ghi nhận phiếu nhập");
             System.out.println("2. Áp dụng phiếu nhập" );
             System.out.println("3. Xem sản phẩm tồn thấp");
+            System.out.println("4. Danh sách sản phẩm");
+            System.out.println("5. Danh sách phiếu nhập");
             System.out.println("0. Quay lại");
-            int choice = inputHandler.readInt("Chọn chức năng", 0, 3);
+            int choice = inputHandler.readInt("Chọn chức năng", 0, 5);
             switch (choice) {
                 case 1:
                     recordReceipt();
@@ -37,6 +39,12 @@ public class InventoryMenu {
                     break;
                 case 3:
                     viewLowStock();
+                    break;
+                case 4:
+                    listProducts();
+                    break;
+                case 5:
+                    listReceipts();
                     break;
                 case 0:
                     running = false;
@@ -81,5 +89,39 @@ public class InventoryMenu {
             rows[i][2] = String.valueOf(product.getStockQuantity());
         }
         outputFormatter.printTable(new String[]{"ID", "Tên", "Tồn"}, rows);
+    }
+
+    private void listProducts() {
+        models.Product[] products = inventoryService.listProducts();
+        if (products.length == 0) {
+            outputFormatter.printStatus("Chưa có sản phẩm", false);
+            return;
+        }
+        String[][] rows = new String[products.length][4];
+        for (int i = 0; i < products.length; i++) {
+            models.Product product = products[i];
+            rows[i][0] = product.getId();
+            rows[i][1] = product.getProductName();
+            rows[i][2] = product.getBasePrice().toPlainString();
+            rows[i][3] = String.valueOf(product.getStockQuantity());
+        }
+        outputFormatter.printTable(new String[]{"ID", "Tên", "Giá", "Tồn"}, rows);
+    }
+
+    private void listReceipts() {
+        GoodsReceipt[] receipts = inventoryService.listGoodsReceipts();
+        if (receipts.length == 0) {
+            outputFormatter.printStatus("Chưa có phiếu nhập", false);
+            return;
+        }
+        String[][] rows = new String[receipts.length][4];
+        for (int i = 0; i < receipts.length; i++) {
+            GoodsReceipt receipt = receipts[i];
+            rows[i][0] = receipt.getId();
+            rows[i][1] = receipt.getSupplierName();
+            rows[i][2] = receipt.getReceivedDate() == null ? "" : receipt.getReceivedDate().toString();
+            rows[i][3] = receipt.isProcessed() ? "Đã xử lý" : "Chưa";
+        }
+        outputFormatter.printTable(new String[]{"ID", "Nhà cung cấp", "Ngày", "Trạng thái"}, rows);
     }
 }

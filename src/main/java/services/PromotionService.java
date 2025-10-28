@@ -46,4 +46,8 @@ public class PromotionService {
         promotion.incrementUsage();
         promotionManager.update(promotion);
     }
+
+    public Promotion[] getAllPromotions() {
+        return promotionManager.getAll();
+    }
 }

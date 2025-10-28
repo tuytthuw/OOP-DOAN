@@ -48,4 +48,12 @@ public class InventoryService {
     public Product[] reconcileStock() {
         return productManager.getAll();
     }
+
+    public Product[] listProducts() {
+        return productManager.getAll();
+    }
+
+    public GoodsReceipt[] listGoodsReceipts() {
+        return goodsReceiptManager.getAll();
+    }
 }

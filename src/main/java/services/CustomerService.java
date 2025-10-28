@@ -47,4 +47,8 @@ public class CustomerService {
         customerManager.update(customer);
         return customer.getLoyaltyPoints() < before;
     }
+
+    public Customer[] getAllCustomers() {
+        return customerManager.getAll();
+    }
 }

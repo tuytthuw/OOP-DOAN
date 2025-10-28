@@ -50,4 +50,8 @@ public class PaymentService {
     public Transaction[] listTransactionsByStatus(TransactionStatus status) {
         return transactionManager.findByStatus(status);
     }
+
+    public Transaction[] listAllTransactions() {
+        return transactionManager.getAll();
+    }
 }

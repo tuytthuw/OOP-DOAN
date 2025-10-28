@@ -24,14 +24,18 @@ public class CustomerMenu {
             System.out.println("=== CUSTOMER MENU ===");
             System.out.println("1. Thêm khách hàng");
             System.out.println("2. Tìm theo tier");
+            System.out.println("3. Danh sách khách hàng");
             System.out.println("0. Quay lại");
-            int choice = inputHandler.readInt("Chọn chức năng", 0, 2);
+            int choice = inputHandler.readInt("Chọn chức năng", 0, 3);
             switch (choice) {
                 case 1:
                     createCustomer();
                     break;
                 case 2:
                     listByTier();
+                    break;
+                case 3:
+                    listAllCustomers();
                     break;
                 case 0:
                     running = false;
@@ -70,5 +74,22 @@ public class CustomerMenu {
             rows[i][2] = customer.getTier().name();
         }
         outputFormatter.printTable(new String[]{"ID", "Tên", "Tier"}, rows);
+    }
+
+    private void listAllCustomers() {
+        Customer[] customers = customerService.getAllCustomers();
+        if (customers.length == 0) {
+            outputFormatter.printStatus("Chưa có khách hàng", false);
+            return;
+        }
+        String[][] rows = new String[customers.length][4];
+        for (int i = 0; i < customers.length; i++) {
+            Customer customer = customers[i];
+            rows[i][0] = customer.getId();
+            rows[i][1] = customer.getFullName();
+            rows[i][2] = customer.getPhoneNumber();
+            rows[i][3] = customer.getTier().name();
+        }
+        outputFormatter.printTable(new String[]{"ID", "Tên", "Điện thoại", "Tier"}, rows);
     }
 }

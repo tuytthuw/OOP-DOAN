@@ -96,6 +96,10 @@ public class Product implements IEntity, Sellable {
         lastUpdated = LocalDateTime.now();
     }
 
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+
     public int getStockQuantity() {
         return stockQuantity;
     }
