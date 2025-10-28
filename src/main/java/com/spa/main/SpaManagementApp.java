@@ -1,6 +1,7 @@
 package com.spa.main;
 
 import com.spa.data.DataStore;
+import com.spa.data.EmployeeStore;
 import com.spa.model.Appointment;
 import com.spa.model.Customer;
 import com.spa.model.Employee;
@@ -13,10 +14,8 @@ import com.spa.model.Service;
 import com.spa.model.Supplier;
 import com.spa.service.AuthService;
 import com.spa.ui.MenuUI;
+import com.spa.ui.MenuHelper;
 import java.time.LocalDate;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Điểm khởi đầu của ứng dụng quản lý spa.
@@ -37,15 +36,15 @@ public final class SpaManagementApp {
     }
 
     public static void main(String[] args) {
-        DataStore<Employee> employeeStore = new DataStore<>(EMPLOYEE_FILE);
-        DataStore<Customer> customerStore = new DataStore<>(CUSTOMER_FILE);
-        DataStore<Service> serviceStore = new DataStore<>(SERVICE_FILE);
-        DataStore<Product> productStore = new DataStore<>(PRODUCT_FILE);
-        DataStore<Appointment> appointmentStore = new DataStore<>(APPOINTMENT_FILE);
-        DataStore<Invoice> invoiceStore = new DataStore<>(INVOICE_FILE);
-        DataStore<Promotion> promotionStore = new DataStore<>(PROMOTION_FILE);
-        DataStore<Supplier> supplierStore = new DataStore<>(SUPPLIER_FILE);
-        DataStore<Payment> paymentStore = new DataStore<>(PAYMENT_FILE);
+        EmployeeStore employeeStore = new EmployeeStore(EMPLOYEE_FILE);
+        DataStore<Customer> customerStore = new DataStore<>(Customer.class, CUSTOMER_FILE);
+        DataStore<Service> serviceStore = new DataStore<>(Service.class, SERVICE_FILE);
+        DataStore<Product> productStore = new DataStore<>(Product.class, PRODUCT_FILE);
+        DataStore<Appointment> appointmentStore = new DataStore<>(Appointment.class, APPOINTMENT_FILE);
+        DataStore<Invoice> invoiceStore = new DataStore<>(Invoice.class, INVOICE_FILE);
+        DataStore<Promotion> promotionStore = new DataStore<>(Promotion.class, PROMOTION_FILE);
+        DataStore<Supplier> supplierStore = new DataStore<>(Supplier.class, SUPPLIER_FILE);
+        DataStore<Payment> paymentStore = new DataStore<>(Payment.class, PAYMENT_FILE);
 
         customerStore.readFile();
         serviceStore.readFile();
@@ -57,34 +56,14 @@ public final class SpaManagementApp {
         paymentStore.readFile();
 
         AuthService authService = AuthService.getInstance(employeeStore);
+        String seedPassword = "admin123";
         Receptionist seed = new Receptionist("EMP001", "Quản trị viên", "0000000000", true,
                 LocalDate.now(), "admin@spa.com", "Head Office", false,
-                1000.0, hashPassword("admin123"), LocalDate.now(), 200.0);
-        authService.ensureSeedEmployee(seed);
+                1000.0, MenuHelper.hashPassword(seedPassword), LocalDate.now(), 200.0);
+        authService.ensureSeedEmployee(seed, seedPassword);
 
         MenuUI menu = new MenuUI(authService, employeeStore, customerStore, serviceStore, productStore,
                 appointmentStore, invoiceStore, promotionStore, supplierStore, paymentStore);
         menu.run();
-    }
-
-    private static String hashPassword(String raw) {
-        if (raw == null) {
-            return "";
-        }
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
-            StringBuilder builder = new StringBuilder();
-            for (byte value : hash) {
-                String hex = Integer.toHexString(0xff & value);
-                if (hex.length() == 1) {
-                    builder.append('0');
-                }
-                builder.append(hex);
-            }
-            return builder.toString();
-        } catch (NoSuchAlgorithmException ex) {
-            return raw;
-        }
     }
 }

@@ -20,7 +20,7 @@ public class GoodsReceipt implements IEntity {
     private String warehouseLocation;
 
     public GoodsReceipt() {
-        this("", null, null, null, new DataStore<>(), 0.0, "", "");
+        this("", null, null, null, new DataStore<>(Product.class), 0.0, "", "");
     }
 
     public GoodsReceipt(String receiptId,
@@ -128,7 +128,7 @@ public class GoodsReceipt implements IEntity {
      */
     public void addProduct(Product product) {
         if (receivedProducts == null) {
-            receivedProducts = new DataStore<>();
+            receivedProducts = new DataStore<>(Product.class);
         }
         receivedProducts.add(product);
         totalCost += product.getCostPrice();

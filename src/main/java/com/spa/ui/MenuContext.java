@@ -1,6 +1,7 @@
 package com.spa.ui;
 
 import com.spa.data.DataStore;
+import com.spa.data.EmployeeStore;
 import com.spa.model.Appointment;
 import com.spa.model.Customer;
 import com.spa.model.Employee;
@@ -17,7 +18,7 @@ import com.spa.service.AuthService;
  */
 public final class MenuContext {
     private final AuthService authService;
-    private final DataStore<Employee> employeeStore;
+    private final EmployeeStore employeeStore;
     private final DataStore<Customer> customerStore;
     private final DataStore<Service> serviceStore;
     private final DataStore<Product> productStore;
@@ -28,7 +29,7 @@ public final class MenuContext {
     private final DataStore<Payment> paymentStore;
 
     public MenuContext(AuthService authService,
-                       DataStore<Employee> employeeStore,
+                       EmployeeStore employeeStore,
                        DataStore<Customer> customerStore,
                        DataStore<Service> serviceStore,
                        DataStore<Product> productStore,
@@ -53,7 +54,7 @@ public final class MenuContext {
         return authService;
     }
 
-    public DataStore<Employee> getEmployeeStore() {
+    public EmployeeStore getEmployeeStore() {
         return employeeStore;
     }
 

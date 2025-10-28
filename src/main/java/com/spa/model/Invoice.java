@@ -22,7 +22,7 @@ public class Invoice implements IEntity {
     private double serviceChargeRate;
 
     public Invoice() {
-        this("", null, null, null, null, new DataStore<>(),
+        this("", null, null, null, null, new DataStore<>(Product.class),
                 0.0, false, 0.0, 0.0);
     }
 
@@ -151,7 +151,7 @@ public class Invoice implements IEntity {
      */
     public void addProduct(Product item) {
         if (productList == null) {
-            productList = new DataStore<>();
+            productList = new DataStore<>(Product.class);
         }
         productList.add(item);
     }

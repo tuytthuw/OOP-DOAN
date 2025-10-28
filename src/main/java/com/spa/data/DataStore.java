@@ -12,9 +12,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Kho dữ liệu dùng mảng thuần để quản lý thực thể.
@@ -25,25 +26,30 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
     private static final int DEFAULT_CAPACITY = 10;
     private static final int GROWTH_FACTOR = 2;
 
+    private final Class<T> componentType;
     private T[] list;
     private int count;
     protected String dataFilePath;
 
-    public DataStore() {
-        this(DEFAULT_CAPACITY);
+    public DataStore(Class<T> componentType) {
+        this(componentType, DEFAULT_CAPACITY);
     }
 
-    public DataStore(int initialCapacity) {
+    public DataStore(Class<T> componentType, int initialCapacity) {
+        if (componentType == null) {
+            throw new IllegalArgumentException("componentType không được null");
+        }
         if (initialCapacity <= 0) {
             initialCapacity = DEFAULT_CAPACITY;
         }
+        this.componentType = componentType;
         list = createArray(initialCapacity);
         count = 0;
         dataFilePath = "";
     }
 
-    public DataStore(String dataFilePath) {
-        this();
+    public DataStore(Class<T> componentType, String dataFilePath) {
+        this(componentType);
         this.dataFilePath = dataFilePath;
     }
 
@@ -244,7 +250,9 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
 
     @SuppressWarnings("unchecked")
     protected final T[] createArray(int size) {
-        return (T[]) new IEntity[size];
+        @SuppressWarnings("unchecked")
+        T[] array = (T[]) Array.newInstance(componentType, size);
+        return array;
     }
 
     /**

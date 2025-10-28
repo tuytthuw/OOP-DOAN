@@ -1,6 +1,6 @@
 package com.spa.service;
 
-import com.spa.data.DataStore;
+import com.spa.data.EmployeeStore;
 import com.spa.model.Employee;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -12,10 +12,10 @@ import java.security.NoSuchAlgorithmException;
 public final class AuthService {
     private static AuthService instance;
 
-    private final DataStore<Employee> employeeStore;
+    private final EmployeeStore employeeStore;
     private Employee currentUser;
 
-    private AuthService(DataStore<Employee> employeeStore) {
+    private AuthService(EmployeeStore employeeStore) {
         this.employeeStore = employeeStore;
         this.employeeStore.readFile();
     }
@@ -26,7 +26,7 @@ public final class AuthService {
      * @param employeeStore kho nhân viên
      * @return thể hiện duy nhất
      */
-    public static synchronized AuthService getInstance(DataStore<Employee> employeeStore) {
+    public static synchronized AuthService getInstance(EmployeeStore employeeStore) {
         if (instance == null) {
             instance = new AuthService(employeeStore);
         }
@@ -116,14 +116,24 @@ public final class AuthService {
      * Tạo tài khoản quản trị mặc định nếu kho rỗng.
      *
      * @param seedEmployee nhân viên sẽ được thêm khi kho rỗng
+     * @param rawPassword  mật khẩu thô dùng để khởi tạo
      */
-    public void ensureSeedEmployee(Employee seedEmployee) {
+    public void ensureSeedEmployee(Employee seedEmployee, String rawPassword) {
         if (seedEmployee == null) {
             return;
         }
-        if (employeeStore.getCount() == 0) {
-            seedEmployee.setPasswordHash(encryptPassword(seedEmployee.getPasswordHash()));
+        String expectedHash = encryptPassword(rawPassword);
+        Employee existing = employeeStore.findById(seedEmployee.getId());
+        if (existing == null) {
+            seedEmployee.setPasswordHash(expectedHash);
+            seedEmployee.setDeleted(false);
             employeeStore.add(seedEmployee);
+            employeeStore.writeFile();
+            return;
+        }
+        if (!expectedHash.equals(existing.getPasswordHash()) || existing.isDeleted()) {
+            existing.setPasswordHash(expectedHash);
+            existing.setDeleted(false);
             employeeStore.writeFile();
         }
     }
