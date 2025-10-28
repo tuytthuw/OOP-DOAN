@@ -1,20 +1,19 @@
 package com.spa.main;
 
-import com.spa.data.DataStore;
+import com.spa.data.AppointmentStore;
+import com.spa.data.CustomerStore;
 import com.spa.data.EmployeeStore;
-import com.spa.model.Appointment;
-import com.spa.model.Customer;
-import com.spa.model.Employee;
-import com.spa.model.Invoice;
-import com.spa.model.Payment;
-import com.spa.model.Product;
-import com.spa.model.Promotion;
+import com.spa.data.GoodsReceiptStore;
+import com.spa.data.InvoiceStore;
+import com.spa.data.PaymentStore;
+import com.spa.data.ProductStore;
+import com.spa.data.PromotionStore;
+import com.spa.data.ServiceStore;
+import com.spa.data.SupplierStore;
 import com.spa.model.Receptionist;
-import com.spa.model.Service;
-import com.spa.model.Supplier;
 import com.spa.service.AuthService;
-import com.spa.ui.MenuUI;
 import com.spa.ui.MenuHelper;
+import com.spa.ui.MenuUI;
 import java.time.LocalDate;
 
 /**
@@ -31,20 +30,22 @@ public final class SpaManagementApp {
     private static final String PROMOTION_FILE = DATA_FOLDER + "/promotions.txt";
     private static final String SUPPLIER_FILE = DATA_FOLDER + "/suppliers.txt";
     private static final String PAYMENT_FILE = DATA_FOLDER + "/payments.txt";
+    private static final String GOODS_RECEIPT_FILE = DATA_FOLDER + "/goods_receipts.txt";
 
     private SpaManagementApp() {
     }
 
     public static void main(String[] args) {
         EmployeeStore employeeStore = new EmployeeStore(EMPLOYEE_FILE);
-        DataStore<Customer> customerStore = new DataStore<>(Customer.class, CUSTOMER_FILE);
-        DataStore<Service> serviceStore = new DataStore<>(Service.class, SERVICE_FILE);
-        DataStore<Product> productStore = new DataStore<>(Product.class, PRODUCT_FILE);
-        DataStore<Appointment> appointmentStore = new DataStore<>(Appointment.class, APPOINTMENT_FILE);
-        DataStore<Invoice> invoiceStore = new DataStore<>(Invoice.class, INVOICE_FILE);
-        DataStore<Promotion> promotionStore = new DataStore<>(Promotion.class, PROMOTION_FILE);
-        DataStore<Supplier> supplierStore = new DataStore<>(Supplier.class, SUPPLIER_FILE);
-        DataStore<Payment> paymentStore = new DataStore<>(Payment.class, PAYMENT_FILE);
+        CustomerStore customerStore = new CustomerStore(CUSTOMER_FILE);
+        ServiceStore serviceStore = new ServiceStore(SERVICE_FILE);
+        ProductStore productStore = new ProductStore(PRODUCT_FILE);
+        AppointmentStore appointmentStore = new AppointmentStore(APPOINTMENT_FILE);
+        InvoiceStore invoiceStore = new InvoiceStore(INVOICE_FILE);
+        PromotionStore promotionStore = new PromotionStore(PROMOTION_FILE);
+        SupplierStore supplierStore = new SupplierStore(SUPPLIER_FILE);
+        PaymentStore paymentStore = new PaymentStore(PAYMENT_FILE);
+        GoodsReceiptStore goodsReceiptStore = new GoodsReceiptStore(GOODS_RECEIPT_FILE);
 
         customerStore.readFile();
         serviceStore.readFile();
@@ -54,6 +55,7 @@ public final class SpaManagementApp {
         promotionStore.readFile();
         supplierStore.readFile();
         paymentStore.readFile();
+        goodsReceiptStore.readFile();
 
         AuthService authService = AuthService.getInstance(employeeStore);
         String seedPassword = "admin123";
@@ -63,7 +65,7 @@ public final class SpaManagementApp {
         authService.ensureSeedEmployee(seed, seedPassword);
 
         MenuUI menu = new MenuUI(authService, employeeStore, customerStore, serviceStore, productStore,
-                appointmentStore, invoiceStore, promotionStore, supplierStore, paymentStore);
+                appointmentStore, invoiceStore, promotionStore, supplierStore, paymentStore, goodsReceiptStore);
         menu.run();
     }
 }

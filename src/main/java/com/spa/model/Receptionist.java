@@ -48,6 +48,7 @@ public class Receptionist extends Employee {
     }
 
     @Override
+
     public void display() {
         // Sẽ in ở tầng UI.
     }

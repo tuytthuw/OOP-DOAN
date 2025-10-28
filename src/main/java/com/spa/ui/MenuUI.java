@@ -1,6 +1,15 @@
 package com.spa.ui;
 
-import com.spa.data.DataStore;
+import com.spa.data.AppointmentStore;
+import com.spa.data.CustomerStore;
+import com.spa.data.EmployeeStore;
+import com.spa.data.GoodsReceiptStore;
+import com.spa.data.InvoiceStore;
+import com.spa.data.PaymentStore;
+import com.spa.data.ProductStore;
+import com.spa.data.PromotionStore;
+import com.spa.data.ServiceStore;
+import com.spa.data.SupplierStore;
 import com.spa.model.Appointment;
 import com.spa.model.Customer;
 import com.spa.model.Employee;
@@ -34,26 +43,33 @@ public class MenuUI {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final AuthService authService;
-    private final DataStore<Employee> employeeStore;
-    private final DataStore<Customer> customerStore;
-    private final DataStore<Service> serviceStore;
-    private final DataStore<Product> productStore;
-    private final DataStore<Appointment> appointmentStore;
-    private final DataStore<Invoice> invoiceStore;
-    private final DataStore<Promotion> promotionStore;
-    private final DataStore<Supplier> supplierStore;
-    private final DataStore<Payment> paymentStore;
+    private final EmployeeStore employeeStore;
+    private final CustomerStore customerStore;
+    private final ServiceStore serviceStore;
+    private final ProductStore productStore;
+    private final AppointmentStore appointmentStore;
+    private final InvoiceStore invoiceStore;
+    private final PromotionStore promotionStore;
+    private final SupplierStore supplierStore;
+    private final PaymentStore paymentStore;
+    private final GoodsReceiptStore goodsReceiptStore;
+    private final MenuContext context;
+    private final CustomerMenu customerMenu;
+    private final ServiceMenu serviceMenu;
+    private final ProductMenu productMenu;
+    private final SupplierMenu supplierMenu;
 
     public MenuUI(AuthService authService,
-                  DataStore<Employee> employeeStore,
-                  DataStore<Customer> customerStore,
-                  DataStore<Service> serviceStore,
-                  DataStore<Product> productStore,
-                  DataStore<Appointment> appointmentStore,
-                  DataStore<Invoice> invoiceStore,
-                  DataStore<Promotion> promotionStore,
-                  DataStore<Supplier> supplierStore,
-                  DataStore<Payment> paymentStore) {
+                  EmployeeStore employeeStore,
+                  CustomerStore customerStore,
+                  ServiceStore serviceStore,
+                  ProductStore productStore,
+                  AppointmentStore appointmentStore,
+                  InvoiceStore invoiceStore,
+                  PromotionStore promotionStore,
+                  SupplierStore supplierStore,
+                  PaymentStore paymentStore,
+                  GoodsReceiptStore goodsReceiptStore) {
         this.authService = authService;
         this.employeeStore = employeeStore;
         this.customerStore = customerStore;
@@ -64,6 +80,13 @@ public class MenuUI {
         this.promotionStore = promotionStore;
         this.supplierStore = supplierStore;
         this.paymentStore = paymentStore;
+        this.goodsReceiptStore = goodsReceiptStore;
+        context = new MenuContext(authService, employeeStore, customerStore, serviceStore,
+                productStore, appointmentStore, invoiceStore, promotionStore, supplierStore, paymentStore, goodsReceiptStore);
+        customerMenu = new CustomerMenu(context);
+        serviceMenu = new ServiceMenu(context);
+        productMenu = new ProductMenu(context);
+        supplierMenu = new SupplierMenu(context);
     }
 
     /**
@@ -96,21 +119,21 @@ public class MenuUI {
             switch (choice) {
                 case 1:
                     if (canManageCore) {
-                        handleCustomerMenu();
+                        customerMenu.show();
                     } else {
                         noPermission();
                     }
                     break;
                 case 2:
                     if (canManageCore) {
-                        handleServiceMenu();
+                        serviceMenu.show();
                     } else {
                         noPermission();
                     }
                     break;
                 case 3:
                     if (canManageCore) {
-                        handleProductMenu();
+                        productMenu.show();
                     } else {
                         noPermission();
                     }
@@ -130,7 +153,7 @@ public class MenuUI {
                     break;
                 case 7:
                     if (canManageCore) {
-                        handleSupplierMenu();
+                        supplierMenu.show();
                     } else {
                         noPermission();
                     }

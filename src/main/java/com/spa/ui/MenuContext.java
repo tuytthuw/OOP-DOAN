@@ -1,16 +1,16 @@
 package com.spa.ui;
 
-import com.spa.data.DataStore;
+import com.spa.data.AppointmentStore;
+import com.spa.data.CustomerStore;
 import com.spa.data.EmployeeStore;
-import com.spa.model.Appointment;
-import com.spa.model.Customer;
+import com.spa.data.GoodsReceiptStore;
+import com.spa.data.InvoiceStore;
+import com.spa.data.PaymentStore;
+import com.spa.data.ProductStore;
+import com.spa.data.PromotionStore;
+import com.spa.data.ServiceStore;
+import com.spa.data.SupplierStore;
 import com.spa.model.Employee;
-import com.spa.model.Invoice;
-import com.spa.model.Payment;
-import com.spa.model.Product;
-import com.spa.model.Promotion;
-import com.spa.model.Service;
-import com.spa.model.Supplier;
 import com.spa.service.AuthService;
 
 /**
@@ -19,25 +19,27 @@ import com.spa.service.AuthService;
 public final class MenuContext {
     private final AuthService authService;
     private final EmployeeStore employeeStore;
-    private final DataStore<Customer> customerStore;
-    private final DataStore<Service> serviceStore;
-    private final DataStore<Product> productStore;
-    private final DataStore<Appointment> appointmentStore;
-    private final DataStore<Invoice> invoiceStore;
-    private final DataStore<Promotion> promotionStore;
-    private final DataStore<Supplier> supplierStore;
-    private final DataStore<Payment> paymentStore;
+    private final CustomerStore customerStore;
+    private final ServiceStore serviceStore;
+    private final ProductStore productStore;
+    private final AppointmentStore appointmentStore;
+    private final InvoiceStore invoiceStore;
+    private final PromotionStore promotionStore;
+    private final SupplierStore supplierStore;
+    private final PaymentStore paymentStore;
+    private final GoodsReceiptStore goodsReceiptStore;
 
     public MenuContext(AuthService authService,
                        EmployeeStore employeeStore,
-                       DataStore<Customer> customerStore,
-                       DataStore<Service> serviceStore,
-                       DataStore<Product> productStore,
-                       DataStore<Appointment> appointmentStore,
-                       DataStore<Invoice> invoiceStore,
-                       DataStore<Promotion> promotionStore,
-                       DataStore<Supplier> supplierStore,
-                       DataStore<Payment> paymentStore) {
+                       CustomerStore customerStore,
+                       ServiceStore serviceStore,
+                       ProductStore productStore,
+                       AppointmentStore appointmentStore,
+                       InvoiceStore invoiceStore,
+                       PromotionStore promotionStore,
+                       SupplierStore supplierStore,
+                       PaymentStore paymentStore,
+                       GoodsReceiptStore goodsReceiptStore) {
         this.authService = authService;
         this.employeeStore = employeeStore;
         this.customerStore = customerStore;
@@ -48,6 +50,7 @@ public final class MenuContext {
         this.promotionStore = promotionStore;
         this.supplierStore = supplierStore;
         this.paymentStore = paymentStore;
+        this.goodsReceiptStore = goodsReceiptStore;
     }
 
     public AuthService getAuthService() {
@@ -58,35 +61,39 @@ public final class MenuContext {
         return employeeStore;
     }
 
-    public DataStore<Customer> getCustomerStore() {
+    public CustomerStore getCustomerStore() {
         return customerStore;
     }
 
-    public DataStore<Service> getServiceStore() {
+    public ServiceStore getServiceStore() {
         return serviceStore;
     }
 
-    public DataStore<Product> getProductStore() {
+    public ProductStore getProductStore() {
         return productStore;
     }
 
-    public DataStore<Appointment> getAppointmentStore() {
+    public AppointmentStore getAppointmentStore() {
         return appointmentStore;
     }
 
-    public DataStore<Invoice> getInvoiceStore() {
+    public InvoiceStore getInvoiceStore() {
         return invoiceStore;
     }
 
-    public DataStore<Promotion> getPromotionStore() {
+    public PromotionStore getPromotionStore() {
         return promotionStore;
     }
 
-    public DataStore<Supplier> getSupplierStore() {
+    public SupplierStore getSupplierStore() {
         return supplierStore;
     }
 
-    public DataStore<Payment> getPaymentStore() {
+    public PaymentStore getPaymentStore() {
         return paymentStore;
+    }
+
+    public GoodsReceiptStore getGoodsReceiptStore() {
+        return goodsReceiptStore;
     }
 }
