@@ -2,8 +2,7 @@
 - Hoàn thiện hệ phân cấp người dùng dựa trên lớp trừu tượng `Person`, đảm bảo đầy đủ thuộc tính cá nhân và cơ chế đa hình cho tính lương nhân viên.
 - Thiết lập nền tảng dữ liệu khách hàng và nhân viên để các quy trình nghiệp vụ (đặt lịch, thanh toán) có thể khai thác thống nhất ở giai đoạn sau.
 
-### 3.2. Cấu trúc Lớp Model (Entities/POJO)
-- `abstract class Person` (com.spa.model.people):
+- `abstract class Person`:
   - Thuộc tính: `personId`, `fullName`, `phoneNumber`, `isMale`, `birthDate`, `email`, `address`, `isDeleted`.
   - Phương thức trừu tượng: `public abstract String getRole();`
   - Phương thức cụ thể: `getId()`, `getPrefix()`, `display()`, `input()`.
@@ -22,11 +21,10 @@
   - Ghi đè: `calculatePay()`, `getRole()`, `display()`.
 
 ### 3.3. Cấu trúc Lớp Quản lý (Services/Manager)
-- `DataStore<Customer>` (com.spa.data): quản lý mảng khách hàng với `private Customer[] list;`, `private int count;`, `private static final String CUSTOMER_FILE = "data/customers.txt";`.
+- `DataStore<Customer>`: quản lý mảng khách hàng với `private Customer[] list;`, `private int count;`, `private static final String CUSTOMER_FILE`.
 - `DataStore<Employee>`: lưu trữ kỹ thuật viên và lễ tân để hỗ trợ `AuthService`.
 - `DataStore<Technician>` và `DataStore<Receptionist>` có thể được tách riêng nếu cần thống kê chuyên biệt.
 
-### 3.4. Yêu cầu Giao diện (Interfaces)
 - Mọi lớp trên thực thi `IEntity`; `Employee`, `Technician`, `Receptionist` phục vụ cho `IActionManager<Employee>` thông qua `DataStore<Employee>`.
 - `Customer` không thực thi `Sellable` nhưng tuân thủ `IEntity` để hiển thị/nhập liệu chuẩn hóa.
 

@@ -7,7 +7,7 @@
 - Yêu cầu bổ sung thuộc tính trong `Employee`: `passwordHash`, `hireDate` để phù hợp với logic xác thực và theo dõi nhân sự.
 
 ### 3.3. Cấu trúc Lớp Quản lý (Services/Manager)
-- `class AuthService` (com.spa.service):
+- `class AuthService`:
   - Thuộc tính:
     - `private static AuthService instance;`
     - `private DataStore<Employee> employeeStore;`
@@ -22,7 +22,7 @@
     - `public String getCurrentRole()`.
     - `public boolean changePassword(String oldPassword, String newPassword)`.
     - `private String encryptPassword(String raw)`.
-- `class Validation` (com.spa.service):
+- `class Validation`:
   - Thuộc tính `static`:
     - `private static final Scanner SCANNER = new Scanner(System.in);`
   - Phương thức `static`:

@@ -7,7 +7,7 @@
 - Bảo đảm mỗi thực thể có `display()` và `input()` để UI gọi đa hình khi cần in hoặc nhập dữ liệu.
 
 ### 3.3. Cấu trúc Lớp Quản lý (Services/Manager)
-- `class MenuUI` (com.spa.ui):
+- `class MenuUI`:
   - Thuộc tính:
     - `private final AuthService authService;`
     - `private final DataStore<Customer> customerStore;`
@@ -28,7 +28,7 @@
     - `private void handlePaymentMenu()`.
     - `private void handleAuthMenu()` (đổi mật khẩu, đăng xuất).
     - Các phương thức tiện ích dùng `Validation` để nhận input và gọi DataStore tương ứng.
-- `class SpaManagementApp` (com.spa.main):
+- `class SpaManagementApp`:
   - Thuộc tính `static`:
     - `private static final String DATA_FOLDER = "data";`
   - Phương thức `static`:
@@ -41,7 +41,7 @@
 
 ### 3.5. Yêu cầu Đọc/Ghi File
 - `SpaManagementApp.main` gọi `readFile()` trước khi hiển thị menu và `writeFile()` sau mỗi thao tác CRUD thông qua `MenuUI`.
-- Ghi chú đường dẫn file và đảm bảo thư mục `data/` tồn tại trước khi đọc/ghi (kiểm tra và tạo nếu cần).
+- Ghi chú đường dẫn file và đảm bảo kho dữ liệu văn bản tồn tại trước khi đọc/ghi (kiểm tra và tạo nếu cần).
 
 ### 3.6. Yêu cầu Nghiệp vụ Cốt lõi
 - Menu chính sử dụng vòng lặp `while(true)` và `switch-case`; thoát chương trình khi người dùng chọn `Exit`.

@@ -3,41 +3,41 @@
 - Chuẩn bị hạ tầng cho quản lý kho hàng và tính toán doanh thu thông qua đa hình của `Sellable` và mảng thô trong `DataStore<T>`.
 
 ### 3.2. Cấu trúc Lớp Model (Entities/POJO)
-- `class Service` (com.spa.model.business):
+- `class Service`:
   - Thuộc tính: `serviceId`, `serviceName`, `basePrice`, `durationMinutes`, `bufferTime`, `description`, `createdDate`, `isActive`, `category`.
   - Thực thi: `IEntity`, `Sellable`.
   - Ghi đè: `getBasePrice()`, `calculateFinalPrice()`, `getType()`, `display()`, `input()`.
-- `class Product` (com.spa.model.inventory):
+- `class Product`:
   - Thuộc tính: `productId`, `productName`, `brand`, `basePrice`, `costPrice`, `unit`, `supplier`, `stockQuantity`, `expiryDate`, `isDeleted`, `reorderLevel`.
   - Thực thi: `IEntity`, `Sellable`.
   - Ghi đè: `calculateFinalPrice()`, `display()`, `input()`.
-- `class Promotion` (com.spa.model.business):
+- `class Promotion`:
   - Thuộc tính: `promotionId`, `name`, `description`, `discountType`, `discountValue`, `startDate`, `endDate`, `minPurchaseAmount`, `isDeleted`.
   - Thực thi: `IEntity`.
   - Phương thức: `isValid()`, `calculateDiscount(double totalAmount)`.
-- `class Appointment` (com.spa.model.business):
+- `class Appointment`:
   - Thuộc tính: `appointmentId`, `customer`, `technician`, `service`, `startTime`, `endTime`, `notes`, `status`, `rating`, `feedback`.
   - Thực thi: `IEntity`.
   - Phương thức: `schedule()`, `start()`, `cancel()`, `complete()`, `submitFeedback(int rating, String feedback)`.
-- `class Invoice` (com.spa.model.business):
+- `class Invoice`:
   - Thuộc tính: `invoiceId`, `customer`, `receptionist`, `appointment`, `promotion`, `productList`, `totalAmount`, `status`, `taxRate`, `serviceChargeRate`.
   - Thực thi: `IEntity`.
   - Phương thức: `addProduct(Product item)`, `calculateTotal()`, `applyTaxAndCharge()`.
-- `class Payment` (com.spa.model.business):
+- `class Payment`:
   - Thuộc tính: `paymentId`, `invoice`, `amount`, `paymentMethod`, `receptionist`, `paymentDate`.
   - Thực thi: `IEntity`.
   - Phương thức: `processPayment()`.
-- `class Supplier` (com.spa.model.inventory):
+- `class Supplier`:
   - Thuộc tính: `supplierId`, `supplierName`, `contactPerson`, `phoneNumber`, `address`, `email`, `notes`, `isDeleted`.
   - Thực thi: `IEntity`.
-- `class GoodsReceipt` (com.spa.model.inventory):
+- `class GoodsReceipt`:
   - Thuộc tính: `receiptId`, `receiptDate`, `employee`, `supplier`, `receivedProducts`, `totalCost`, `notes`, `warehouseLocation`.
   - Thực thi: `IEntity`.
   - Phương thức: `addProduct(Product item)`, `calculateTotalCost()`, `processReceipt()`.
 
 ### 3.3. Cấu trúc Lớp Quản lý (Services/Manager)
-- `DataStore<Service>` với `private static final String SERVICE_FILE = "data/services.txt";`.
-- `DataStore<Product>` với `private static final String PRODUCT_FILE = "data/products.txt";`.
+- `DataStore<Service>` quản lý dữ liệu dịch vụ.
+- `DataStore<Product>` quản lý dữ liệu sản phẩm.
 - `DataStore<Promotion>`, `DataStore<Appointment>`, `DataStore<Invoice>`, `DataStore<Payment>`, `DataStore<Supplier>`, `DataStore<GoodsReceipt>` tương ứng.
 - Mỗi DataStore duy trì mảng thô `T[] list`, `int count`, hằng `DEFAULT_CAPACITY` và triển khai đầy đủ `IActionManager<T>`, `IDataManager`.
 

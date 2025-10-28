@@ -2,45 +2,42 @@
 - Xác lập các hợp đồng trừu tượng (interface, abstract class) làm nền tảng chung cho toàn bộ thực thể và dịch vụ trong hệ thống quản lý Spa.
 - Đảm bảo mô hình kế thừa và đa hình được định nghĩa rõ ràng để các lớp triển khai ở giai đoạn sau tuân thủ kiến trúc OOP đã thống nhất.
 
-### 3.2. Cấu trúc Lớp Model (Entities/POJO)
-- `abstract class Person` (com.spa.model.people):
+- `abstract class Person`:
   - Thuộc tính: `personId`, `fullName`, `phoneNumber`, `isMale`, `birthDate`, `email`, `address`, `isDeleted`.
   - Phương thức trừu tượng: `public abstract String getRole();`
   - Phương thức cụ thể: `display()`, `input()` (ghi đè từ `IEntity`).
-- `abstract class Employee` (com.spa.model.people):
+- `abstract class Employee`:
   - Thuộc tính bổ sung: `salary`, `passwordHash`, `hireDate`.
   - Phương thức trừu tượng: `public abstract double calculatePay();`
   - Phương thức cụ thể: `checkPassword()`.
-- `class Customer extends Person` (com.spa.model.people):
+- `class Customer extends Person`:
   - Thuộc tính riêng: `memberTier`, `notes`, `points`, `lastVisitDate`.
   - Ghi đè: `getRole()`, `display()`.
-- `class Technician extends Employee` (com.spa.model.people):
+- `class Technician extends Employee`:
   - Thuộc tính riêng: `skill`, `certifications`, `commissionRate`.
   - Ghi đè: `calculatePay()`, `getRole()`.
-- `class Receptionist extends Employee` (com.spa.model.people):
+- `class Receptionist extends Employee`:
   - Thuộc tính riêng: `monthlyBonus`.
   - Ghi đè: `calculatePay()`, `getRole()`.
 
-### 3.3. Cấu trúc Lớp Quản lý (Services/Manager)
-- `class DataStore<T>` (com.spa.data):
+- `class DataStore<T>`:
   - Thuộc tính: `private T[] list;`, `private int count;`, `private static final int DEFAULT_CAPACITY = 10;`.
   - Phương thức khung: `add(T item)`, `update(String id)`, `delete(String id)`, `findById(String id)`, `getAll()`, `displayList()`, `generateStatistics()`, `readFile()`, `writeFile()`.
-- `interface IActionManager<T>` (com.spa.service.contract):
+- `interface IActionManager<T>`:
   - Phương thức: `displayList()`, `add(T item)`, `update(String id)`, `delete(String id)`, `findById(String id)`, `getAll()`, `generateStatistics()`.
-- `interface IDataManager` (com.spa.service.contract):
+- `interface IDataManager`:
   - Phương thức: `readFile()`, `writeFile()`.
-- `interface IEntity` (com.spa.model.contract):
+- `interface IEntity`:
   - Phương thức: `getId()`, `display()`, `input()`, `getPrefix()`.
-- `interface Sellable` (com.spa.model.contract):
+- `interface Sellable`:
   - Phương thức: `getBasePrice()`, `calculateFinalPrice()`, `getType()`.
 
-### 3.4. Yêu cầu Giao diện (Interfaces)
-- Đặt toàn bộ interface vào package `com.spa.model.contract` và `com.spa.service.contract` để tách biệt hợp đồng dữ liệu và hợp đồng dịch vụ.
+- Bố trí interface phù hợp giữa hợp đồng dữ liệu và hợp đồng dịch vụ để tách biệt trách nhiệm.
 - Đảm bảo các lớp cụ thể (Customer, Technician, Service, Product…) sẽ thực thi đúng interface tương ứng khi được triển khai.
 
 ### 3.5. Yêu cầu Đọc/Ghi File
 - `DataStore<T>` chịu trách nhiệm cài đặt `readFile()` và `writeFile()` theo định dạng văn bản thuần, mỗi dòng là một bản ghi với ký tự phân tách thống nhất (gợi ý dùng dấu `|`).
-- Duy trì biến `static` đường dẫn file trong từng DataStore chuyên biệt (ví dụ: `private static final String CUSTOMER_FILE = "data/customers.txt";`).
+- Duy trì biến `static` đại diện đường dẫn file trong từng DataStore chuyên biệt (ví dụ: `private static final String CUSTOMER_FILE`).
 
 ### 3.6. Yêu cầu Nghiệp vụ Cốt lõi
 - Bảo đảm cây kế thừa `Person -> Employee -> Technician/Receptionist` được xác định từ giai đoạn này để phục vụ đa hình tính lương.

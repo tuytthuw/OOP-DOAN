@@ -6,7 +6,7 @@
 - Không tạo lớp model mới; DataStore thao tác trên các thực thể có sẵn thông qua phương thức `IEntity`.
 
 ### 3.3. Cấu trúc Lớp Quản lý (Services/Manager)
-- `class DataStore<T>` (com.spa.data) mở rộng nội dung:
+- `class DataStore<T>` mở rộng nội dung:
   - Phương thức CRUD:
     - `public void add(T item)` sử dụng `ensureCapacity()` và gán vào `list[count++]`.
     - `public boolean delete(String id)` xác định `index`, dịch phần tử và giảm `count`.

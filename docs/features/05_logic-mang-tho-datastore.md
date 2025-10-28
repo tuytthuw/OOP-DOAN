@@ -6,7 +6,7 @@
 - Không bổ sung thực thể mới; DataStore vận hành trên các lớp đã định nghĩa ở giai đoạn 1 và 2 (Customer, Service, Product, ...).
 
 ### 3.3. Cấu trúc Lớp Quản lý (Services/Manager)
-- `class DataStore<T>` (com.spa.data):
+- `class DataStore<T>`:
   - Thuộc tính dữ liệu:
     - `private T[] list;`
     - `private int count;`
