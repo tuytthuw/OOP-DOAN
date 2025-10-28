@@ -49,6 +49,11 @@ public abstract class Employee extends Person {
         return passwordHash != null && passwordHash.equals(rawPassword);
     }
 
+    @Override
+    public String getRole() {
+        return "EMPLOYEE";
+    }
+
     public double getSalary() {
         return salary;
     }

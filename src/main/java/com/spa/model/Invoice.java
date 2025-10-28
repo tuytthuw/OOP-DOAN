@@ -1,0 +1,221 @@
+package com.spa.model;
+
+import com.spa.data.DataStore;
+import com.spa.interfaces.IEntity;
+import java.util.Objects;
+
+/**
+ * Hóa đơn cho dịch vụ và sản phẩm.
+ */
+public class Invoice implements IEntity {
+    private static final String PREFIX = "INV";
+
+    private String invoiceId;
+    private Customer customer;
+    private Receptionist receptionist;
+    private Appointment appointment;
+    private Promotion promotion;
+    private DataStore<Product> productList;
+    private double totalAmount;
+    private boolean status;
+    private double taxRate;
+    private double serviceChargeRate;
+
+    public Invoice() {
+        this("", null, null, null, null, new DataStore<>(),
+                0.0, false, 0.0, 0.0);
+    }
+
+    public Invoice(String invoiceId,
+                   Customer customer,
+                   Receptionist receptionist,
+                   Appointment appointment,
+                   Promotion promotion,
+                   DataStore<Product> productList,
+                   double totalAmount,
+                   boolean status,
+                   double taxRate,
+                   double serviceChargeRate) {
+        this.invoiceId = invoiceId;
+        this.customer = customer;
+        this.receptionist = receptionist;
+        this.appointment = appointment;
+        this.promotion = promotion;
+        this.productList = productList;
+        this.totalAmount = totalAmount;
+        this.status = status;
+        this.taxRate = taxRate;
+        this.serviceChargeRate = serviceChargeRate;
+    }
+
+    @Override
+    public String getId() {
+        return invoiceId;
+    }
+
+    public void setInvoiceId(String invoiceId) {
+        this.invoiceId = invoiceId;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Receptionist getReceptionist() {
+        return receptionist;
+    }
+
+    public void setReceptionist(Receptionist receptionist) {
+        this.receptionist = receptionist;
+    }
+
+    public Appointment getAppointment() {
+        return appointment;
+    }
+
+    public void setAppointment(Appointment appointment) {
+        this.appointment = appointment;
+    }
+
+    public Promotion getPromotion() {
+        return promotion;
+    }
+
+    public void setPromotion(Promotion promotion) {
+        this.promotion = promotion;
+    }
+
+    public DataStore<Product> getProductList() {
+        return productList;
+    }
+
+    public void setProductList(DataStore<Product> productList) {
+        this.productList = productList;
+    }
+
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public double getTaxRate() {
+        return taxRate;
+    }
+
+    public void setTaxRate(double taxRate) {
+        this.taxRate = taxRate;
+    }
+
+    public double getServiceChargeRate() {
+        return serviceChargeRate;
+    }
+
+    public void setServiceChargeRate(double serviceChargeRate) {
+        this.serviceChargeRate = serviceChargeRate;
+    }
+
+    @Override
+    public void display() {
+        // Sẽ được xử lý ở tầng UI.
+    }
+
+    @Override
+    public void input() {
+        // Sẽ được xử lý ở tầng UI.
+    }
+
+    @Override
+    public String getPrefix() {
+        return PREFIX;
+    }
+
+    /**
+     * Thêm sản phẩm vào hóa đơn.
+     *
+     * @param item sản phẩm cần thêm
+     */
+    public void addProduct(Product item) {
+        if (productList == null) {
+            productList = new DataStore<>();
+        }
+        productList.add(item);
+    }
+
+    /**
+     * Tính tổng tiền dựa trên dịch vụ và sản phẩm.
+     *
+     * @return tổng tiền sau thuế và phí
+     */
+    public double calculateTotal() {
+        double serviceAmount = appointment == null || appointment.getService() == null
+                ? 0.0
+                : appointment.getService().calculateFinalPrice().doubleValue();
+        double productAmount = 0.0;
+        if (productList != null) {
+            Product[] items = productList.getAll();
+            for (Product item : items) {
+                if (item != null) {
+                    productAmount += item.calculateFinalPrice().doubleValue();
+                }
+            }
+        }
+        double subtotal = serviceAmount + productAmount;
+        double discount = promotion != null ? promotion.calculateDiscount(subtotal) : 0.0;
+        double afterDiscount = subtotal - discount;
+        double taxAmount = afterDiscount * taxRate;
+        double serviceCharge = afterDiscount * serviceChargeRate;
+        totalAmount = afterDiscount + taxAmount + serviceCharge;
+        return totalAmount;
+    }
+
+    /**
+     * Áp dụng lại thuế và phí cho tổng tiền hiện tại.
+     */
+    public void applyTaxAndCharge() {
+        double afterDiscount = totalAmount;
+        double taxAmount = afterDiscount * taxRate;
+        double serviceCharge = afterDiscount * serviceChargeRate;
+        totalAmount = afterDiscount + taxAmount + serviceCharge;
+    }
+
+    @Override
+    public String toString() {
+        return "Invoice{" +
+                "id='" + invoiceId + '\'' +
+                ", totalAmount=" + totalAmount +
+                ", status=" + status +
+                '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(invoiceId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Invoice)) {
+            return false;
+        }
+        Invoice other = (Invoice) obj;
+        return Objects.equals(invoiceId, other.invoiceId);
+    }
+}
