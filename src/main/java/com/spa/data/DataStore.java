@@ -11,6 +11,7 @@ import com.spa.interfaces.IEntity;
  */
 public class DataStore<T extends IEntity> implements IActionManager<T>, IDataManager {
     private static final int DEFAULT_CAPACITY = 10;
+    private static final int GROWTH_FACTOR = 2;
 
     private T[] list;
     private int count;
@@ -46,7 +47,7 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
 
     @Override
     public void update(String id) {
-        int index = findIndexById(id);
+        int index = indexOf(id);
         if (index >= 0) {
             list[index].input();
         }
@@ -54,7 +55,7 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
 
     @Override
     public boolean delete(String id) {
-        int index = findIndexById(id);
+        int index = indexOf(id);
         if (index < 0) {
             return false;
         }
@@ -64,7 +65,7 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
 
     @Override
     public T findById(String id) {
-        int index = findIndexById(id);
+        int index = indexOf(id);
         if (index < 0) {
             return null;
         }
@@ -74,7 +75,9 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
     @Override
     public T[] getAll() {
         T[] result = createArray(count);
-        System.arraycopy(list, 0, result, 0, count);
+        for (int i = 0; i < count; i++) {
+            result[i] = createCopy(list[i]);
+        }
         return result;
     }
 
@@ -101,13 +104,19 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
         if (count < list.length) {
             return;
         }
-        int newSize = list.length * 2;
+        int newSize = list.length * GROWTH_FACTOR;
         T[] newList = createArray(newSize);
         System.arraycopy(list, 0, newList, 0, list.length);
         list = newList;
     }
 
-    private int findIndexById(String id) {
+    /**
+     * Tìm vị trí phần tử theo mã định danh.
+     *
+     * @param id mã cần tìm
+     * @return chỉ số phần tử hoặc -1 nếu không có
+     */
+    protected int indexOf(String id) {
         if (id == null) {
             return -1;
         }
@@ -119,7 +128,12 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
         return -1;
     }
 
-    private void shiftLeftFrom(int index) {
+    /**
+     * Dồn các phần tử về bên trái từ vị trí cho trước.
+     *
+     * @param index vị trí bắt đầu dồn
+     */
+    protected void shiftLeftFrom(int index) {
         for (int i = index; i < count - 1; i++) {
             list[i] = list[i + 1];
         }
@@ -128,7 +142,18 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
     }
 
     @SuppressWarnings("unchecked")
-    private T[] createArray(int size) {
+    protected final T[] createArray(int size) {
         return (T[]) new IEntity[size];
+    }
+
+    /**
+     * Tạo bản sao đối tượng trước khi trả ra ngoài.
+     * Các lớp con có thể override để cung cấp sao chép sâu hơn.
+     *
+     * @param item đối tượng nguồn
+     * @return bản sao hoặc chính đối tượng nếu không cần sao chép
+     */
+    protected T createCopy(T item) {
+        return item;
     }
 }
