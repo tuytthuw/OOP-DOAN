@@ -40,34 +40,20 @@ public abstract class Employee extends Person {
         this.lastLoginAt = null;
     }
 
-    /**
-     * @return Mã nhân viên duy nhất.
-     */
     public String getEmployeeCode() {
         return employeeCode;
     }
 
-    /**
-     * @return Vai trò hiện tại của nhân viên.
-     */
     public EmployeeRole getRole() {
         return role;
     }
 
-    /**
-     * Cập nhật vai trò của nhân viên.
-     *
-     * @param newRole Vai trò mới.
-     */
     public void updateRole(EmployeeRole newRole) {
         if (newRole != null) {
             this.role = newRole;
         }
     }
 
-    /**
-     * @return Trạng thái làm việc hiện tại.
-     */
     public EmployeeStatus getStatus() {
         return status;
     }
@@ -78,9 +64,6 @@ public abstract class Employee extends Person {
         }
     }
 
-    /**
-     * @return Lương cơ bản hàng tháng.
-     */
     public BigDecimal getSalary() {
         return salary;
     }
@@ -115,12 +98,6 @@ public abstract class Employee extends Person {
         this.lastLoginAt = lastLoginAt;
     }
 
-    /**
-     * Kiểm tra mật khẩu thô với giá trị đã băm.
-     *
-     * @param rawPassword Mật khẩu người dùng nhập.
-     * @return true nếu khớp, ngược lại false.
-     */
     public boolean checkPassword(String rawPassword) {
         if (passwordHash == null || rawPassword == null) {
             return false;
@@ -128,11 +105,6 @@ public abstract class Employee extends Person {
         return passwordHash.equals(rawPassword);
     }
 
-    /**
-     * Tính toán tổng thu nhập phải trả cho nhân viên.
-     *
-     * @return Tổng tiền lương theo chính sách riêng.
-     */
     public abstract BigDecimal calculatePay();
 
     private String generateEmployeeCode() {

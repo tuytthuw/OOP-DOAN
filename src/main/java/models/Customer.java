@@ -6,9 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * Đại diện cho khách hàng của spa.
- */
 public class Customer extends Person {
     private Tier tier;
     private BigDecimal totalSpent;
@@ -29,11 +26,6 @@ public class Customer extends Person {
         this.notes = null;
     }
 
-    /**
-     * Cộng dồn chi tiêu và điểm loyalty.
-     *
-     * @param amount Số tiền phát sinh.
-     */
     public void addSpending(BigDecimal amount) {
         if (amount == null || amount.signum() <= 0) {
             return;
@@ -42,11 +34,6 @@ public class Customer extends Person {
         loyaltyPoints += amount.intValue();
     }
 
-    /**
-     * Đổi điểm tích lũy.
-     *
-     * @param value Số điểm muốn đổi.
-     */
     public void redeemPoints(int value) {
         if (value <= 0 || value > loyaltyPoints) {
             return;
@@ -54,22 +41,12 @@ public class Customer extends Person {
         loyaltyPoints -= value;
     }
 
-    /**
-     * Cập nhật hạng thành viên của khách hàng.
-     *
-     * @param newTier Hạng mới.
-     */
     public void updateTier(Tier newTier) {
         if (newTier != null) {
             this.tier = newTier;
         }
     }
 
-    /**
-     * Ghi nhận lần ghé gần nhất.
-     *
-     * @param visitAt Thời điểm ghé.
-     */
     public void markVisit(LocalDateTime visitAt) {
         this.lastVisitAt = visitAt;
     }

@@ -34,23 +34,11 @@ public abstract class Person implements IEntity {
         this.isDeleted = false;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Returns:
-     *     Mã định danh duy nhất của cá nhân.
-     */
     @Override
     public String getId() {
         return personId;
     }
 
-    /**
-     * Tính tuổi hiện tại dựa trên ngày sinh.
-     *
-     * Returns:
-     *     Tuổi tính bằng năm (0 nếu chưa khai báo ngày sinh).
-     */
     public int getAge() {
         if (birthDate == null) {
             return 0;
@@ -58,22 +46,10 @@ public abstract class Person implements IEntity {
         return Math.max(0, Period.between(birthDate, LocalDate.now()).getYears());
     }
 
-    /**
-     * Đánh dấu đối tượng đã bị xóa mềm.
-     *
-     * Returns:
-     *     Không trả về.
-     */
     public void softDelete() {
         isDeleted = true;
     }
 
-    /**
-     * Khôi phục trạng thái hoạt động của đối tượng.
-     *
-     * Returns:
-     *     Không trả về.
-     */
     public void restore() {
         isDeleted = false;
     }
@@ -84,110 +60,42 @@ public abstract class Person implements IEntity {
         return id;
     }
 
-    /**
-     * Lấy họ tên đầy đủ.
-     *
-     * Returns:
-     *     Họ tên hiện tại.
-     */
     public String getFullName() {
         return fullName;
     }
 
-    /**
-     * Cập nhật họ tên đầy đủ.
-     *
-     * Args:
-     *     fullName: Họ tên mới.
-     * Returns:
-     *     Không trả về.
-     */
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
 
-    /**
-     * Lấy số điện thoại liên hệ.
-     *
-     * Returns:
-     *     Chuỗi số điện thoại.
-     */
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    /**
-     * Cập nhật số điện thoại liên hệ.
-     *
-     * Args:
-     *     phoneNumber: Số điện thoại mới.
-     * Returns:
-     *     Không trả về.
-     */
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
-    /**
-     * Lấy email hiện tại.
-     *
-     * Returns:
-     *     Địa chỉ email.
-     */
     public String getEmail() {
         return email;
     }
 
-    /**
-     * Cập nhật email.
-     *
-     * Args:
-     *     email: Địa chỉ email mới.
-     * Returns:
-     *     Không trả về.
-     */
     public void setEmail(String email) {
         this.email = email;
     }
 
-    /**
-     * Lấy ngày sinh.
-     *
-     * Returns:
-     *     Ngày sinh đã lưu.
-     */
     public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    /**
-     * Cập nhật ngày sinh.
-     *
-     * Args:
-     *     birthDate: Ngày sinh mới.
-     * Returns:
-     *     Không trả về.
-     */
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
 
-    /**
-     * Lấy thời điểm tạo bản ghi.
-     *
-     * Returns:
-     *     Thời điểm tạo trong hệ thống.
-     */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    /**
-     * Kiểm tra trạng thái xóa mềm.
-     *
-     * Returns:
-     *     true nếu đã bị xóa mềm, ngược lại false.
-     */
     public boolean isDeleted() {
         return isDeleted;
     }
