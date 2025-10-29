@@ -10,28 +10,10 @@ import com.spa.data.ProductStore;
 import com.spa.data.PromotionStore;
 import com.spa.data.ServiceStore;
 import com.spa.data.SupplierStore;
-import com.spa.model.Appointment;
-import com.spa.model.Customer;
 import com.spa.model.Employee;
-import com.spa.model.Invoice;
-import com.spa.model.Payment;
-import com.spa.model.Product;
-import com.spa.model.Promotion;
-import com.spa.model.Service;
-import com.spa.model.Supplier;
-import com.spa.model.enums.DiscountType;
-import com.spa.model.enums.PaymentMethod;
-import com.spa.model.enums.ServiceCategory;
-import com.spa.model.enums.Tier;
 import com.spa.service.AuthService;
 import com.spa.service.Validation;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Giao diện console chính của ứng dụng.
@@ -337,24 +319,4 @@ public class MenuUI {
         return false;
     }
 
-    private String encryptPassword(String raw) {
-        if (raw == null) {
-            return "";
-        }
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
-            StringBuilder builder = new StringBuilder();
-            for (byte value : hash) {
-                String hex = Integer.toHexString(0xff & value);
-                if (hex.length() == 1) {
-                    builder.append('0');
-                }
-                builder.append(hex);
-            }
-            return builder.toString();
-        } catch (NoSuchAlgorithmException ex) {
-            return raw;
-        }
-    }
 }
