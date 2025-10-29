@@ -10,7 +10,7 @@ import com.spa.data.ProductStore;
 import com.spa.data.PromotionStore;
 import com.spa.data.ServiceStore;
 import com.spa.data.SupplierStore;
-import com.spa.model.Receptionist;
+import com.spa.model.Admin;
 import com.spa.service.AuthService;
 import com.spa.ui.MenuHelper;
 import com.spa.ui.MenuUI;
@@ -56,13 +56,14 @@ public final class SpaManagementApp {
         supplierStore.readFile();
         paymentStore.readFile();
         goodsReceiptStore.readFile();
+        employeeStore.readFile();
 
         AuthService authService = AuthService.getInstance(employeeStore);
         String seedPassword = "admin123";
-        Receptionist seed = new Receptionist("EMP001", "Quản trị viên", "0000000000", true,
+        Admin seedAdmin = new Admin("ADM001", "Super Admin", "0000000000", true,
                 LocalDate.now(), "admin@spa.com", "Head Office", false,
-                1000.0, MenuHelper.hashPassword(seedPassword), LocalDate.now(), 200.0);
-        authService.ensureSeedEmployee(seed, seedPassword);
+                2000.0, MenuHelper.hashPassword(seedPassword), LocalDate.now(), "CORE_DATA,HR_MANAGEMENT", true);
+        authService.ensureSeedEmployee(seedAdmin, seedPassword);
 
         MenuUI menu = new MenuUI(authService, employeeStore, customerStore, serviceStore, productStore,
                 appointmentStore, invoiceStore, promotionStore, supplierStore, paymentStore, goodsReceiptStore);

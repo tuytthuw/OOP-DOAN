@@ -1,8 +1,10 @@
 package com.spa.ui;
 
 import com.spa.data.DataStore;
+import com.spa.model.Admin;
 import com.spa.model.Appointment;
 import com.spa.model.Customer;
+import com.spa.model.Employee;
 import com.spa.model.Invoice;
 import com.spa.model.Product;
 import com.spa.model.Promotion;
@@ -79,9 +81,9 @@ public class InvoiceMenu implements MenuModule {
             System.out.println("Không có khách hàng hợp lệ.");
             return;
         }
-        Receptionist receptionist = selectReceptionist();
+        Receptionist receptionist = resolveCurrentReceptionist();
         if (receptionist == null) {
-            System.out.println("Không có lễ tân hợp lệ.");
+            System.out.println("Vui lòng đăng nhập bằng tài khoản lễ tân để tạo hóa đơn.");
             return;
         }
         Appointment appointment = selectAppointment(customer);
@@ -187,20 +189,6 @@ public class InvoiceMenu implements MenuModule {
         return context.getCustomerStore().findById(active[selected - 1].getId());
     }
 
-    private Receptionist selectReceptionist() {
-        Receptionist[] receptionists = context.getEmployeeStore().getAllReceptionists();
-        if (receptionists.length == 0) {
-            return null;
-        }
-        System.out.println("Chọn lễ tân lập hóa đơn:");
-        for (int i = 0; i < receptionists.length; i++) {
-            Receptionist receptionist = receptionists[i];
-            System.out.printf("%d. %s - %s%n", i + 1, receptionist.getId(), receptionist.getFullName());
-        }
-        int selected = Validation.getInt("Lựa chọn: ", 1, receptionists.length);
-        return context.getEmployeeStore().findReceptionistById(receptionists[selected - 1].getId());
-    }
-
     private Appointment selectAppointment(Customer customer) {
         Appointment[] appointments = context.getAppointmentStore().getAll();
         int count = 0;
@@ -272,6 +260,21 @@ public class InvoiceMenu implements MenuModule {
             return BigDecimal.ZERO;
         }
         return basePrice.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    private Receptionist resolveCurrentReceptionist() {
+        if (context.getAuthService() == null || !context.getAuthService().isLoggedIn()) {
+            return null;
+        }
+        Employee current = context.getAuthService().getCurrentUser();
+        if (current instanceof Receptionist) {
+            Receptionist stored = context.getEmployeeStore().findReceptionistById(current.getId());
+            return stored != null ? stored : MenuHelper.toReceptionistView(current);
+        }
+        if (current instanceof Admin) {
+            return MenuHelper.toReceptionistView(current);
+        }
+        return null;
     }
 
     private String invoiceHeader() {

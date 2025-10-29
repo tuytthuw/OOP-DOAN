@@ -1,5 +1,7 @@
 package com.spa.ui;
 
+import com.spa.model.Employee;
+import com.spa.model.Receptionist;
 import com.spa.model.enums.DiscountType;
 import com.spa.model.enums.PaymentMethod;
 import com.spa.model.enums.ServiceCategory;
@@ -66,6 +68,25 @@ public final class MenuHelper {
             return null;
         }
         return methods[selected - 1];
+    }
+
+    public static Receptionist toReceptionistView(Employee employee) {
+        if (employee == null) {
+            return null;
+        }
+        Receptionist receptionist = new Receptionist();
+        receptionist.setPersonId(employee.getId());
+        receptionist.setFullName(employee.getFullName());
+        receptionist.setPhoneNumber(employee.getPhoneNumber());
+        receptionist.setEmail(employee.getEmail());
+        receptionist.setAddress(employee.getAddress());
+        receptionist.setMale(employee.isMale());
+        receptionist.setBirthDate(employee.getBirthDate());
+        receptionist.setHireDate(employee.getHireDate());
+        receptionist.setSalary(employee.getSalary());
+        receptionist.setDeleted(false);
+        receptionist.setMonthlyBonus(0.0);
+        return receptionist;
     }
 
     public static String hashPassword(String raw) {

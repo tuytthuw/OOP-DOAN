@@ -108,6 +108,7 @@ public class ServiceMenu implements MenuModule {
         System.out.println("--- THÊM DỊCH VỤ ---");
         String id = context.getServiceStore().generateNextId();
         System.out.println("Mã dịch vụ được cấp: " + id);
+        System.out.println("Ngày tạo sẽ tự lấy thời gian hiện tại và dịch vụ được kích hoạt mặc định.");
         Service service = promptService(id, null);
         if (service == null) {
             System.out.println("Đã hủy thêm dịch vụ.");
@@ -280,13 +281,20 @@ public class ServiceMenu implements MenuModule {
         if (description == null) {
             return null;
         }
-        LocalDate createdDate = Validation.getDateOrCancel(buildPrompt("Ngày tạo (yyyy-MM-dd)", base == null || base.getCreatedDate() == null ? null : base.getCreatedDate().toString()), DATE_FORMAT);
-        if (createdDate == null) {
-            return null;
-        }
-        Boolean active = Validation.getBooleanOrCancel(buildPrompt("Kích hoạt dịch vụ?", base == null ? null : (base.isActive() ? "Y" : "N")));
-        if (active == null) {
-            return null;
+        LocalDate createdDate;
+        Boolean active;
+        if (base == null) {
+            createdDate = LocalDate.now();
+            active = Boolean.TRUE;
+        } else {
+            createdDate = Validation.getDateOrCancel(buildPrompt("Ngày tạo (yyyy-MM-dd)", base.getCreatedDate() == null ? null : base.getCreatedDate().toString()), DATE_FORMAT);
+            if (createdDate == null) {
+                return null;
+            }
+            active = Validation.getBooleanOrCancel(buildPrompt("Kích hoạt dịch vụ?", base.isActive() ? "Y" : "N"));
+            if (active == null) {
+                return null;
+            }
         }
         if (base != null) {
             System.out.println("Nhóm dịch vụ hiện tại: " + base.getCategory());

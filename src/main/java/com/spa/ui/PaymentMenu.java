@@ -1,5 +1,7 @@
 package com.spa.ui;
 
+import com.spa.model.Admin;
+import com.spa.model.Employee;
 import com.spa.model.Invoice;
 import com.spa.model.Payment;
 import com.spa.model.Receptionist;
@@ -80,7 +82,10 @@ public class PaymentMenu implements MenuModule {
         }
         double amount = Validation.getDouble("Số tiền thanh toán: ", 0.0, 1_000_000_000.0);
         PaymentMethod method = MenuHelper.selectPaymentMethod();
-        Receptionist receptionist = pickReceptionist();
+        Receptionist receptionist = resolveCurrentReceptionist();
+        if (receptionist == null) {
+            receptionist = pickReceptionist();
+        }
         String note = Validation.getOptionalString("Ghi chú thanh toán: ");
 
         Payment payment = new Payment(id, invoice, amount, method, receptionist,
@@ -145,6 +150,21 @@ public class PaymentMenu implements MenuModule {
             return null;
         }
         return context.getEmployeeStore().findReceptionistById(employees[selected - 1].getId());
+    }
+
+    private Receptionist resolveCurrentReceptionist() {
+        if (context.getAuthService() == null || !context.getAuthService().isLoggedIn()) {
+            return null;
+        }
+        Employee current = context.getAuthService().getCurrentUser();
+        if (current instanceof Receptionist) {
+            Receptionist stored = context.getEmployeeStore().findReceptionistById(current.getId());
+            return stored != null ? stored : MenuHelper.toReceptionistView(current);
+        }
+        if (current instanceof Admin) {
+            return MenuHelper.toReceptionistView(current);
+        }
+        return null;
     }
 
     private String paymentHeader() {

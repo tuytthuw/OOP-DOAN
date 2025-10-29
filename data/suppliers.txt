@@ -1,1 +1,2 @@
-SUP001|ABC|Tín|098676875|HCM|tin@|akjsf|false
+SUP001|Lotus Beauty Co.|Mai Anh|0283765001|12 Nguyen Trai, Ho Chi Minh|contact@lotusbeauty.vn|Organic skincare supplier|false
+SUP002|GlowTech Imports|Ngoc Nhan|0246688002|54 Tran Hung Dao, Ha Noi|nhan@glowtech.vn|High-end equipment distributor|false
