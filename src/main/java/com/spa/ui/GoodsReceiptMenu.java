@@ -73,11 +73,8 @@ public class GoodsReceiptMenu implements MenuModule {
     private void createGoodsReceipt() {
         System.out.println();
         System.out.println("--- TẠO PHIẾU NHẬP KHO ---");
-        String id = Validation.getString("Mã phiếu nhập: ");
-        if (context.getGoodsReceiptStore().findById(id) != null) {
-            System.out.println("Mã phiếu nhập đã tồn tại.");
-            return;
-        }
+        String id = context.getGoodsReceiptStore().generateNextId();
+        System.out.println("Mã phiếu nhập được cấp: " + id);
         LocalDate receiptDate = Validation.getDate("Ngày nhập (yyyy-MM-dd): ", DATE_FORMAT);
         Employee employee = selectEmployee();
         if (employee == null) {

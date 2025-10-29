@@ -79,11 +79,8 @@ public class CustomerMenu implements MenuModule {
     private void addCustomer() {
         System.out.println();
         System.out.println("--- THÊM KHÁCH HÀNG ---");
-        String id = Validation.getString("Mã khách hàng: ");
-        if (context.getCustomerStore().findById(id) != null) {
-            System.out.println("Mã khách hàng đã tồn tại.");
-            return;
-        }
+        String id = context.getCustomerStore().generateNextId();
+        System.out.println("Mã khách hàng được cấp: " + id);
         String fullName = Validation.getString("Họ tên: ");
         String phone = Validation.getString("Số điện thoại: ");
         String email = Validation.getString("Email: ");

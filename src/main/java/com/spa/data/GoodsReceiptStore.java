@@ -1,5 +1,6 @@
 package com.spa.data;
 
+import com.spa.model.Employee;
 import com.spa.model.GoodsReceipt;
 import com.spa.model.Product;
 import com.spa.model.Receptionist;

@@ -81,11 +81,8 @@ public class ProductMenu implements MenuModule {
     private void addProduct() {
         System.out.println();
         System.out.println("--- THÊM SẢN PHẨM ---");
-        String id = Validation.getString("Mã sản phẩm: ");
-        if (context.getProductStore().findById(id) != null) {
-            System.out.println("Mã sản phẩm đã tồn tại.");
-            return;
-        }
+        String id = context.getProductStore().generateNextId();
+        System.out.println("Mã sản phẩm được cấp: " + id);
         Product product = promptProduct(id, null);
         context.getProductStore().add(product);
         context.getProductStore().writeFile();

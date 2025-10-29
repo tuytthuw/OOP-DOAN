@@ -26,6 +26,8 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
     private static final int DEFAULT_CAPACITY = 10;
     private static final int GROWTH_FACTOR = 2;
 
+    private static final int DEFAULT_ID_PADDING = 3;
+
     private final Class<T> componentType;
     private T[] list;
     private int count;
@@ -65,6 +67,7 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
         if (item == null) {
             return;
         }
+        assignIdIfNeeded(item);
         ensureCapacity();
         list[count] = item;
         count++;
@@ -187,6 +190,47 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
 
     public int getCount() {
         return count;
+    }
+
+    public String generateNextId() {
+        return generateNextId(determinePrefix(componentType));
+    }
+
+    public String generateNextId(Class<?> type) {
+        if (type == null) {
+            return generateNextId();
+        }
+        return generateNextId(determinePrefix(type));
+    }
+
+    public String generateNextId(String prefix) {
+        String effectivePrefix = prefix;
+        if (effectivePrefix == null || effectivePrefix.trim().isEmpty()) {
+            effectivePrefix = determinePrefix(componentType);
+        }
+        int maxNumber = 0;
+        int maxDigits = 0;
+        for (int i = 0; i < count; i++) {
+            T item = list[i];
+            if (item == null) {
+                continue;
+            }
+            String id = item.getId();
+            if (id == null || id.isEmpty() || !id.startsWith(effectivePrefix)) {
+                continue;
+            }
+            int numeric = extractNumericSuffix(id, effectivePrefix);
+            if (numeric > maxNumber) {
+                maxNumber = numeric;
+            }
+            int digits = id.length() - effectivePrefix.length();
+            if (digits > maxDigits) {
+                maxDigits = digits;
+            }
+        }
+        int nextNumber = maxNumber + 1;
+        int width = Math.max(maxDigits, DEFAULT_ID_PADDING);
+        return effectivePrefix + formatWithPadding(nextNumber, width);
     }
 
     /**
@@ -320,5 +364,125 @@ public class DataStore<T extends IEntity> implements IActionManager<T>, IDataMan
      */
     protected T createCopy(T item) {
         return item;
+    }
+
+    private void assignIdIfNeeded(T item) {
+        if (item == null) {
+            return;
+        }
+        String currentId = item.getId();
+        if (currentId != null && !currentId.trim().isEmpty()) {
+            return;
+        }
+        String newId = generateNextId(item.getClass());
+        if (item instanceof Person) {
+            ((Person) item).setPersonId(newId);
+            return;
+        }
+        if (invokeSetter(item, "setId", newId)) {
+            return;
+        }
+        String simpleName = item.getClass().getSimpleName();
+        if (simpleName != null && !simpleName.isEmpty()) {
+            String specificSetter = "set" + simpleName + "Id";
+            if (invokeSetter(item, specificSetter, newId)) {
+                return;
+            }
+        }
+        Method[] methods = item.getClass().getMethods();
+        for (Method method : methods) {
+            if (!method.getName().startsWith("set")) {
+                continue;
+            }
+            if (!method.getName().toLowerCase().endsWith("id")) {
+                continue;
+            }
+            if (method.getParameterCount() != 1 || method.getParameterTypes()[0] != String.class) {
+                continue;
+            }
+            try {
+                method.invoke(item, newId);
+                return;
+            } catch (IllegalAccessException | InvocationTargetException ex) {
+                // bỏ qua và thử phương thức khác
+            }
+        }
+    }
+
+    private boolean invokeSetter(T item, String methodName, String id) {
+        if (item == null || methodName == null || methodName.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            Method method = item.getClass().getMethod(methodName, String.class);
+            method.invoke(item, id);
+            return true;
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
+            return false;
+        }
+    }
+
+    private String determinePrefix(Class<?> type) {
+        if (type == null) {
+            return "ID";
+        }
+        try {
+            Object sampleObj = type.getDeclaredConstructor().newInstance();
+            if (sampleObj instanceof IEntity) {
+                String prefix = ((IEntity) sampleObj).getPrefix();
+                if (prefix != null && !prefix.trim().isEmpty()) {
+                    return prefix.trim();
+                }
+            }
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
+            // Bỏ qua lỗi, dùng fallback bên dưới.
+        }
+        String simpleName = type.getSimpleName();
+        if (simpleName == null || simpleName.isEmpty()) {
+            return "ID";
+        }
+        if (simpleName.length() <= 3) {
+            return simpleName.toUpperCase();
+        }
+        return simpleName.substring(0, 3).toUpperCase();
+    }
+
+    private int extractNumericSuffix(String id, String prefix) {
+        if (id == null || prefix == null || !id.startsWith(prefix)) {
+            return 0;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = prefix.length(); i < id.length(); i++) {
+            char current = id.charAt(i);
+            if (Character.isDigit(current)) {
+                builder.append(current);
+            } else {
+                break;
+            }
+        }
+        if (builder.length() == 0) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(builder.toString());
+        } catch (NumberFormatException ex) {
+            return 0;
+        }
+    }
+
+    private String formatWithPadding(int number, int width) {
+        if (width <= 0) {
+            return Integer.toString(number);
+        }
+        String value = Integer.toString(number);
+        if (value.length() >= width) {
+            return value;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = value.length(); i < width; i++) {
+            builder.append('0');
+        }
+        builder.append(value);
+        return builder.toString();
     }
 }

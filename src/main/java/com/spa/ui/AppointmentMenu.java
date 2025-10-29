@@ -81,11 +81,8 @@ public class AppointmentMenu implements MenuModule {
     private void createAppointment() {
         System.out.println();
         System.out.println("--- TẠO LỊCH HẸN ---");
-        String id = Validation.getString("Mã lịch hẹn: ");
-        if (context.getAppointmentStore().findById(id) != null) {
-            System.out.println("Mã lịch hẹn đã tồn tại.");
-            return;
-        }
+        String id = context.getAppointmentStore().generateNextId();
+        System.out.println("Mã lịch hẹn được cấp: " + id);
         Customer customer = selectCustomer();
         if (customer == null) {
             System.out.println("Không có khách hàng hợp lệ.");

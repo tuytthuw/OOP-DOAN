@@ -73,11 +73,8 @@ public class InvoiceMenu implements MenuModule {
     private void createInvoice() {
         System.out.println();
         System.out.println("--- TẠO HÓA ĐƠN ---");
-        String id = Validation.getString("Mã hóa đơn: ");
-        if (context.getInvoiceStore().findById(id) != null) {
-            System.out.println("Mã hóa đơn đã tồn tại.");
-            return;
-        }
+        String id = context.getInvoiceStore().generateNextId();
+        System.out.println("Mã hóa đơn được cấp: " + id);
         Customer customer = selectCustomer();
         if (customer == null) {
             System.out.println("Không có khách hàng hợp lệ.");

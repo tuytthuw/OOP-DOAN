@@ -79,11 +79,8 @@ public class ServiceMenu implements MenuModule {
     private void addService() {
         System.out.println();
         System.out.println("--- THÊM DỊCH VỤ ---");
-        String id = Validation.getString("Mã dịch vụ: ");
-        if (context.getServiceStore().findById(id) != null) {
-            System.out.println("Mã dịch vụ đã tồn tại.");
-            return;
-        }
+        String id = context.getServiceStore().generateNextId();
+        System.out.println("Mã dịch vụ được cấp: " + id);
         String name = Validation.getString("Tên dịch vụ: ");
         double basePrice = Validation.getDouble("Giá gốc: ", 0.0, 1_000_000_000.0);
         int duration = Validation.getInt("Thời lượng (phút): ", 10, 600);

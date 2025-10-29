@@ -75,11 +75,8 @@ public class SupplierMenu implements MenuModule {
     private void addSupplier() {
         System.out.println();
         System.out.println("--- THÊM NHÀ CUNG CẤP ---");
-        String id = Validation.getString("Mã nhà cung cấp: ");
-        if (context.getSupplierStore().findById(id) != null) {
-            System.out.println("Mã nhà cung cấp đã tồn tại.");
-            return;
-        }
+        String id = context.getSupplierStore().generateNextId();
+        System.out.println("Mã nhà cung cấp được cấp: " + id);
         Supplier supplier = promptSupplier(id, null);
         context.getSupplierStore().add(supplier);
         context.getSupplierStore().writeFile();

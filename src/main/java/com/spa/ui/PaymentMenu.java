@@ -74,11 +74,8 @@ public class PaymentMenu implements MenuModule {
     private void recordPayment() {
         System.out.println();
         System.out.println("--- GHI NHẬN THANH TOÁN ---");
-        String id = Validation.getString("Mã thanh toán: ");
-        if (context.getPaymentStore().findById(id) != null) {
-            System.out.println("Mã thanh toán đã tồn tại.");
-            return;
-        }
+        String id = context.getPaymentStore().generateNextId();
+        System.out.println("Mã thanh toán được cấp: " + id);
         Invoice invoice = pickInvoice();
         if (invoice == null) {
             System.out.println("Chưa chọn hóa đơn hợp lệ.");
@@ -151,5 +148,4 @@ public class PaymentMenu implements MenuModule {
         }
         return context.getEmployeeStore().findReceptionistById(employees[selected - 1].getId());
     }
-}
 }

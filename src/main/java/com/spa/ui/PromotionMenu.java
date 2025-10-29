@@ -81,11 +81,8 @@ public class PromotionMenu implements MenuModule {
     private void addPromotion() {
         System.out.println();
         System.out.println("--- THÊM KHUYẾN MÃI ---");
-        String id = Validation.getString("Mã khuyến mãi: ");
-        if (context.getPromotionStore().findById(id) != null) {
-            System.out.println("Mã khuyến mãi đã tồn tại.");
-            return;
-        }
+        String id = context.getPromotionStore().generateNextId();
+        System.out.println("Mã khuyến mãi được cấp: " + id);
         Promotion promotion = promptPromotion(id, null);
         context.getPromotionStore().add(promotion);
         context.getPromotionStore().writeFile();
