@@ -74,6 +74,9 @@ public final class MenuHelper {
         if (employee == null) {
             return null;
         }
+        if (employee instanceof Receptionist) {
+            return (Receptionist) employee;
+        }
         Receptionist receptionist = new Receptionist();
         receptionist.setPersonId(employee.getId());
         receptionist.setFullName(employee.getFullName());
@@ -84,8 +87,12 @@ public final class MenuHelper {
         receptionist.setBirthDate(employee.getBirthDate());
         receptionist.setHireDate(employee.getHireDate());
         receptionist.setSalary(employee.getSalary());
-        receptionist.setDeleted(false);
-        receptionist.setMonthlyBonus(0.0);
+        receptionist.setDeleted(employee.isDeleted());
+        if (employee instanceof com.spa.model.Admin) {
+            receptionist.setMonthlyBonus(0.0);
+        } else {
+            receptionist.setMonthlyBonus(0.0);
+        }
         return receptionist;
     }
 

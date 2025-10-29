@@ -83,7 +83,7 @@ public class InvoiceMenu implements MenuModule {
         }
         Receptionist receptionist = resolveCurrentReceptionist();
         if (receptionist == null) {
-            System.out.println("Vui lòng đăng nhập bằng tài khoản lễ tân để tạo hóa đơn.");
+            System.out.println("Vui lòng đăng nhập để tạo hóa đơn.");
             return;
         }
         Appointment appointment = selectAppointment(customer);
@@ -267,14 +267,11 @@ public class InvoiceMenu implements MenuModule {
             return null;
         }
         Employee current = context.getAuthService().getCurrentUser();
-        if (current instanceof Receptionist) {
-            Receptionist stored = context.getEmployeeStore().findReceptionistById(current.getId());
-            return stored != null ? stored : MenuHelper.toReceptionistView(current);
+        if (current == null) {
+            return null;
         }
-        if (current instanceof Admin) {
-            return MenuHelper.toReceptionistView(current);
-        }
-        return null;
+        Employee stored = context.getEmployeeStore().findById(current.getId());
+        return MenuHelper.toReceptionistView(stored != null ? stored : current);
     }
 
     private String invoiceHeader() {

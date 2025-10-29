@@ -1,6 +1,5 @@
 package com.spa.ui;
 
-import com.spa.model.Admin;
 import com.spa.model.Employee;
 import com.spa.model.Invoice;
 import com.spa.model.Payment;
@@ -84,7 +83,8 @@ public class PaymentMenu implements MenuModule {
         PaymentMethod method = MenuHelper.selectPaymentMethod();
         Receptionist receptionist = resolveCurrentReceptionist();
         if (receptionist == null) {
-            receptionist = pickReceptionist();
+            System.out.println("Vui lòng đăng nhập để ghi nhận thanh toán.");
+            return;
         }
         String note = Validation.getOptionalString("Ghi chú thanh toán: ");
 
@@ -134,37 +134,16 @@ public class PaymentMenu implements MenuModule {
         return result;
     }
 
-    private Receptionist pickReceptionist() {
-        Receptionist[] employees = context.getEmployeeStore().getAllReceptionists();
-        if (employees.length == 0) {
-            System.out.println("Không có lễ tân nào, thanh toán sẽ không gắn người thực hiện.");
-            return null;
-        }
-        System.out.println("Chọn lễ tân thực hiện thanh toán:");
-        for (int i = 0; i < employees.length; i++) {
-            Receptionist receptionist = employees[i];
-            System.out.printf("%d. %s - %s%n", i + 1, receptionist.getId(), receptionist.getFullName());
-        }
-        int selected = Validation.getInt("Lựa chọn (0 để bỏ qua): ", 0, employees.length);
-        if (selected == 0) {
-            return null;
-        }
-        return context.getEmployeeStore().findReceptionistById(employees[selected - 1].getId());
-    }
-
     private Receptionist resolveCurrentReceptionist() {
         if (context.getAuthService() == null || !context.getAuthService().isLoggedIn()) {
             return null;
         }
         Employee current = context.getAuthService().getCurrentUser();
-        if (current instanceof Receptionist) {
-            Receptionist stored = context.getEmployeeStore().findReceptionistById(current.getId());
-            return stored != null ? stored : MenuHelper.toReceptionistView(current);
+        if (current == null) {
+            return null;
         }
-        if (current instanceof Admin) {
-            return MenuHelper.toReceptionistView(current);
-        }
-        return null;
+        Employee stored = context.getEmployeeStore().findById(current.getId());
+        return MenuHelper.toReceptionistView(stored != null ? stored : current);
     }
 
     private String paymentHeader() {
