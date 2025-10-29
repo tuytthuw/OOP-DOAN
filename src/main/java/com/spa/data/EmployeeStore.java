@@ -17,6 +17,60 @@ public class EmployeeStore extends DataStore<Employee> {
         super(Employee.class, dataFilePath);
     }
 
+    public Receptionist[] getAllReceptionists() {
+        Employee[] employees = getAll();
+        int count = 0;
+        for (Employee employee : employees) {
+            if (employee instanceof Receptionist && !employee.isDeleted()) {
+                count++;
+            }
+        }
+        Receptionist[] result = new Receptionist[count];
+        int index = 0;
+        for (Employee employee : employees) {
+            if (employee instanceof Receptionist && !employee.isDeleted()) {
+                result[index] = (Receptionist) employee;
+                index++;
+            }
+        }
+        return result;
+    }
+
+    public Receptionist findReceptionistById(String id) {
+        Employee employee = findById(id);
+        if (employee instanceof Receptionist && !employee.isDeleted()) {
+            return (Receptionist) employee;
+        }
+        return null;
+    }
+
+    public Technician[] getAllTechnicians() {
+        Employee[] employees = getAll();
+        int count = 0;
+        for (Employee employee : employees) {
+            if (employee instanceof Technician && !employee.isDeleted()) {
+                count++;
+            }
+        }
+        Technician[] result = new Technician[count];
+        int index = 0;
+        for (Employee employee : employees) {
+            if (employee instanceof Technician && !employee.isDeleted()) {
+                result[index] = (Technician) employee;
+                index++;
+            }
+        }
+        return result;
+    }
+
+    public Technician findTechnicianById(String id) {
+        Employee employee = findById(id);
+        if (employee instanceof Technician && !employee.isDeleted()) {
+            return (Technician) employee;
+        }
+        return null;
+    }
+
     @Override
     protected String convertToLine(Employee item) {
         if (item == null) {

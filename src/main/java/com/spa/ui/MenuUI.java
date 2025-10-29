@@ -58,6 +58,11 @@ public class MenuUI {
     private final ServiceMenu serviceMenu;
     private final ProductMenu productMenu;
     private final SupplierMenu supplierMenu;
+    private final PromotionMenu promotionMenu;
+    private final PaymentMenu paymentMenu;
+    private final AppointmentMenu appointmentMenu;
+    private final InvoiceMenu invoiceMenu;
+    private final GoodsReceiptMenu goodsReceiptMenu;
 
     public MenuUI(AuthService authService,
                   EmployeeStore employeeStore,
@@ -87,6 +92,11 @@ public class MenuUI {
         serviceMenu = new ServiceMenu(context);
         productMenu = new ProductMenu(context);
         supplierMenu = new SupplierMenu(context);
+        promotionMenu = new PromotionMenu(context);
+        paymentMenu = new PaymentMenu(context);
+        appointmentMenu = new AppointmentMenu(context);
+        invoiceMenu = new InvoiceMenu(context);
+        goodsReceiptMenu = new GoodsReceiptMenu(context);
     }
 
     /**
@@ -107,15 +117,16 @@ public class MenuUI {
             System.out.println("6. Quản lý khuyến mãi" + (canManageCore ? "" : " (không khả dụng)"));
             System.out.println("7. Quản lý nhà cung cấp" + (canManageCore ? "" : " (không khả dụng)"));
             System.out.println("8. Quản lý thanh toán" + (canManageCore ? "" : " (không khả dụng)"));
-            System.out.println("9. Tài khoản");
+            System.out.println("9. Quản lý phiếu nhập kho" + (canManageCore ? "" : " (không khả dụng)"));
+            System.out.println("10. Tài khoản");
             if (canManageEmployeesMenu) {
-                System.out.println("10. Quản lý nhân sự");
+                System.out.println("11. Quản lý nhân sự");
             } else {
-                System.out.println("10. Quản lý nhân sự (không khả dụng)");
+                System.out.println("11. Quản lý nhân sự (không khả dụng)");
             }
             System.out.println("0. Thoát");
 
-            int choice = Validation.getInt("Chọn chức năng: ", 0, 10);
+            int choice = Validation.getInt("Chọn chức năng: ", 0, 11);
             switch (choice) {
                 case 1:
                     if (canManageCore) {
@@ -139,14 +150,14 @@ public class MenuUI {
                     }
                     break;
                 case 4:
-                    handleAppointmentMenu();
+                    appointmentMenu.show();
                     break;
                 case 5:
-                    handleInvoiceMenu();
+                    invoiceMenu.show();
                     break;
                 case 6:
                     if (canManageCore) {
-                        handlePromotionMenu();
+                        promotionMenu.show();
                     } else {
                         noPermission();
                     }
@@ -160,15 +171,22 @@ public class MenuUI {
                     break;
                 case 8:
                     if (canManageCore) {
-                        handlePaymentMenu();
+                        paymentMenu.show();
                     } else {
                         noPermission();
                     }
                     break;
                 case 9:
-                    handleAccountMenu();
+                    if (canManageCore) {
+                        goodsReceiptMenu.show();
+                    } else {
+                        noPermission();
+                    }
                     break;
                 case 10:
+                    handleAccountMenu();
+                    break;
+                case 11:
                     if (canManageEmployeesMenu) {
                         handleEmployeeMenu();
                     } else {
