@@ -1,4 +1,4 @@
-CUS001|Nguyen An|0903123123|true|1995-05-12|an@spa.com|Ho Chi Minh|false|GOLD|Loyal customer|240|2025-10-01
-CUS002|Tran Binh|0915123456|false|1998-09-20|binh@spa.com|Ha Noi|false|SILVER|Prefers massage|120|2025-09-25
+CUS001|Nguyen An|0903123123|true|1995-05-12|an@spa.com|Ho Chi Minh|false|GOLD|Loyal customer|15540|2025-10-01
+CUS002|Tran Binh|0915123456|false|1998-09-20|binh@spa.com|Ha Noi|false|GOLD|Prefers massage|2280|2025-09-25
 CUS003|Le Chi|0987123999|true|2000-02-18|chi@spa.com|Da Nang|false|STANDARD|New member|60|2025-10-05
 CUS004|k|k|true|2003-10-10|k|k|false|STANDARD|kjlk|0|2025-10-29

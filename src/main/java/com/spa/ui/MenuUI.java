@@ -39,6 +39,16 @@ import java.security.NoSuchAlgorithmException;
 public class MenuUI {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final String MODULE_CUSTOMER = "CUSTOMER";
+    private static final String MODULE_SERVICE = "SERVICE";
+    private static final String MODULE_PRODUCT = "PRODUCT";
+    private static final String MODULE_APPOINTMENT = "APPOINTMENT";
+    private static final String MODULE_INVOICE = "INVOICE";
+    private static final String MODULE_PROMOTION = "PROMOTION";
+    private static final String MODULE_SUPPLIER = "SUPPLIER";
+    private static final String MODULE_PAYMENT = "PAYMENT";
+    private static final String MODULE_GOODS_RECEIPT = "GOODS_RECEIPT";
+    private static final String MODULE_EMPLOYEE = "EMPLOYEE";
 
     private final AuthService authService;
     private final EmployeeStore employeeStore;
@@ -107,17 +117,26 @@ public class MenuUI {
         boolean running = true;
         while (running) {
             printHeader();
-            boolean canManageCore = canAccess("CORE_DATA");
-            boolean canManageEmployeesMenu = canAccess("HR_MANAGEMENT");
-            System.out.println("1. Quản lý khách hàng" + (canManageCore ? "" : " (không khả dụng)"));
-            System.out.println("2. Quản lý dịch vụ" + (canManageCore ? "" : " (không khả dụng)"));
-            System.out.println("3. Quản lý sản phẩm" + (canManageCore ? "" : " (không khả dụng)"));
-            System.out.println("4. Quản lý lịch hẹn");
-            System.out.println("5. Quản lý hóa đơn");
-            System.out.println("6. Quản lý khuyến mãi" + (canManageCore ? "" : " (không khả dụng)"));
-            System.out.println("7. Quản lý nhà cung cấp" + (canManageCore ? "" : " (không khả dụng)"));
-            System.out.println("8. Quản lý thanh toán" + (canManageCore ? "" : " (không khả dụng)"));
-            System.out.println("9. Quản lý phiếu nhập kho" + (canManageCore ? "" : " (không khả dụng)"));
+            boolean canManageCustomers = hasPermission(MODULE_CUSTOMER);
+            boolean canManageServices = hasPermission(MODULE_SERVICE);
+            boolean canManageProducts = hasPermission(MODULE_PRODUCT);
+            boolean canManageAppointments = hasPermission(MODULE_APPOINTMENT);
+            boolean canManageInvoices = hasPermission(MODULE_INVOICE);
+            boolean canManagePromotions = hasPermission(MODULE_PROMOTION);
+            boolean canManageSuppliers = hasPermission(MODULE_SUPPLIER);
+            boolean canManagePayments = hasPermission(MODULE_PAYMENT);
+            boolean canManageGoodsReceipt = hasPermission(MODULE_GOODS_RECEIPT);
+            boolean canManageEmployeesMenu = hasPermission(MODULE_EMPLOYEE);
+
+            System.out.println("1. Quản lý khách hàng" + (canManageCustomers ? "" : " (không khả dụng)"));
+            System.out.println("2. Quản lý dịch vụ" + (canManageServices ? "" : " (không khả dụng)"));
+            System.out.println("3. Quản lý sản phẩm" + (canManageProducts ? "" : " (không khả dụng)"));
+            System.out.println("4. Quản lý lịch hẹn" + (canManageAppointments ? "" : " (không khả dụng)"));
+            System.out.println("5. Quản lý hóa đơn" + (canManageInvoices ? "" : " (không khả dụng)"));
+            System.out.println("6. Quản lý khuyến mãi" + (canManagePromotions ? "" : " (không khả dụng)"));
+            System.out.println("7. Quản lý nhà cung cấp" + (canManageSuppliers ? "" : " (không khả dụng)"));
+            System.out.println("8. Quản lý thanh toán" + (canManagePayments ? "" : " (không khả dụng)"));
+            System.out.println("9. Quản lý phiếu nhập kho" + (canManageGoodsReceipt ? "" : " (không khả dụng)"));
             System.out.println("10. Tài khoản");
             if (canManageEmployeesMenu) {
                 System.out.println("11. Quản lý nhân sự");
@@ -129,55 +148,63 @@ public class MenuUI {
             int choice = Validation.getInt("Chọn chức năng: ", 0, 11);
             switch (choice) {
                 case 1:
-                    if (canManageCore) {
+                    if (canManageCustomers) {
                         customerMenu.show();
                     } else {
                         noPermission();
                     }
                     break;
                 case 2:
-                    if (canManageCore) {
+                    if (canManageServices) {
                         serviceMenu.show();
                     } else {
                         noPermission();
                     }
                     break;
                 case 3:
-                    if (canManageCore) {
+                    if (canManageProducts) {
                         productMenu.show();
                     } else {
                         noPermission();
                     }
                     break;
                 case 4:
-                    appointmentMenu.show();
+                    if (canManageAppointments) {
+                        appointmentMenu.show();
+                    } else {
+                        noPermission();
+                    }
                     break;
                 case 5:
-                    invoiceMenu.show();
+                    if (canManageInvoices) {
+                        invoiceMenu.show();
+                    } else {
+                        noPermission();
+                    }
                     break;
                 case 6:
-                    if (canManageCore) {
+                    if (canManagePromotions) {
                         promotionMenu.show();
                     } else {
                         noPermission();
                     }
                     break;
                 case 7:
-                    if (canManageCore) {
+                    if (canManageSuppliers) {
                         supplierMenu.show();
                     } else {
                         noPermission();
                     }
                     break;
                 case 8:
-                    if (canManageCore) {
+                    if (canManagePayments) {
                         paymentMenu.show();
                     } else {
                         noPermission();
                     }
                     break;
                 case 9:
-                    if (canManageCore) {
+                    if (canManageGoodsReceipt) {
                         goodsReceiptMenu.show();
                     } else {
                         noPermission();
@@ -275,17 +302,37 @@ public class MenuUI {
         Validation.pause();
     }
 
-    private boolean canAccess(String moduleKey) {
+    private boolean hasPermission(String moduleKey) {
         Employee current = authService.getCurrentUser();
         if (current == null) {
             return false;
         }
-        if ("CORE_DATA".equalsIgnoreCase(moduleKey)) {
-            return true;
-        }
         if (current instanceof com.spa.model.Admin) {
-            com.spa.model.Admin admin = (com.spa.model.Admin) current;
-            return admin.canAccess(moduleKey);
+            if (MODULE_CUSTOMER.equalsIgnoreCase(moduleKey)
+                    || MODULE_SERVICE.equalsIgnoreCase(moduleKey)
+                    || MODULE_PRODUCT.equalsIgnoreCase(moduleKey)
+                    || MODULE_APPOINTMENT.equalsIgnoreCase(moduleKey)
+                    || MODULE_INVOICE.equalsIgnoreCase(moduleKey)
+                    || MODULE_PROMOTION.equalsIgnoreCase(moduleKey)
+                    || MODULE_SUPPLIER.equalsIgnoreCase(moduleKey)
+                    || MODULE_PAYMENT.equalsIgnoreCase(moduleKey)
+                    || MODULE_GOODS_RECEIPT.equalsIgnoreCase(moduleKey)) {
+                return true;
+            }
+            if (MODULE_EMPLOYEE.equalsIgnoreCase(moduleKey)) {
+                return ((com.spa.model.Admin) current).canAccess("HR_MANAGEMENT");
+            }
+            return ((com.spa.model.Admin) current).canAccess(moduleKey);
+        }
+        if (current instanceof com.spa.model.Receptionist) {
+            return MODULE_CUSTOMER.equalsIgnoreCase(moduleKey)
+                    || MODULE_APPOINTMENT.equalsIgnoreCase(moduleKey)
+                    || MODULE_INVOICE.equalsIgnoreCase(moduleKey)
+                    || MODULE_PAYMENT.equalsIgnoreCase(moduleKey)
+                    || MODULE_PROMOTION.equalsIgnoreCase(moduleKey);
+        }
+        if (current instanceof com.spa.model.Technician) {
+            return MODULE_APPOINTMENT.equalsIgnoreCase(moduleKey);
         }
         return false;
     }
