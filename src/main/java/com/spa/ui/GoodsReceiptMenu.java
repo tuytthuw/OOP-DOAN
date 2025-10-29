@@ -80,10 +80,10 @@ public class GoodsReceiptMenu implements MenuModule {
         System.out.println("--- TẠO PHIẾU NHẬP KHO ---");
         String id = context.getGoodsReceiptStore().generateNextId();
         System.out.println("Mã phiếu nhập được cấp: " + id);
-        LocalDate receiptDate = Validation.getDate("Ngày nhập (yyyy-MM-dd): ", DATE_FORMAT);
-        Employee employee = selectEmployee();
+        LocalDate receiptDate = LocalDate.now();
+        Employee employee = resolveCurrentEmployee();
         if (employee == null) {
-            System.out.println("Không có nhân viên hợp lệ.");
+            System.out.println("Không xác định được nhân viên đang đăng nhập. Vui lòng đăng nhập lại.");
             return;
         }
         Supplier supplier = selectSupplier();
@@ -91,8 +91,8 @@ public class GoodsReceiptMenu implements MenuModule {
             System.out.println("Không có nhà cung cấp hợp lệ.");
             return;
         }
-        String notes = Validation.getString("Ghi chú: ");
-        String warehouse = Validation.getString("Vị trí kho: ");
+        String notes = Validation.getOptionalString("Ghi chú: ");
+        String warehouse = Validation.getOptionalString("Vị trí kho: ");
 
         GoodsReceipt receipt = new GoodsReceipt(id, receiptDate, employee, supplier,
                 new DataStore<>(Product.class), 0.0, notes, warehouse);
@@ -372,32 +372,11 @@ public class GoodsReceiptMenu implements MenuModule {
         System.out.println("---------------------------------------------");
     }
 
-    private Employee selectEmployee() {
-        Employee[] employees = context.getEmployeeStore().getAll();
-        int count = 0;
-        for (Employee employee : employees) {
-            if (employee != null && !employee.isDeleted()) {
-                count++;
-            }
-        }
-        if (count == 0) {
+    private Employee resolveCurrentEmployee() {
+        if (context.getAuthService() == null || !context.getAuthService().isLoggedIn()) {
             return null;
         }
-        Employee[] active = new Employee[count];
-        int index = 0;
-        for (Employee employee : employees) {
-            if (employee != null && !employee.isDeleted()) {
-                active[index] = employee;
-                index++;
-            }
-        }
-        System.out.println("Chọn nhân viên phụ trách:");
-        for (int i = 0; i < active.length; i++) {
-            Employee employee = active[i];
-            System.out.printf("%d. %s - %s%n", i + 1, employee.getId(), employee.getFullName());
-        }
-        int selected = Validation.getInt("Lựa chọn: ", 1, active.length);
-        return context.getEmployeeStore().findById(active[selected - 1].getId());
+        return context.getAuthService().getCurrentUser();
     }
 
     private Supplier selectSupplier() {
