@@ -22,7 +22,10 @@ public final class MenuHelper {
         for (int i = 0; i < tiers.length; i++) {
             System.out.println((i + 1) + ". " + tiers[i]);
         }
-        int selected = Validation.getInt("Lựa chọn: ", 1, tiers.length);
+        Integer selected = Validation.getIntOrCancel("Lựa chọn", 1, tiers.length);
+        if (selected == null) {
+            return null;
+        }
         return tiers[selected - 1];
     }
 
@@ -32,7 +35,10 @@ public final class MenuHelper {
         for (int i = 0; i < categories.length; i++) {
             System.out.println((i + 1) + ". " + categories[i]);
         }
-        int selected = Validation.getInt("Lựa chọn: ", 1, categories.length);
+        Integer selected = Validation.getIntOrCancel("Lựa chọn", 1, categories.length);
+        if (selected == null) {
+            return null;
+        }
         return categories[selected - 1];
     }
 
@@ -42,7 +48,10 @@ public final class MenuHelper {
         for (int i = 0; i < types.length; i++) {
             System.out.println((i + 1) + ". " + types[i]);
         }
-        int selected = Validation.getInt("Lựa chọn: ", 1, types.length);
+        Integer selected = Validation.getIntOrCancel("Lựa chọn", 1, types.length);
+        if (selected == null) {
+            return null;
+        }
         return types[selected - 1];
     }
 
@@ -52,7 +61,10 @@ public final class MenuHelper {
         for (int i = 0; i < methods.length; i++) {
             System.out.println((i + 1) + ". " + methods[i]);
         }
-        int selected = Validation.getInt("Lựa chọn: ", 1, methods.length);
+        Integer selected = Validation.getIntOrCancel("Lựa chọn", 1, methods.length);
+        if (selected == null) {
+            return null;
+        }
         return methods[selected - 1];
     }
 

@@ -108,7 +108,12 @@ public class Payment implements IEntity {
         if (invoice == null) {
             return false;
         }
-        if (amount < invoice.calculateTotal()) {
+        double requiredAmount = invoice.getTotalAmount();
+        if (requiredAmount <= 0) {
+            requiredAmount = invoice.calculateTotal();
+            invoice.setTotalAmount(requiredAmount);
+        }
+        if (amount < requiredAmount) {
             return false;
         }
         invoice.setStatus(true);

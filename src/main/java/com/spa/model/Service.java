@@ -68,7 +68,17 @@ public class Service implements IEntity, Sellable {
 
     @Override
     public void display() {
-        // Sẽ hiển thị ở tầng UI.
+        System.out.println("---------------- THÔNG TIN DỊCH VỤ ----------------");
+        System.out.printf("Mã dịch vụ     : %s%n", serviceId);
+        System.out.printf("Tên dịch vụ    : %s%n", serviceName);
+        System.out.printf("Giá gốc        : %s%n", basePrice);
+        System.out.printf("Thời lượng     : %d phút%n", durationMinutes);
+        System.out.printf("Thời gian đệm  : %d phút%n", bufferTime);
+        System.out.printf("Nhóm dịch vụ   : %s%n", category);
+        System.out.printf("Mô tả          : %s%n", description == null || description.isEmpty() ? "(trống)" : description);
+        System.out.printf("Ngày tạo       : %s%n", createdDate == null ? "N/A" : createdDate);
+        System.out.printf("Trạng thái     : %s%n", active ? "Đang mở" : "Tạm khóa");
+        System.out.println("---------------------------------------------------");
     }
 
     @Override

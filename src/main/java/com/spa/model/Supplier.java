@@ -106,7 +106,16 @@ public class Supplier implements IEntity {
 
     @Override
     public void display() {
-        // Hiển thị ở tầng UI.
+        System.out.println("---------------- THÔNG TIN NHÀ CUNG CẤP ----------------");
+        System.out.printf("Mã NCC        : %s%n", supplierId);
+        System.out.printf("Tên NCC       : %s%n", supplierName);
+        System.out.printf("Người liên hệ : %s%n", contactPerson);
+        System.out.printf("Điện thoại    : %s%n", phoneNumber);
+        System.out.printf("Địa chỉ       : %s%n", address);
+        System.out.printf("Email         : %s%n", email);
+        System.out.printf("Ghi chú       : %s%n", notes == null || notes.isEmpty() ? "(trống)" : notes);
+        System.out.println("Trạng thái    : " + (deleted ? "Đã khóa" : "Hoạt động"));
+        System.out.println("---------------------------------------------------------");
     }
 
     @Override
@@ -119,13 +128,4 @@ public class Supplier implements IEntity {
         return PREFIX;
     }
 
-    @Override
-    public String toString() {
-        return "Supplier{" +
-                "id='" + supplierId + '\'' +
-                ", name='" + supplierName + '\'' +
-                ", contactPerson='" + contactPerson + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                "}";
-    }
 }

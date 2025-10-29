@@ -103,7 +103,19 @@ public class Product implements IEntity, Sellable {
 
     @Override
     public void display() {
-        // Xử lý ở tầng UI.
+        System.out.println("---------------- THÔNG TIN SẢN PHẨM ----------------");
+        System.out.printf("Mã sản phẩm   : %s%n", productId);
+        System.out.printf("Tên sản phẩm  : %s%n", productName);
+        System.out.printf("Thương hiệu   : %s%n", brand);
+        System.out.printf("Giá bán       : %s%n", basePrice);
+        System.out.printf("Giá vốn       : %.2f%n", costPrice);
+        System.out.printf("Đơn vị        : %s%n", unit);
+        System.out.printf("Nhà cung cấp  : %s%n", supplier == null ? "(không)" : supplier.getSupplierName());
+        System.out.printf("Tồn kho       : %d%n", stockQuantity);
+        System.out.printf("Ngưỡng đặt lại: %d%n", reorderLevel);
+        System.out.printf("Hết hạn       : %s%n", expiryDate == null ? "N/A" : expiryDate);
+        System.out.println("Trạng thái    : " + (deleted ? "Đã khóa" : "Hoạt động"));
+        System.out.println("----------------------------------------------------");
     }
 
     @Override
@@ -293,12 +305,4 @@ public class Product implements IEntity, Sellable {
         return stockQuantity <= reorderLevel;
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id='" + productId + '\'' +
-                ", name='" + productName + '\'' +
-                ", stock=" + stockQuantity +
-                '}';
-    }
 }

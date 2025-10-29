@@ -26,18 +26,28 @@ public class GoodsReceiptMenu implements MenuModule {
         while (!back) {
             System.out.println();
             System.out.println("--- QUẢN LÝ PHIẾU NHẬP KHO ---");
-            System.out.println("1. Xem danh sách phiếu nhập");
-            System.out.println("2. Tạo phiếu nhập kho");
+            System.out.println("1. Tạo phiếu nhập kho");
+            System.out.println("2. Xuất danh sách");
+            System.out.println("3. Tìm kiếm phiếu nhập");
+            System.out.println("4. Thống kê phiếu nhập");
             System.out.println("0. Quay lại");
 
-            int choice = Validation.getInt("Chọn chức năng: ", 0, 2);
+            int choice = Validation.getInt("Chọn chức năng: ", 0, 4);
             switch (choice) {
                 case 1:
-                    listGoodsReceipts();
+                    createGoodsReceipt();
                     Validation.pause();
                     break;
                 case 2:
-                    createGoodsReceipt();
+                    listGoodsReceipts();
+                    Validation.pause();
+                    break;
+                case 3:
+                    searchGoodsReceipts();
+                    Validation.pause();
+                    break;
+                case 4:
+                    showGoodsReceiptStatistics();
                     Validation.pause();
                     break;
                 case 0:
@@ -58,12 +68,7 @@ public class GoodsReceiptMenu implements MenuModule {
                 continue;
             }
             hasData = true;
-            System.out.printf("%s | Ngày: %s | NV: %s | NCC: %s | Tổng chi phí: %.2f%n",
-                    receipt.getId(),
-                    receipt.getReceiptDate(),
-                    receipt.getEmployee() == null ? "" : receipt.getEmployee().getId(),
-                    receipt.getSupplier() == null ? "" : receipt.getSupplier().getId(),
-                    receipt.getTotalCost());
+            displayReceipt(receipt);
         }
         if (!hasData) {
             System.out.println("Chưa có phiếu nhập nào.");
@@ -97,36 +102,274 @@ public class GoodsReceiptMenu implements MenuModule {
             return;
         }
         receipt.calculateTotalCost();
-        receipt.processReceipt();
 
         context.getGoodsReceiptStore().add(receipt);
         context.getGoodsReceiptStore().writeFile();
         context.getProductStore().writeFile();
 
         System.out.printf("Đã tạo phiếu nhập %s với tổng chi phí %.2f.%n", receipt.getId(), receipt.getTotalCost());
+        displayReceipt(receipt);
     }
 
     private void addProducts(GoodsReceipt receipt) {
         boolean adding = true;
         while (adding) {
-            String productId = Validation.getString("Nhập mã sản phẩm (0 để kết thúc): ");
-            if ("0".equals(productId)) {
-                adding = false;
-                continue;
+            System.out.println();
+            System.out.println("1. Thêm bằng mã sản phẩm");
+            System.out.println("2. Tìm kiếm sản phẩm");
+            System.out.println("0. Hoàn tất");
+            int choice = Validation.getInt("Chọn chức năng: ", 0, 2);
+            switch (choice) {
+                case 1:
+                    Product byId = selectProductById();
+                    if (byId != null) {
+                        appendReceiptItem(receipt, byId);
+                    }
+                    break;
+                case 2:
+                    Product searched = searchProduct();
+                    if (searched != null) {
+                        appendReceiptItem(receipt, searched);
+                    }
+                    break;
+                case 0:
+                default:
+                    adding = false;
+                    break;
             }
-            Product product = context.getProductStore().findById(productId);
-            if (product == null || product.isDeleted()) {
-                System.out.println("Sản phẩm không tồn tại hoặc đã bị khóa.");
-                continue;
-            }
-            int quantity = Validation.getInt("Số lượng nhập: ", 1, 1_000_000);
-            double costPrice = Validation.getDouble("Giá vốn mỗi đơn vị: ", 0.0, 1_000_000_000.0);
-            Product receiptItem = new Product(product.getId(), product.getProductName(), product.getBrand(),
-                    product.getBasePrice(), costPrice * quantity, product.getUnit(), product.getSupplier(),
-                    quantity, product.getExpiryDate(), false, product.getReorderLevel());
-            receipt.addProduct(receiptItem);
-            product.updateStock(quantity);
         }
+    }
+
+    private void appendReceiptItem(GoodsReceipt receipt, Product baseProduct) {
+        Integer quantity = Validation.getIntOrCancel("Số lượng nhập", 1, 1_000_000);
+        if (quantity == null) {
+            return;
+        }
+        Double costPrice = Validation.getDoubleOrCancel("Giá vốn mỗi đơn vị", 0.0, 1_000_000_000.0);
+        if (costPrice == null) {
+            return;
+        }
+        Product receiptItem = new Product(baseProduct.getId(), baseProduct.getProductName(), baseProduct.getBrand(),
+                baseProduct.getBasePrice(), costPrice * quantity, baseProduct.getUnit(), baseProduct.getSupplier(),
+                quantity, baseProduct.getExpiryDate(), false, baseProduct.getReorderLevel());
+        receipt.addProduct(receiptItem);
+        baseProduct.setCostPrice(costPrice);
+        baseProduct.updateStock(quantity);
+    }
+
+    private Product selectProductById() {
+        String productId = Validation.getStringOrCancel("Nhập mã sản phẩm (nhập '" + Validation.cancelKeyword() + "' để hủy)");
+        if ("0".equals(productId)) {
+            return null;
+        }
+        if (productId == null) {
+            return null;
+        }
+        Product product = context.getProductStore().findById(productId);
+        if (product == null || product.isDeleted()) {
+            System.out.println("Sản phẩm không tồn tại hoặc đã bị khóa.");
+            return null;
+        }
+        return product;
+    }
+
+    private Product searchProduct() {
+        String keyword = Validation.getStringOrCancel("Từ khóa tìm kiếm (nhập '" + Validation.cancelKeyword() + "' để hủy)");
+        if (keyword == null) {
+            return null;
+        }
+        if (keyword.isEmpty()) {
+            System.out.println("Từ khóa không được bỏ trống.");
+            return null;
+        }
+        Product[] products = context.getProductStore().getAll();
+        String lowerKeyword = keyword.toLowerCase();
+        int matchCount = 0;
+        for (Product product : products) {
+            if (isMatchingProduct(product, lowerKeyword)) {
+                matchCount++;
+            }
+        }
+        if (matchCount == 0) {
+            System.out.println("Không tìm thấy sản phẩm phù hợp.");
+            return null;
+        }
+        Product[] matches = new Product[matchCount];
+        int index = 0;
+        for (Product product : products) {
+            if (isMatchingProduct(product, lowerKeyword)) {
+                matches[index] = product;
+                index++;
+            }
+        }
+        System.out.println("Kết quả tìm kiếm:");
+        for (int i = 0; i < matches.length; i++) {
+            Product item = matches[i];
+            System.out.printf("%d. %s | %s | tồn: %d%n",
+                    i + 1,
+                    item.getId(),
+                    item.getProductName(),
+                    item.getStockQuantity());
+        }
+        int selected = Validation.getInt("Chọn sản phẩm (0 để bỏ qua): ", 0, matches.length);
+        if (selected == 0) {
+            return null;
+        }
+        Product chosen = context.getProductStore().findById(matches[selected - 1].getId());
+        if (chosen == null || chosen.isDeleted()) {
+            System.out.println("Sản phẩm không còn khả dụng.");
+            return null;
+        }
+        return chosen;
+    }
+
+    private boolean isMatchingProduct(Product product, String keyword) {
+        if (product == null || product.isDeleted()) {
+            return false;
+        }
+        String id = product.getId() == null ? "" : product.getId().toLowerCase();
+        String name = product.getProductName() == null ? "" : product.getProductName().toLowerCase();
+        String brand = product.getBrand() == null ? "" : product.getBrand().toLowerCase();
+        return id.contains(keyword) || name.contains(keyword) || brand.contains(keyword);
+    }
+
+    private void searchGoodsReceipts() {
+        String exactId = Validation.getStringOrCancel("Nhập mã phiếu nhập để tìm nhanh (nhập '" + Validation.cancelKeyword() + "' để bỏ qua)");
+        if (exactId == null) {
+            System.out.println("Đã hủy tìm kiếm.");
+            return;
+        }
+        if (!exactId.isEmpty()) {
+            GoodsReceipt receipt = context.getGoodsReceiptStore().findById(exactId);
+            if (receipt != null) {
+                displayReceipt(receipt);
+            } else {
+                System.out.println("Không tìm thấy phiếu nhập theo mã.");
+            }
+        }
+
+        LocalDate fromDate = Validation.getDateOrCancel("Ngày bắt đầu (yyyy-MM-dd, nhập '" + Validation.cancelKeyword() + "' để bỏ qua)", DATE_FORMAT);
+        if (fromDate == null && !Validation.cancelKeyword().equalsIgnoreCase("Q")) {
+            // null do hủy
+        }
+        LocalDate toDate = Validation.getDateOrCancel("Ngày kết thúc (yyyy-MM-dd, nhập '" + Validation.cancelKeyword() + "' để bỏ qua)", DATE_FORMAT);
+        if (toDate == null && !Validation.cancelKeyword().equalsIgnoreCase("Q")) {
+            // null do hủy
+        }
+        String supplierId = Validation.getStringOrCancel("Nhập mã nhà cung cấp (bỏ qua nếu trống)");
+        if (supplierId == null) {
+            System.out.println("Đã hủy tìm kiếm.");
+            return;
+        }
+        String employeeId = Validation.getStringOrCancel("Nhập mã nhân viên (bỏ qua nếu trống)");
+        if (employeeId == null) {
+            System.out.println("Đã hủy tìm kiếm.");
+            return;
+        }
+
+        GoodsReceipt[] receipts = context.getGoodsReceiptStore().getAll();
+        boolean foundAny = false;
+        for (GoodsReceipt receipt : receipts) {
+            if (receipt == null) {
+                continue;
+            }
+            if (!matchesReceiptFilters(receipt, fromDate, toDate, supplierId, employeeId)) {
+                continue;
+            }
+            displayReceipt(receipt);
+            foundAny = true;
+        }
+        if (!foundAny) {
+            System.out.println("Không có phiếu nhập phù hợp.");
+        }
+    }
+
+    private void showGoodsReceiptStatistics() {
+        GoodsReceipt[] receipts = context.getGoodsReceiptStore().getAll();
+        if (receipts.length == 0) {
+            System.out.println("Chưa có dữ liệu phiếu nhập.");
+            return;
+        }
+        int total = 0;
+        double totalCost = 0.0;
+        double maxCost = 0.0;
+        double minCost = Double.MAX_VALUE;
+        GoodsReceipt maxReceipt = null;
+        GoodsReceipt minReceipt = null;
+        for (GoodsReceipt receipt : receipts) {
+            if (receipt == null) {
+                continue;
+            }
+            total++;
+            double cost = receipt.getTotalCost();
+            totalCost += cost;
+            if (cost > maxCost) {
+                maxCost = cost;
+                maxReceipt = receipt;
+            }
+            if (cost < minCost) {
+                minCost = cost;
+                minReceipt = receipt;
+            }
+        }
+        System.out.printf("Tổng số phiếu nhập: %d%n", total);
+        System.out.printf("Tổng chi phí: %.2f%n", totalCost);
+        System.out.printf("Chi phí trung bình: %.2f%n", total == 0 ? 0.0 : totalCost / total);
+        if (maxReceipt != null) {
+            System.out.printf("Phiếu nhập cao nhất: %s (%.2f)%n", maxReceipt.getId(), maxCost);
+        }
+        if (minReceipt != null) {
+            System.out.printf("Phiếu nhập thấp nhất: %s (%.2f)%n", minReceipt.getId(), minCost);
+        }
+    }
+
+    private boolean matchesReceiptFilters(GoodsReceipt receipt,
+                                          LocalDate fromDate,
+                                          LocalDate toDate,
+                                          String supplierId,
+                                          String employeeId) {
+        LocalDate date = receipt.getReceiptDate();
+        if (fromDate != null && (date == null || date.isBefore(fromDate))) {
+            return false;
+        }
+        if (toDate != null && (date == null || date.isAfter(toDate))) {
+            return false;
+        }
+        if (supplierId != null && !supplierId.trim().isEmpty()) {
+            if (receipt.getSupplier() == null || !supplierId.equalsIgnoreCase(receipt.getSupplier().getId())) {
+                return false;
+            }
+        }
+        if (employeeId != null && !employeeId.trim().isEmpty()) {
+            if (receipt.getEmployee() == null || !employeeId.equalsIgnoreCase(receipt.getEmployee().getId())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void displayReceipt(GoodsReceipt receipt) {
+        System.out.println("---------------- PHIẾU NHẬP ----------------");
+        System.out.printf("Mã phiếu     : %s%n", receipt.getId());
+        System.out.printf("Ngày nhập    : %s%n", receipt.getReceiptDate());
+        System.out.printf("Nhân viên    : %s%n", receipt.getEmployee() == null ? "" : receipt.getEmployee().getFullName());
+        System.out.printf("Nhà cung cấp : %s%n", receipt.getSupplier() == null ? "" : receipt.getSupplier().getSupplierName());
+        System.out.printf("Vị trí kho   : %s%n", receipt.getWarehouseLocation());
+        System.out.printf("Ghi chú      : %s%n", receipt.getNotes());
+        System.out.printf("Tổng chi phí : %.2f%n", receipt.getTotalCost());
+        System.out.println("Danh sách sản phẩm:");
+        Product[] products = receipt.getReceivedProducts().getAll();
+        for (Product product : products) {
+            if (product == null) {
+                continue;
+            }
+            System.out.printf("- %s | %s | SL: %d | Giá vốn tổng: %.2f%n",
+                    product.getId(),
+                    product.getProductName(),
+                    product.getStockQuantity(),
+                    product.getCostPrice());
+        }
+        System.out.println("---------------------------------------------");
     }
 
     private Employee selectEmployee() {

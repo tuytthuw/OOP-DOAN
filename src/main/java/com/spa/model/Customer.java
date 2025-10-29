@@ -50,7 +50,20 @@ public class Customer extends Person {
 
     @Override
     public void display() {
-        // Giai đoạn này chưa in trực tiếp ra giao diện.
+        System.out.println("---------------- THÔNG TIN KHÁCH HÀNG ----------------");
+        System.out.printf("Mã          : %s%n", getId());
+        System.out.printf("Họ tên      : %s%n", getFullName());
+        System.out.printf("Giới tính   : %s%n", isMale() ? "Nam" : "Nữ");
+        System.out.printf("Ngày sinh   : %s%n", getBirthDate() == null ? "N/A" : getBirthDate());
+        System.out.printf("Điện thoại  : %s%n", getPhoneNumber());
+        System.out.printf("Email       : %s%n", getEmail());
+        System.out.printf("Địa chỉ     : %s%n", getAddress());
+        System.out.printf("Hạng        : %s%n", memberTier);
+        System.out.printf("Điểm tích lũy: %d%n", points);
+        System.out.printf("Lần ghé gần nhất: %s%n", lastVisitDate == null ? "N/A" : lastVisitDate);
+        System.out.printf("Ghi chú     : %s%n", notes == null || notes.isEmpty() ? "(trống)" : notes);
+        System.out.println("Trạng thái  : " + (isDeleted() ? "Đã khóa" : "Hoạt động"));
+        System.out.println("------------------------------------------------------");
     }
 
     @Override
@@ -130,14 +143,4 @@ public class Customer extends Person {
         this.lastVisitDate = lastVisitDate;
     }
 
-    @Override
-    public String toString() {
-        return "Customer{" +
-                "id='" + getId() + '\'' +
-                ", name='" + getFullName() + '\'' +
-                ", tier=" + memberTier +
-                ", points=" + points +
-                ", lastVisitDate=" + lastVisitDate +
-                '}';
-    }
 }

@@ -23,28 +23,43 @@ public class CustomerMenu implements MenuModule {
         while (!back) {
             System.out.println();
             System.out.println("--- QUẢN LÝ KHÁCH HÀNG ---");
-            System.out.println("1. Xem danh sách khách hàng");
-            System.out.println("2. Thêm khách hàng mới");
-            System.out.println("3. Cập nhật thông tin khách hàng");
-            System.out.println("4. Xóa khách hàng");
+            System.out.println("1. Thêm khách hàng mới");
+            System.out.println("2. Thêm nhiều khách hàng");
+            System.out.println("3. Xuất danh sách");
+            System.out.println("4. Cập nhật khách hàng");
+            System.out.println("5. Xóa khách hàng");
+            System.out.println("6. Tìm kiếm khách hàng");
+            System.out.println("7. Thống kê khách hàng");
             System.out.println("0. Quay lại");
 
-            int choice = Validation.getInt("Chọn chức năng: ", 0, 4);
+            int choice = Validation.getInt("Chọn chức năng: ", 0, 7);
             switch (choice) {
                 case 1:
-                    listCustomers();
-                    Validation.pause();
-                    break;
-                case 2:
                     addCustomer();
                     Validation.pause();
                     break;
+                case 2:
+                    addMultipleCustomers();
+                    Validation.pause();
+                    break;
                 case 3:
-                    updateCustomer();
+                    listCustomers();
                     Validation.pause();
                     break;
                 case 4:
+                    updateCustomer();
+                    Validation.pause();
+                    break;
+                case 5:
                     deleteCustomer();
+                    Validation.pause();
+                    break;
+                case 6:
+                    searchCustomers();
+                    Validation.pause();
+                    break;
+                case 7:
+                    showCustomerStatistics();
                     Validation.pause();
                     break;
                 case 0:
@@ -81,22 +96,15 @@ public class CustomerMenu implements MenuModule {
         System.out.println("--- THÊM KHÁCH HÀNG ---");
         String id = context.getCustomerStore().generateNextId();
         System.out.println("Mã khách hàng được cấp: " + id);
-        String fullName = Validation.getString("Họ tên: ");
-        String phone = Validation.getString("Số điện thoại: ");
-        String email = Validation.getString("Email: ");
-        String address = Validation.getString("Địa chỉ: ");
-        boolean male = Validation.getBoolean("Giới tính nam?");
-        LocalDate birthDate = Validation.getDate("Ngày sinh (yyyy-MM-dd): ", DATE_FORMAT);
-        String notes = Validation.getString("Ghi chú: ");
-        int points = Validation.getInt("Điểm tích lũy ban đầu: ", 0, 1_000_000);
-        LocalDate lastVisitDate = Validation.getDate("Lần ghé gần nhất (yyyy-MM-dd): ", DATE_FORMAT);
-        Tier tier = MenuHelper.selectTier();
-
-        Customer customer = new Customer(id, fullName, phone, male, birthDate, email, address,
-                false, tier, notes, points, lastVisitDate);
+        Customer customer = promptCustomer(id, null);
+        if (customer == null) {
+            System.out.println("Đã hủy thao tác thêm khách hàng.");
+            return;
+        }
         context.getCustomerStore().add(customer);
         context.getCustomerStore().writeFile();
         System.out.println("Đã thêm khách hàng thành công.");
+        customer.display();
     }
 
     private void updateCustomer() {
@@ -108,27 +116,21 @@ public class CustomerMenu implements MenuModule {
             System.out.println("Không tìm thấy khách hàng.");
             return;
         }
-        String fullName = Validation.getString("Họ tên mới: ");
-        String phone = Validation.getString("Số điện thoại mới: ");
-        String email = Validation.getString("Email mới: ");
-        String address = Validation.getString("Địa chỉ mới: ");
-        boolean male = Validation.getBoolean("Giới tính nam?");
-        LocalDate birthDate = Validation.getDate("Ngày sinh (yyyy-MM-dd): ", DATE_FORMAT);
-        String notes = Validation.getString("Ghi chú: ");
-        int points = Validation.getInt("Điểm tích lũy: ", 0, 1_000_000);
-        LocalDate lastVisit = Validation.getDate("Lần ghé gần nhất (yyyy-MM-dd): ", DATE_FORMAT);
-        Tier tier = MenuHelper.selectTier();
-
-        customer.setFullName(fullName);
-        customer.setPhoneNumber(phone);
-        customer.setEmail(email);
-        customer.setAddress(address);
-        customer.setMale(male);
-        customer.setBirthDate(birthDate);
-        customer.setNotes(notes);
-        customer.setPoints(points);
-        customer.setLastVisitDate(lastVisit);
-        customer.setMemberTier(tier);
+        Customer updated = promptCustomer(id, customer);
+        if (updated == null) {
+            System.out.println("Đã hủy cập nhật khách hàng.");
+            return;
+        }
+        customer.setFullName(updated.getFullName());
+        customer.setPhoneNumber(updated.getPhoneNumber());
+        customer.setEmail(updated.getEmail());
+        customer.setAddress(updated.getAddress());
+        customer.setMale(updated.isMale());
+        customer.setBirthDate(updated.getBirthDate());
+        customer.setNotes(updated.getNotes());
+        customer.setPoints(updated.getPoints());
+        customer.setLastVisitDate(updated.getLastVisitDate());
+        customer.setMemberTier(updated.getMemberTier());
         customer.upgradeTier();
         context.getCustomerStore().writeFile();
         System.out.println("Đã cập nhật khách hàng.");
@@ -144,5 +146,199 @@ public class CustomerMenu implements MenuModule {
         } else {
             System.out.println("Không tìm thấy khách hàng.");
         }
+    }
+
+    private void addMultipleCustomers() {
+        Integer total = Validation.getIntOrCancel("Số lượng khách hàng cần thêm", 1, 1000);
+        if (total == null) {
+            System.out.println("Đã hủy thao tác.");
+            return;
+        }
+        int added = 0;
+        for (int i = 0; i < total; i++) {
+            System.out.println("-- Khách hàng thứ " + (i + 1));
+            String id = context.getCustomerStore().generateNextId();
+            Customer customer = promptCustomer(id, null);
+            if (customer == null) {
+                System.out.println("Dừng thêm khách hàng.");
+                break;
+            }
+            context.getCustomerStore().add(customer);
+            added++;
+        }
+        context.getCustomerStore().writeFile();
+        System.out.printf("Đã thêm %d khách hàng mới.%n", added);
+    }
+
+    private void searchCustomers() {
+        String keywordsLine = Validation.getOptionalStringOrCancel("Nhập từ khóa tìm kiếm (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
+        if (keywordsLine == null) {
+            System.out.println("Đã hủy tìm kiếm.");
+            return;
+        }
+        String trimmedKeywords = keywordsLine.trim().toLowerCase();
+        Tier tierFilter = MenuHelper.selectTier();
+        Customer[] customers = context.getCustomerStore().getAll();
+        boolean foundAny = false;
+        for (Customer customer : customers) {
+            if (customer == null || customer.isDeleted()) {
+                continue;
+            }
+            if (tierFilter != null && customer.getMemberTier() != tierFilter) {
+                continue;
+            }
+            if (trimmedKeywords.isEmpty()) {
+                System.out.printf("%s | %s | %s | %s%n",
+                        customer.getId(),
+                        customer.getFullName(),
+                        customer.getPhoneNumber(),
+                        customer.getEmail());
+                foundAny = true;
+                continue;
+            }
+            if (matchesTokens(customer, trimmedKeywords.split("\\s+"))) {
+                System.out.printf("%s | %s | %s | %s%n",
+                        customer.getId(),
+                        customer.getFullName(),
+                        customer.getPhoneNumber(),
+                        customer.getEmail());
+                foundAny = true;
+            }
+        }
+        if (!foundAny) {
+            System.out.println("Không có khách hàng phù hợp.");
+        }
+    }
+
+    private void showCustomerStatistics() {
+        Customer[] customers = context.getCustomerStore().getAll();
+        if (customers.length == 0) {
+            System.out.println("Chưa có dữ liệu khách hàng.");
+            return;
+        }
+        int total = 0;
+        int active = 0;
+        int deleted = 0;
+        int[] tierCounts = new int[Tier.values().length];
+        int totalPoints = 0;
+        for (Customer customer : customers) {
+            if (customer == null) {
+                continue;
+            }
+            total++;
+            if (customer.isDeleted()) {
+                deleted++;
+            } else {
+                active++;
+            }
+            Tier tier = customer.getMemberTier();
+            if (tier != null) {
+                tierCounts[tier.ordinal()]++;
+            }
+            totalPoints += customer.getPoints();
+        }
+        System.out.printf("Tổng khách hàng: %d%n", total);
+        System.out.printf("Hoạt động: %d | Đã khóa: %d%n", active, deleted);
+        Tier[] tiers = Tier.values();
+        for (int i = 0; i < tiers.length; i++) {
+            System.out.printf("- %s: %d%n", tiers[i], tierCounts[i]);
+        }
+        System.out.printf("Tổng điểm tích lũy: %d | Điểm trung bình: %.2f%n",
+                totalPoints,
+                total == 0 ? 0.0 : (double) totalPoints / total);
+    }
+
+    private Customer promptCustomer(String id, Customer base) {
+        String fullName = Validation.getStringOrCancel(buildPrompt("Họ tên", base == null ? null : base.getFullName()));
+        if (fullName == null) {
+            return null;
+        }
+        String phone = Validation.getStringOrCancel(buildPrompt("Số điện thoại", base == null ? null : base.getPhoneNumber()));
+        if (phone == null) {
+            return null;
+        }
+        String email = Validation.getStringOrCancel(buildPrompt("Email", base == null ? null : base.getEmail()));
+        if (email == null) {
+            return null;
+        }
+        String address = Validation.getStringOrCancel(buildPrompt("Địa chỉ", base == null ? null : base.getAddress()));
+        if (address == null) {
+            return null;
+        }
+        Boolean male = Validation.getBooleanOrCancel(buildPrompt("Giới tính nam?", base == null ? null : (base.isMale() ? "Y" : "N")));
+        if (male == null) {
+            return null;
+        }
+        LocalDate birthDate = Validation.getDateOrCancel(buildPrompt("Ngày sinh (yyyy-MM-dd)", base == null || base.getBirthDate() == null ? null : base.getBirthDate().toString()), DATE_FORMAT);
+        if (birthDate == null) {
+            return null;
+        }
+        String notes = Validation.getStringOrCancel(buildPrompt("Ghi chú", base == null ? null : base.getNotes()));
+        if (notes == null) {
+            return null;
+        }
+        int points;
+        LocalDate lastVisit;
+        Tier tier;
+        if (base == null) {
+            points = 0;
+            lastVisit = LocalDate.now();
+            tier = Tier.STANDARD;
+        } else {
+            Integer inputPoints = Validation.getIntOrCancel(buildPrompt("Điểm tích lũy", Integer.toString(base.getPoints())), 0, 1_000_000);
+            if (inputPoints == null) {
+                return null;
+            }
+            points = inputPoints;
+            LocalDate inputVisit = Validation.getDateOrCancel(buildPrompt("Lần ghé gần nhất (yyyy-MM-dd)",
+                    base.getLastVisitDate() == null ? null : base.getLastVisitDate().toString()), DATE_FORMAT);
+            if (inputVisit == null) {
+                return null;
+            }
+            lastVisit = inputVisit;
+            System.out.println("Hạng hiện tại: " + base.getMemberTier());
+            Tier selectedTier = MenuHelper.selectTier();
+            if (selectedTier == null) {
+                return null;
+            }
+            tier = selectedTier;
+        }
+        return new Customer(id, fullName, phone, male, birthDate, email, address,
+                base != null && base.isDeleted(), tier, notes, points, lastVisit);
+    }
+
+    private String buildPrompt(String label, String current) {
+        if (current == null || current.isEmpty()) {
+            return label + ": ";
+        }
+        return String.format("%s (hiện tại: %s): ", label, current);
+    }
+
+    private boolean matchesTokens(Customer customer, String[] tokens) {
+        if (tokens.length == 1 && tokens[0].isEmpty()) {
+            return true;
+        }
+        for (String token : tokens) {
+            if (token.isEmpty()) {
+                continue;
+            }
+            String lowerToken = token.toLowerCase();
+            boolean tokenMatch = containsIgnoreCase(customer.getId(), lowerToken)
+                    || containsIgnoreCase(customer.getFullName(), lowerToken)
+                    || containsIgnoreCase(customer.getPhoneNumber(), lowerToken)
+                    || containsIgnoreCase(customer.getEmail(), lowerToken)
+                    || containsIgnoreCase(customer.getNotes(), lowerToken);
+            if (!tokenMatch) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean containsIgnoreCase(String source, String token) {
+        if (source == null || token == null || token.isEmpty()) {
+            return false;
+        }
+        return source.toLowerCase().contains(token);
     }
 }

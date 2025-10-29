@@ -23,28 +23,43 @@ public class PromotionMenu implements MenuModule {
         while (!back) {
             System.out.println();
             System.out.println("--- QUẢN LÝ KHUYẾN MÃI ---");
-            System.out.println("1. Xem danh sách khuyến mãi");
-            System.out.println("2. Thêm khuyến mãi");
-            System.out.println("3. Cập nhật khuyến mãi");
-            System.out.println("4. Xóa khuyến mãi");
+            System.out.println("1. Thêm khuyến mãi");
+            System.out.println("2. Thêm nhiều khuyến mãi");
+            System.out.println("3. Xuất danh sách");
+            System.out.println("4. Cập nhật khuyến mãi");
+            System.out.println("5. Xóa khuyến mãi");
+            System.out.println("6. Tìm kiếm khuyến mãi");
+            System.out.println("7. Thống kê khuyến mãi");
             System.out.println("0. Quay lại");
 
-            int choice = Validation.getInt("Chọn chức năng: ", 0, 4);
+            int choice = Validation.getInt("Chọn chức năng: ", 0, 7);
             switch (choice) {
                 case 1:
-                    listPromotions();
-                    Validation.pause();
-                    break;
-                case 2:
                     addPromotion();
                     Validation.pause();
                     break;
+                case 2:
+                    addMultiplePromotions();
+                    Validation.pause();
+                    break;
                 case 3:
-                    updatePromotion();
+                    listPromotions();
                     Validation.pause();
                     break;
                 case 4:
+                    updatePromotion();
+                    Validation.pause();
+                    break;
+                case 5:
                     deletePromotion();
+                    Validation.pause();
+                    break;
+                case 6:
+                    searchPromotions();
+                    Validation.pause();
+                    break;
+                case 7:
+                    showPromotionStatistics();
                     Validation.pause();
                     break;
                 case 0:
@@ -65,13 +80,7 @@ public class PromotionMenu implements MenuModule {
                 continue;
             }
             hasData = true;
-            System.out.printf("%s | %s | %s | %.2f | %s -> %s%n",
-                    promotion.getId(),
-                    promotion.getName(),
-                    promotion.getDiscountType(),
-                    promotion.getDiscountValue(),
-                    formatDate(promotion.getStartDate()),
-                    formatDate(promotion.getEndDate()));
+            promotion.display();
         }
         if (!hasData) {
             System.out.println("Chưa có khuyến mãi nào.");
@@ -84,9 +93,14 @@ public class PromotionMenu implements MenuModule {
         String id = context.getPromotionStore().generateNextId();
         System.out.println("Mã khuyến mãi được cấp: " + id);
         Promotion promotion = promptPromotion(id, null);
+        if (promotion == null) {
+            System.out.println("Đã hủy thêm khuyến mãi.");
+            return;
+        }
         context.getPromotionStore().add(promotion);
         context.getPromotionStore().writeFile();
         System.out.println("Đã thêm khuyến mãi thành công.");
+        promotion.display();
     }
 
     private void updatePromotion() {
@@ -99,6 +113,10 @@ public class PromotionMenu implements MenuModule {
             return;
         }
         Promotion updated = promptPromotion(id, existing);
+        if (updated == null) {
+            System.out.println("Đã hủy cập nhật khuyến mãi.");
+            return;
+        }
         existing.setName(updated.getName());
         existing.setDescription(updated.getDescription());
         existing.setDiscountType(updated.getDiscountType());
@@ -108,6 +126,7 @@ public class PromotionMenu implements MenuModule {
         existing.setMinPurchaseAmount(updated.getMinPurchaseAmount());
         context.getPromotionStore().writeFile();
         System.out.println("Đã cập nhật khuyến mãi.");
+        existing.display();
     }
 
     private void deletePromotion() {
@@ -123,19 +142,172 @@ public class PromotionMenu implements MenuModule {
     }
 
     private Promotion promptPromotion(String id, Promotion base) {
-        String name = Validation.getString("Tên khuyến mãi: ");
-        String description = Validation.getString("Mô tả ngắn: ");
+        String name = Validation.getStringOrCancel(buildPrompt("Tên khuyến mãi", base == null ? null : base.getName()));
+        if (name == null) {
+            return null;
+        }
+        String description = Validation.getStringOrCancel(buildPrompt("Mô tả ngắn", base == null ? null : base.getDescription()));
+        if (description == null) {
+            return null;
+        }
         DiscountType discountType = MenuHelper.selectDiscountType();
-        double discountValue = Validation.getDouble("Giá trị giảm: ", 0.0, 1_000_000_000.0);
-        LocalDate startDate = Validation.getDate("Ngày bắt đầu (yyyy-MM-dd): ", DATE_FORMAT);
-        LocalDate endDate = Validation.getDate("Ngày kết thúc (yyyy-MM-dd): ", DATE_FORMAT);
-        double minPurchase = Validation.getDouble("Mức chi tối thiểu: ", 0.0, 1_000_000_000.0);
+        if (discountType == null) {
+            return null;
+        }
+        Double discountValue = Validation.getDoubleOrCancel(buildPrompt("Giá trị giảm", base == null ? null : Double.toString(base.getDiscountValue())), 0.0, 1_000_000_000.0);
+        if (discountValue == null) {
+            return null;
+        }
+        LocalDate startDate = Validation.getDateOrCancel(buildPrompt("Ngày bắt đầu (yyyy-MM-dd)", base == null || base.getStartDate() == null ? null : base.getStartDate().toString()), DATE_FORMAT);
+        if (startDate == null) {
+            return null;
+        }
+        LocalDate endDate = Validation.getDateOrCancel(buildPrompt("Ngày kết thúc (yyyy-MM-dd)", base == null || base.getEndDate() == null ? null : base.getEndDate().toString()), DATE_FORMAT);
+        if (endDate == null) {
+            return null;
+        }
+        Double minPurchase = Validation.getDoubleOrCancel(buildPrompt("Mức chi tối thiểu", base == null ? null : Double.toString(base.getMinPurchaseAmount())), 0.0, 1_000_000_000.0);
+        if (minPurchase == null) {
+            return null;
+        }
         Promotion promotion = new Promotion(id, name, description, discountType, discountValue,
                 startDate, endDate, minPurchase, false);
         if (base != null && base.isDeleted()) {
             promotion.setDeleted(true);
         }
         return promotion;
+    }
+
+    private void addMultiplePromotions() {
+        Integer total = Validation.getIntOrCancel("Số lượng khuyến mãi cần thêm", 1, 1000);
+        if (total == null) {
+            System.out.println("Đã hủy thao tác.");
+            return;
+        }
+        int added = 0;
+        for (int i = 0; i < total; i++) {
+            System.out.println("-- Khuyến mãi thứ " + (i + 1));
+            String id = context.getPromotionStore().generateNextId();
+            Promotion promotion = promptPromotion(id, null);
+            if (promotion == null) {
+                System.out.println("Dừng thêm khuyến mãi.");
+                break;
+            }
+            context.getPromotionStore().add(promotion);
+            added++;
+        }
+        context.getPromotionStore().writeFile();
+        System.out.printf("Đã thêm %d khuyến mãi mới.%n", added);
+    }
+
+    private void searchPromotions() {
+        String exactId = Validation.getStringOrCancel("Nhập mã khuyến mãi để tìm nhanh (nhập '" + Validation.cancelKeyword() + "' để bỏ qua)");
+        if (exactId == null) {
+            System.out.println("Đã hủy tìm kiếm.");
+            return;
+        }
+        if (!exactId.isEmpty()) {
+            Promotion promotion = context.getPromotionStore().findById(exactId);
+            if (promotion != null && !promotion.isDeleted()) {
+                promotion.display();
+            } else {
+                System.out.println("Không tìm thấy khuyến mãi theo mã.");
+            }
+        }
+
+        String keywordsLine = Validation.getStringOrCancel("Nhập từ khóa (cách nhau bởi dấu cách, nhập '" + Validation.cancelKeyword() + "' để bỏ qua)");
+        if (keywordsLine == null) {
+            System.out.println("Đã hủy tìm kiếm.");
+            return;
+        }
+        Boolean activeFilter = Validation.getBooleanOrCancel("Chỉ hiển thị khuyến mãi còn hiệu lực?");
+        String[] tokens = keywordsLine.toLowerCase().trim().split("\\s+");
+
+        Promotion[] promotions = context.getPromotionStore().getAll();
+        boolean foundAny = false;
+        for (Promotion promotion : promotions) {
+            if (promotion == null || promotion.isDeleted()) {
+                continue;
+            }
+            if (activeFilter != null && promotion.isValid() != activeFilter) {
+                continue;
+            }
+            if (!matchesTokens(promotion, tokens)) {
+                continue;
+            }
+            promotion.display();
+            foundAny = true;
+        }
+        if (!foundAny) {
+            System.out.println("Không có khuyến mãi phù hợp.");
+        }
+    }
+
+    private void showPromotionStatistics() {
+        Promotion[] promotions = context.getPromotionStore().getAll();
+        if (promotions.length == 0) {
+            System.out.println("Chưa có dữ liệu khuyến mãi.");
+            return;
+        }
+        int total = 0;
+        int active = 0;
+        int expired = 0;
+        int deleted = 0;
+        double totalDiscountValue = 0.0;
+        for (Promotion promotion : promotions) {
+            if (promotion == null) {
+                continue;
+            }
+            total++;
+            if (promotion.isDeleted()) {
+                deleted++;
+                continue;
+            }
+            if (promotion.isValid()) {
+                active++;
+            } else {
+                expired++;
+            }
+            totalDiscountValue += promotion.getDiscountValue();
+        }
+        System.out.printf("Tổng số khuyến mãi: %d%n", total);
+        System.out.printf("Đang hiệu lực: %d | Hết hạn: %d | Đã khóa: %d%n", active, expired, deleted);
+        System.out.printf("Tổng giá trị giảm: %.2f%n", totalDiscountValue);
+        System.out.printf("Giá trị giảm trung bình: %.2f%n", total == 0 ? 0.0 : totalDiscountValue / total);
+    }
+
+    private String buildPrompt(String label, String current) {
+        if (current == null || current.isEmpty()) {
+            return label + ": ";
+        }
+        return String.format("%s (hiện tại: %s): ", label, current);
+    }
+
+    private boolean matchesTokens(Promotion promotion, String[] tokens) {
+        if (tokens.length == 1 && tokens[0].isEmpty()) {
+            return true;
+        }
+        for (String token : tokens) {
+            if (token.isEmpty()) {
+                continue;
+            }
+            String lower = token.toLowerCase();
+            boolean match = containsIgnoreCase(promotion.getId(), lower)
+                    || containsIgnoreCase(promotion.getName(), lower)
+                    || containsIgnoreCase(promotion.getDescription(), lower)
+                    || (promotion.getDiscountType() != null && promotion.getDiscountType().name().toLowerCase().contains(lower));
+            if (!match) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean containsIgnoreCase(String source, String token) {
+        if (source == null || token == null || token.isEmpty()) {
+            return false;
+        }
+        return source.toLowerCase().contains(token);
     }
 
     private String formatDate(LocalDate date) {

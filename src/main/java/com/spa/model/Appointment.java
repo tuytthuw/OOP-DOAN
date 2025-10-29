@@ -131,7 +131,18 @@ public class Appointment implements IEntity {
 
     @Override
     public void display() {
-        // Xử lý ở tầng UI.
+        System.out.println("---------------- THÔNG TIN LỊCH HẸN ----------------");
+        System.out.printf("Mã lịch hẹn    : %s%n", appointmentId);
+        System.out.printf("Khách hàng     : %s%n", customer == null ? "" : customer.getFullName());
+        System.out.printf("Kỹ thuật viên  : %s%n", technician == null ? "" : technician.getFullName());
+        System.out.printf("Dịch vụ        : %s%n", service == null ? "" : service.getServiceName());
+        System.out.printf("Bắt đầu        : %s%n", startTime == null ? "" : startTime);
+        System.out.printf("Kết thúc       : %s%n", endTime == null ? "" : endTime);
+        System.out.printf("Trạng thái     : %s%n", status);
+        System.out.printf("Đánh giá       : %d%n", rating);
+        System.out.printf("Góp ý          : %s%n", feedback == null || feedback.isEmpty() ? "(trống)" : feedback);
+        System.out.printf("Ghi chú        : %s%n", notes == null || notes.isEmpty() ? "(trống)" : notes);
+        System.out.println("----------------------------------------------------");
     }
 
     @Override

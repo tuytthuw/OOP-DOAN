@@ -120,7 +120,17 @@ public class Promotion implements IEntity {
 
     @Override
     public void display() {
-        // Hiển thị ở tầng UI.
+        System.out.println("---------------- THÔNG TIN KHUYẾN MÃI ----------------");
+        System.out.printf("Mã khuyến mãi : %s%n", promotionId);
+        System.out.printf("Tên chương trình: %s%n", name);
+        System.out.printf("Mô tả          : %s%n", description == null || description.isEmpty() ? "(trống)" : description);
+        System.out.printf("Loại giảm giá  : %s%n", discountType);
+        System.out.printf("Giá trị giảm   : %.2f%n", discountValue);
+        System.out.printf("Yêu cầu tối thiểu: %.2f%n", minPurchaseAmount);
+        System.out.printf("Bắt đầu        : %s%n", startDate == null ? "N/A" : startDate);
+        System.out.printf("Kết thúc       : %s%n", endDate == null ? "N/A" : endDate);
+        System.out.println("Trạng thái     : " + (deleted ? "Đã khóa" : (isValid() ? "Đang hiệu lực" : "Hết hiệu lực")));
+        System.out.println("-------------------------------------------------------");
     }
 
     @Override
