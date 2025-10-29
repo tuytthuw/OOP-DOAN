@@ -157,9 +157,24 @@ public class PromotionMenu implements MenuModule {
         if (discountType == null) {
             return null;
         }
-        Double discountValue = Validation.getDoubleOrCancel(buildPrompt("Giá trị giảm", base == null ? null : Double.toString(base.getDiscountValue())), 0.0, 1_000_000_000.0);
-        if (discountValue == null) {
-            return null;
+        Double discountValue;
+        if (discountType == DiscountType.PERCENTAGE) {
+            String currentPercent = null;
+            if (base != null && base.getDiscountType() == DiscountType.PERCENTAGE) {
+                currentPercent = Double.toString(base.getDiscountValue() * 100.0);
+            }
+            Double percent = Validation.getDoubleOrCancel(buildPrompt("Giá trị giảm (%)", currentPercent), 0.0, 100.0);
+            if (percent == null) {
+                return null;
+            }
+            discountValue = percent / 100.0;
+        } else {
+            String currentAmount = base == null ? null : Double.toString(base.getDiscountValue());
+            Double amount = Validation.getDoubleOrCancel(buildPrompt("Giá trị giảm (VNĐ)", currentAmount), 0.0, 1_000_000_000.0);
+            if (amount == null) {
+                return null;
+            }
+            discountValue = amount;
         }
         LocalDate startDate = Validation.getFutureOrTodayDateOrCancel(buildPrompt("Ngày bắt đầu (dd/MM/yyyy)",
                 base == null || base.getStartDate() == null ? null : base.getStartDate().format(DATE_FORMAT)), DATE_FORMAT);

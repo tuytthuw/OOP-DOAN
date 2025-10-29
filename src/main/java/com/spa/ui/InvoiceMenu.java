@@ -88,8 +88,11 @@ public class InvoiceMenu implements MenuModule {
         }
         Appointment appointment = selectAppointment(customer);
         Promotion promotion = selectPromotion();
-        double taxRate = Validation.getDouble("Thuế (0-1): ", 0.0, 1.0);
-        double serviceCharge = Validation.getDouble("Phí phục vụ (0-1): ", 0.0, 1.0);
+        double taxPercent = Validation.getDouble("Thuế (% 0-100): ", 0.0, 100.0);
+        double servicePercent = Validation.getDouble("Phí phục vụ (% 0-100): ", 0.0, 100.0);
+
+        double taxRate = taxPercent / 100.0;
+        double serviceCharge = servicePercent / 100.0;
 
         Invoice invoice = new Invoice();
         invoice.setInvoiceId(id);
