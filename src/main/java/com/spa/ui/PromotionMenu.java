@@ -161,12 +161,12 @@ public class PromotionMenu implements MenuModule {
         if (discountValue == null) {
             return null;
         }
-        LocalDate startDate = Validation.getDateOrCancel(buildPrompt("Ngày bắt đầu (dd/MM/yyyy)",
+        LocalDate startDate = Validation.getFutureOrTodayDateOrCancel(buildPrompt("Ngày bắt đầu (dd/MM/yyyy)",
                 base == null || base.getStartDate() == null ? null : base.getStartDate().format(DATE_FORMAT)), DATE_FORMAT);
         if (startDate == null) {
             return null;
         }
-        LocalDate endDate = Validation.getDateOrCancel(buildPrompt("Ngày kết thúc (dd/MM/yyyy)",
+        LocalDate endDate = Validation.getFutureOrTodayDateOrCancel(buildPrompt("Ngày kết thúc (dd/MM/yyyy)",
                 base == null || base.getEndDate() == null ? null : base.getEndDate().format(DATE_FORMAT)), DATE_FORMAT);
         if (endDate == null) {
             return null;

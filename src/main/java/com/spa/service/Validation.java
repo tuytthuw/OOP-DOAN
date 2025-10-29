@@ -194,6 +194,20 @@ public final class Validation {
         }
     }
 
+    public static LocalDate getFutureOrTodayDateOrCancel(String prompt, DateTimeFormatter formatter) {
+        while (true) {
+            LocalDate date = getDateOrCancel(prompt, formatter);
+            if (date == null) {
+                return null;
+            }
+            if (date.isBefore(LocalDate.now())) {
+                System.out.println("Ngày không được nhỏ hơn hôm nay. Vui lòng nhập lại.");
+                continue;
+            }
+            return date;
+        }
+    }
+
     /**
      * Đọc giá trị ngày giờ theo định dạng cho trước.
      *
@@ -236,6 +250,20 @@ public final class Validation {
             } catch (DateTimeParseException ex) {
                 System.out.printf("Ngày giờ không hợp lệ. Định dạng đúng: %s%n", formatter);
             }
+        }
+    }
+
+    public static LocalDateTime getFutureDateTimeOrCancel(String prompt, DateTimeFormatter formatter) {
+        while (true) {
+            LocalDateTime result = getDateTimeOrCancel(prompt, formatter);
+            if (result == null) {
+                return null;
+            }
+            if (result.isBefore(LocalDateTime.now())) {
+                System.out.println("Thời gian không được ở quá khứ. Vui lòng nhập lại.");
+                continue;
+            }
+            return result;
         }
     }
 

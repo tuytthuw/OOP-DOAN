@@ -1,1 +1,2 @@
-SER001|Chăm sóc da|500000.0|90|10|chăm sóc da chuyên sau|2003-10-12|true|MASSAGE|false
+SER001|Chăm sóc da|500000.0|90|10|chăm sóc da chuyên sau|12/10/2003|true|MASSAGE|false
+SER002|ss|10.0|60|10|ok|29/10/2025|true|MASSAGE|false
