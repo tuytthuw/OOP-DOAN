@@ -182,7 +182,8 @@ public class ProductMenu implements MenuModule {
         if (reorder == null) {
             return null;
         }
-        LocalDate expiry = Validation.getDateOrCancel(buildPrompt("Ngày hết hạn (yyyy-MM-dd)", base == null || base.getExpiryDate() == null ? null : base.getExpiryDate().toString()), DATE_FORMAT);
+        LocalDate expiry = Validation.getDateOrCancel(buildPrompt("Ngày hết hạn (dd/MM/yyyy)",
+                base == null || base.getExpiryDate() == null ? null : base.getExpiryDate().format(DATE_FORMAT)), DATE_FORMAT);
         if (expiry == null) {
             return null;
         }

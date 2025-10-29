@@ -287,7 +287,7 @@ public class ServiceMenu implements MenuModule {
             createdDate = LocalDate.now();
             active = Boolean.TRUE;
         } else {
-            createdDate = Validation.getDateOrCancel(buildPrompt("Ngày tạo (yyyy-MM-dd)", base.getCreatedDate() == null ? null : base.getCreatedDate().toString()), DATE_FORMAT);
+            createdDate = Validation.getDateOrCancel(buildPrompt("Ngày tạo (dd/MM/yyyy)", base.getCreatedDate() == null ? null : base.getCreatedDate().format(DATE_FORMAT)), DATE_FORMAT);
             if (createdDate == null) {
                 return null;
             }

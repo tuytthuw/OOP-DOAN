@@ -64,7 +64,7 @@ public class TechnicianMenu implements MenuModule {
         technician.setEmail(Validation.getString("Email: "));
         technician.setAddress(Validation.getString("Địa chỉ: "));
         technician.setMale(Validation.getBoolean("Giới tính nam?"));
-        technician.setBirthDate(Validation.getDate("Ngày sinh (yyyy-MM-dd): ", DATE_FORMAT));
+        technician.setBirthDate(Validation.getDate("Ngày sinh (dd/MM/yyyy): ", DATE_FORMAT));
         technician.setHireDate(LocalDate.now());
         technician.setSalary(Validation.getDouble("Lương cơ bản: ", 0.0, 1_000_000_000.0));
         technician.setSkill(Validation.getString("Kỹ năng chính: "));

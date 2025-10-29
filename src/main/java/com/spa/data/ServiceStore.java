@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class ServiceStore extends DataStore<Service> {
     private static final String SEPARATOR = "|";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ServiceStore(String dataFilePath) {
         super(Service.class, dataFilePath);
@@ -50,7 +50,7 @@ public class ServiceStore extends DataStore<Service> {
         int duration = parseInt(parts[3]);
         int buffer = parseInt(parts[4]);
         String description = restore(parts[5]);
-        LocalDate created = parts[6].isEmpty() ? null : LocalDate.parse(parts[6], DATE_FORMAT);
+        LocalDate created = parseDate(parts[6]);
         boolean active = Boolean.parseBoolean(parts[7]);
         ServiceCategory category = ServiceCategory.valueOf(parts[8]);
         boolean deleted = Boolean.parseBoolean(parts[9]);
@@ -73,6 +73,17 @@ public class ServiceStore extends DataStore<Service> {
             return Integer.parseInt(value);
         } catch (NumberFormatException ex) {
             return 0;
+        }
+    }
+
+    private LocalDate parseDate(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(value, DATE_FORMAT);
+        } catch (Exception ex) {
+            return LocalDate.parse(value);
         }
     }
 }

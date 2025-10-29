@@ -71,7 +71,7 @@ public class EmployeeManagementMenu implements MenuModule {
         String email = Validation.getString("Email: ");
         String address = Validation.getString("Địa chỉ: ");
         boolean male = Validation.getBoolean("Giới tính nam?");
-        LocalDate birthDate = Validation.getDate("Ngày sinh (yyyy-MM-dd): ", DATE_FORMAT);
+        LocalDate birthDate = Validation.getDate("Ngày sinh (dd/MM/yyyy): ", DATE_FORMAT);
         double salary = Validation.getDouble("Lương cơ bản: ", 0.0, 1_000_000_000.0);
         String password = Validation.getString("Mật khẩu khởi tạo: ");
 

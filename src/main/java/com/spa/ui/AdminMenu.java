@@ -67,7 +67,7 @@ public class AdminMenu implements MenuModule {
         admin.setEmail(Validation.getString("Email: "));
         admin.setAddress(Validation.getString("Địa chỉ: "));
         admin.setMale(Validation.getBoolean("Giới tính nam?"));
-        admin.setBirthDate(Validation.getDate("Ngày sinh (yyyy-MM-dd): ", DATE_FORMAT));
+        admin.setBirthDate(Validation.getDate("Ngày sinh (dd/MM/yyyy): ", DATE_FORMAT));
         admin.setHireDate(LocalDate.now());
         admin.setSalary(Validation.getDouble("Lương cơ bản: ", 0.0, 1_000_000_000.0));
         admin.setPermissionGroup(Validation.getString("Nhóm quyền (cách nhau bằng dấu phẩy): "));

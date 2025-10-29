@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class ProductStore extends DataStore<Product> {
     private static final String SEPARATOR = "|";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ProductStore(String dataFilePath) {
         super(Product.class, dataFilePath);
@@ -53,7 +53,7 @@ public class ProductStore extends DataStore<Product> {
         String unit = restore(parts[5]);
         String supplierId = restore(parts[6]);
         int stock = parseInt(parts[7]);
-        LocalDate expiry = parts[8].isEmpty() ? null : LocalDate.parse(parts[8], DATE_FORMAT);
+        LocalDate expiry = parseDate(parts[8]);
         boolean deleted = Boolean.parseBoolean(parts[9]);
         int reorder = parseInt(parts[10]);
         Product product = new Product(id, name, brand, basePrice, costPrice, unit, null, stock, expiry, deleted, reorder);
@@ -69,6 +69,17 @@ public class ProductStore extends DataStore<Product> {
 
     private String restore(String value) {
         return value == null ? "" : value;
+    }
+
+    private LocalDate parseDate(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(value, DATE_FORMAT);
+        } catch (Exception ex) {
+            return LocalDate.parse(value);
+        }
     }
 
     private int parseInt(String value) {

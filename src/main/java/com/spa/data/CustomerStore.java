@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class CustomerStore extends DataStore<Customer> {
     private static final String SEPARATOR = "|";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public CustomerStore(String dataFilePath) {
         super(Customer.class, dataFilePath);
@@ -50,14 +50,14 @@ public class CustomerStore extends DataStore<Customer> {
         String fullName = restore(parts[1]);
         String phone = restore(parts[2]);
         boolean male = Boolean.parseBoolean(parts[3]);
-        LocalDate birthDate = parts[4].isEmpty() ? null : LocalDate.parse(parts[4], DATE_FORMAT);
+        LocalDate birthDate = parseDate(parts[4]);
         String email = restore(parts[5]);
         String address = restore(parts[6]);
         boolean deleted = Boolean.parseBoolean(parts[7]);
         Tier tier = Tier.valueOf(parts[8]);
         String notes = restore(parts[9]);
         int points = Integer.parseInt(parts[10]);
-        LocalDate lastVisit = parts[11].isEmpty() ? null : LocalDate.parse(parts[11], DATE_FORMAT);
+        LocalDate lastVisit = parseDate(parts[11]);
         return new Customer(id, fullName, phone, male, birthDate, email, address, deleted,
                 tier, notes, points, lastVisit);
     }
@@ -68,5 +68,16 @@ public class CustomerStore extends DataStore<Customer> {
 
     private String restore(String value) {
         return value == null ? "" : value;
+    }
+
+    private LocalDate parseDate(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(value, DATE_FORMAT);
+        } catch (Exception ex) {
+            return LocalDate.parse(value);
+        }
     }
 }

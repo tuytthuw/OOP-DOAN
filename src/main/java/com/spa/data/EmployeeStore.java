@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class EmployeeStore extends DataStore<Employee> {
     private static final String SEPARATOR = "|";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public EmployeeStore(String dataFilePath) {
         super(Employee.class, dataFilePath);
@@ -155,10 +155,10 @@ public class EmployeeStore extends DataStore<Employee> {
         String passwordHash = parts[4];
         String phone = parts[5];
         boolean male = Boolean.parseBoolean(parts[6]);
-        LocalDate birthDate = parts[7].isEmpty() ? null : LocalDate.parse(parts[7], DATE_FORMAT);
+        LocalDate birthDate = parseDate(parts[7]);
         String email = parts[8];
         String address = parts[9];
-        LocalDate hireDate = parts[10].isEmpty() ? null : LocalDate.parse(parts[10], DATE_FORMAT);
+        LocalDate hireDate = parseDate(parts[10]);
         double salary = Double.parseDouble(parts[11]);
 
         if ("ADM".equalsIgnoreCase(parts[12])) {
@@ -183,5 +183,16 @@ public class EmployeeStore extends DataStore<Employee> {
             return receptionist;
         }
         return null;
+    }
+
+    private LocalDate parseDate(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(value, DATE_FORMAT);
+        } catch (Exception ex) {
+            return LocalDate.parse(value);
+        }
     }
 }

@@ -175,7 +175,7 @@ public class AppointmentMenu implements MenuModule {
             System.out.println("Đã hủy tạo lịch hẹn.");
             return false;
         }
-        LocalDateTime start = Validation.getDateTime("Thời gian bắt đầu (yyyy-MM-dd HH:mm): ", DATE_TIME_FORMAT);
+        LocalDateTime start = Validation.getFutureDateTime("Thời gian bắt đầu (dd/MM/yyyy HH:mm): ", DATE_TIME_FORMAT);
         int totalMinutes = service.getDurationMinutes() + service.getBufferTime();
         LocalDateTime end = start.plusMinutes(totalMinutes);
         if (!isTechnicianAvailable(technician, start, end)) {
@@ -221,12 +221,12 @@ public class AppointmentMenu implements MenuModule {
         }
         String customerFilter = customerInput.trim().toLowerCase();
 
-        LocalDateTime fromDate = readOptionalDateTime("Thời gian bắt đầu (yyyy-MM-dd HH:mm)");
+        LocalDateTime fromDate = readOptionalDateTime("Thời gian bắt đầu (dd/MM/yyyy HH:mm)");
         if (fromDate == CANCELLED_MARK) {
             System.out.println("Đã hủy tìm kiếm.");
             return;
         }
-        LocalDateTime toDate = readOptionalDateTime("Thời gian kết thúc (yyyy-MM-dd HH:mm)");
+        LocalDateTime toDate = readOptionalDateTime("Thời gian kết thúc (dd/MM/yyyy HH:mm)");
         if (toDate == CANCELLED_MARK) {
             System.out.println("Đã hủy tìm kiếm.");
             return;
@@ -457,7 +457,11 @@ public class AppointmentMenu implements MenuModule {
             try {
                 return LocalDateTime.parse(input.trim(), DATE_TIME_FORMAT);
             } catch (DateTimeParseException ex) {
-                System.out.println("Thời gian không hợp lệ. Vui lòng nhập lại.");
+                try {
+                    return LocalDateTime.parse(input.trim());
+                } catch (DateTimeParseException ignore) {
+                    System.out.println("Thời gian không hợp lệ. Vui lòng nhập lại.");
+                }
             }
         }
     }

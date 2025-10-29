@@ -274,7 +274,8 @@ public class CustomerMenu implements MenuModule {
         if (male == null) {
             return null;
         }
-        LocalDate birthDate = Validation.getDateOrCancel(buildPrompt("Ngày sinh (yyyy-MM-dd)", base == null || base.getBirthDate() == null ? null : base.getBirthDate().toString()), DATE_FORMAT);
+        LocalDate birthDate = Validation.getDateOrCancel(buildPrompt("Ngày sinh (dd/MM/yyyy)",
+                base == null || base.getBirthDate() == null ? null : base.getBirthDate().format(DATE_FORMAT)), DATE_FORMAT);
         if (birthDate == null) {
             return null;
         }
@@ -295,8 +296,8 @@ public class CustomerMenu implements MenuModule {
                 return null;
             }
             points = inputPoints;
-            LocalDate inputVisit = Validation.getDateOrCancel(buildPrompt("Lần ghé gần nhất (yyyy-MM-dd)",
-                    base.getLastVisitDate() == null ? null : base.getLastVisitDate().toString()), DATE_FORMAT);
+            LocalDate inputVisit = Validation.getDateOrCancel(buildPrompt("Lần ghé gần nhất (dd/MM/yyyy)",
+                    base.getLastVisitDate() == null ? null : base.getLastVisitDate().format(DATE_FORMAT)), DATE_FORMAT);
             if (inputVisit == null) {
                 return null;
             }

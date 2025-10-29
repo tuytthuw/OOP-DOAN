@@ -62,7 +62,7 @@ public class ReceptionistMenu implements MenuModule {
         receptionist.setEmail(Validation.getString("Email: "));
         receptionist.setAddress(Validation.getString("Địa chỉ: "));
         receptionist.setMale(Validation.getBoolean("Giới tính nam?"));
-        receptionist.setBirthDate(Validation.getDate("Ngày sinh (yyyy-MM-dd): ", DATE_FORMAT));
+        receptionist.setBirthDate(Validation.getDate("Ngày sinh (dd/MM/yyyy): ", DATE_FORMAT));
         receptionist.setHireDate(LocalDate.now());
         receptionist.setSalary(Validation.getDouble("Lương cơ bản: ", 0.0, 1_000_000_000.0));
         receptionist.setMonthlyBonus(Validation.getDouble("Thưởng hàng tháng: ", 0.0, 1_000_000_000.0));

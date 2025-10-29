@@ -19,8 +19,8 @@ import java.time.format.DateTimeFormatter;
  * Giao diện console chính của ứng dụng.
  */
 public class MenuUI {
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final String MODULE_CUSTOMER = "CUSTOMER";
     private static final String MODULE_SERVICE = "SERVICE";
     private static final String MODULE_PRODUCT = "PRODUCT";

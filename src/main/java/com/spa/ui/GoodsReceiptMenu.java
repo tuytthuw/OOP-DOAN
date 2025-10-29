@@ -260,11 +260,11 @@ public class GoodsReceiptMenu implements MenuModule {
             }
         }
 
-        LocalDate fromDate = Validation.getDateOrCancel("Ngày bắt đầu (yyyy-MM-dd, nhập '" + Validation.cancelKeyword() + "' để bỏ qua)", DATE_FORMAT);
+        LocalDate fromDate = Validation.getDateOrCancel("Ngày bắt đầu (dd/MM/yyyy, nhập '" + Validation.cancelKeyword() + "' để bỏ qua)", DATE_FORMAT);
         if (fromDate == null && !Validation.cancelKeyword().equalsIgnoreCase("Q")) {
             // null do hủy
         }
-        LocalDate toDate = Validation.getDateOrCancel("Ngày kết thúc (yyyy-MM-dd, nhập '" + Validation.cancelKeyword() + "' để bỏ qua)", DATE_FORMAT);
+        LocalDate toDate = Validation.getDateOrCancel("Ngày kết thúc (dd/MM/yyyy, nhập '" + Validation.cancelKeyword() + "' để bỏ qua)", DATE_FORMAT);
         if (toDate == null && !Validation.cancelKeyword().equalsIgnoreCase("Q")) {
             // null do hủy
         }

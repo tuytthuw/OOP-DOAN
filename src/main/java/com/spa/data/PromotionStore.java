@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class PromotionStore extends DataStore<Promotion> {
     private static final String SEPARATOR = "|";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public PromotionStore(String dataFilePath) {
         super(Promotion.class, dataFilePath);
@@ -48,11 +48,11 @@ public class PromotionStore extends DataStore<Promotion> {
         String description = restore(parts[2]);
         DiscountType discountType = DiscountType.valueOf(parts[3]);
         double discountValue = parseDouble(parts[4]);
-        LocalDate start = parts[5].isEmpty() ? null : LocalDate.parse(parts[5], DATE_FORMAT);
-        LocalDate end = parts[6].isEmpty() ? null : LocalDate.parse(parts[6], DATE_FORMAT);
+        LocalDate startDate = parseDate(parts[5]);
+        LocalDate endDate = parseDate(parts[6]);
         double minAmount = parseDouble(parts[7]);
         boolean deleted = Boolean.parseBoolean(parts[8]);
-        return new Promotion(id, name, description, discountType, discountValue, start, end, minAmount, deleted);
+        return new Promotion(id, name, description, discountType, discountValue, startDate, endDate, minAmount, deleted);
     }
 
     private String safe(String value) {
@@ -61,6 +61,17 @@ public class PromotionStore extends DataStore<Promotion> {
 
     private String restore(String value) {
         return value == null ? "" : value;
+    }
+
+    private LocalDate parseDate(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(value, DATE_FORMAT);
+        } catch (Exception ex) {
+            return LocalDate.parse(value);
+        }
     }
 
     private double parseDouble(String value) {
