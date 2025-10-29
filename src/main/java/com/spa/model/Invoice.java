@@ -2,6 +2,7 @@ package com.spa.model;
 
 import com.spa.data.DataStore;
 import com.spa.interfaces.IEntity;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
@@ -131,7 +132,83 @@ public class Invoice implements IEntity {
 
     @Override
     public void display() {
-        // Sẽ được xử lý ở tầng UI.
+        System.out.println("---------------- HÓA ĐƠN DỊCH VỤ ----------------");
+        System.out.printf("Mã hóa đơn     : %s%n", invoiceId);
+        System.out.printf("Khách hàng     : %s%n", customer == null ? "" : customer.getFullName());
+        if (customer != null) {
+            System.out.printf("SĐT khách      : %s%n", customer.getPhoneNumber() == null ? "" : customer.getPhoneNumber());
+        }
+        System.out.printf("Lễ tân lập     : %s%n", receptionist == null ? "" : receptionist.getFullName());
+        System.out.printf("Lịch hẹn       : %s%n", appointment == null ? "" : appointment.getId());
+        System.out.printf("Khuyến mãi     : %s%n", promotion == null ? "(không)" : promotion.getPromotionName());
+        System.out.printf("Thuế (%%)       : %.2f%n", taxRate * 100);
+        System.out.printf("Phí dịch vụ(%%) : %.2f%n", serviceChargeRate * 100);
+        if (appointment != null && appointment.getService() != null) {
+            System.out.println("--- Dịch vụ ---");
+            System.out.printf("%s | %s | Giá: %.2f%n",
+                    appointment.getService().getId(),
+                    appointment.getService().getServiceName(),
+                    appointment.getService().calculateFinalPrice());
+        }
+        System.out.println("--- Sản phẩm ---");
+        if (productList == null || productListSize() == 0) {
+            System.out.println("(không có sản phẩm)");
+        } else {
+            Product[] products = productList.getAll();
+            for (Product product : products) {
+                if (product == null) {
+                    continue;
+                }
+                System.out.printf("%s | %s | SL: %d | Thành tiền: %.2f%n",
+                        product.getId(),
+                        product.getProductName(),
+                        product.getStockQuantity(),
+                        product.calculateFinalPrice());
+            }
+        }
+        double subtotal = calculateSubtotal();
+        double discount = promotion == null ? 0.0 : promotion.calculateDiscount(subtotal);
+        double taxed = (subtotal - discount) * taxRate;
+        double serviceCharge = (subtotal - discount) * serviceChargeRate;
+        double grandTotal = subtotal - discount + taxed + serviceCharge;
+        System.out.println("--- Tóm tắt ---");
+        System.out.printf("Tạm tính       : %.2f%n", subtotal);
+        System.out.printf("Giảm giá       : %.2f%n", discount);
+        System.out.printf("Thuế           : %.2f%n", taxed);
+        System.out.printf("Phí dịch vụ    : %.2f%n", serviceCharge);
+        System.out.printf("Tổng cộng      : %.2f%n", grandTotal);
+        System.out.printf("Trạng thái     : %s%n", status ? "ĐÃ THANH TOÁN" : "CHƯA THANH TOÁN");
+        System.out.println("-------------------------------------------------");
+    }
+
+    private double calculateSubtotal() {
+        double serviceAmount = appointment == null || appointment.getService() == null
+                ? 0.0
+                : appointment.getService().calculateFinalPrice().doubleValue();
+        double productAmount = 0.0;
+        if (productList != null) {
+            Product[] items = productList.getAll();
+            for (Product item : items) {
+                if (item != null) {
+                    productAmount += item.calculateFinalPrice().doubleValue();
+                }
+            }
+        }
+        return serviceAmount + productAmount;
+    }
+
+    private int productListSize() {
+        Product[] items = productList == null ? null : productList.getAll();
+        if (items == null) {
+            return 0;
+        }
+        int size = 0;
+        for (Product item : items) {
+            if (item != null) {
+                size++;
+            }
+        }
+        return size;
     }
 
     @Override

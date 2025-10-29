@@ -1,5 +1,6 @@
 package com.spa.model;
 
+import com.spa.model.enums.EmployeeType;
 import java.time.LocalDate;
 
 /**
@@ -9,6 +10,7 @@ public abstract class Employee extends Person {
     private double salary;
     private String passwordHash;
     private LocalDate hireDate;
+    private EmployeeType employeeType;
 
     protected Employee() {
         this(0.0, "", null);
@@ -19,6 +21,7 @@ public abstract class Employee extends Person {
         this.salary = salary;
         this.passwordHash = passwordHash;
         this.hireDate = hireDate;
+        this.employeeType = EmployeeType.STAFF;
     }
 
     protected Employee(String personId,
@@ -36,6 +39,7 @@ public abstract class Employee extends Person {
         this.salary = salary;
         this.passwordHash = passwordHash;
         this.hireDate = hireDate;
+        this.employeeType = EmployeeType.STAFF;
     }
 
     /**
@@ -51,7 +55,7 @@ public abstract class Employee extends Person {
 
     @Override
     public String getRole() {
-        return "EMPLOYEE";
+        return getEmployeeType().name();
     }
 
     public double getSalary() {
@@ -76,5 +80,16 @@ public abstract class Employee extends Person {
 
     public void setHireDate(LocalDate hireDate) {
         this.hireDate = hireDate;
+    }
+
+    public EmployeeType getEmployeeType() {
+        if (employeeType == null) {
+            employeeType = EmployeeType.STAFF;
+        }
+        return employeeType;
+    }
+
+    protected void setEmployeeType(EmployeeType employeeType) {
+        this.employeeType = employeeType == null ? EmployeeType.STAFF : employeeType;
     }
 }

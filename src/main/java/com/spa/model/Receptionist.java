@@ -1,5 +1,6 @@
 package com.spa.model;
 
+import com.spa.model.enums.EmployeeType;
 import java.time.LocalDate;
 
 /**
@@ -29,17 +30,13 @@ public class Receptionist extends Employee {
                         double monthlyBonus) {
         super(personId, fullName, phoneNumber, male, birthDate, email, address, deleted,
                 salary, passwordHash, hireDate);
+        setEmployeeType(EmployeeType.RECEPTIONIST);
         this.monthlyBonus = monthlyBonus;
     }
 
     @Override
     public double calculatePay() {
         return getSalary() + monthlyBonus;
-    }
-
-    @Override
-    public String getRole() {
-        return "RECEPTIONIST";
     }
 
     @Override
@@ -50,7 +47,11 @@ public class Receptionist extends Employee {
     @Override
 
     public void display() {
-        // Sẽ in ở tầng UI.
+        System.out.println("---------------- THÔNG TIN LỄ TÂN ----------------");
+        System.out.printf("Mã nhân viên : %s%n", getId());
+        System.out.printf("Họ tên       : %s%n", getFullName());
+        System.out.printf("Thưởng tháng : %.2f%n", monthlyBonus);
+        System.out.println("---------------------------------------------------");
     }
 
     @Override

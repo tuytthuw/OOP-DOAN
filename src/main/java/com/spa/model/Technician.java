@@ -1,5 +1,6 @@
 package com.spa.model;
 
+import com.spa.model.enums.EmployeeType;
 import java.time.LocalDate;
 
 /**
@@ -33,6 +34,7 @@ public class Technician extends Employee {
                       double commissionRate) {
         super(personId, fullName, phoneNumber, male, birthDate, email, address, deleted,
                 salary, passwordHash, hireDate);
+        setEmployeeType(EmployeeType.TECHNICIAN);
         this.skill = skill;
         this.certifications = certifications;
         this.commissionRate = commissionRate;
@@ -45,18 +47,19 @@ public class Technician extends Employee {
     }
 
     @Override
-    public String getRole() {
-        return "TECHNICIAN";
-    }
-
-    @Override
     public String getPrefix() {
         return PREFIX;
     }
 
     @Override
     public void display() {
-        // Hiển thị sẽ được xử lý ở tầng UI.
+        System.out.println("---------------- THÔNG TIN KỸ THUẬT VIÊN ----------------");
+        System.out.printf("Mã nhân viên : %s%n", getId());
+        System.out.printf("Họ tên       : %s%n", getFullName());
+        System.out.printf("Kỹ năng      : %s%n", skill == null || skill.isEmpty() ? "(trống)" : skill);
+        System.out.printf("Chứng chỉ    : %s%n", certifications == null || certifications.isEmpty() ? "(trống)" : certifications);
+        System.out.printf("Hoa hồng     : %.2f%%%n", commissionRate * 100);
+        System.out.println("----------------------------------------------------------");
     }
 
     @Override
