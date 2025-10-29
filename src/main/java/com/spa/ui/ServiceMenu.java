@@ -83,12 +83,7 @@ public class ServiceMenu implements MenuModule {
             if (service == null || service.isDeleted()) {
                 continue;
             }
-            System.out.printf("%s | %s | %s | %s | %s%n",
-                    service.getId(),
-                    service.getServiceName(),
-                    service.getCategory(),
-                    service.getBasePrice(),
-                    service.isActive() ? "Đang mở" : "Tạm khóa");
+            service.display();
         }
     }
 

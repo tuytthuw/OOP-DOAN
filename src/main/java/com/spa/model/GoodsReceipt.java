@@ -3,6 +3,7 @@ package com.spa.model;
 import com.spa.data.DataStore;
 import com.spa.interfaces.IEntity;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Phiếu nhập kho sản phẩm từ nhà cung cấp.
@@ -108,7 +109,43 @@ public class GoodsReceipt implements IEntity {
 
     @Override
     public void display() {
-        // Xử lý ở tầng UI.
+        System.out.println("---------------- PHIẾU NHẬP KHO ----------------");
+        System.out.printf("Mã phiếu     : %s%n", receiptId);
+        System.out.printf("Ngày nhập    : %s%n", formatDate(receiptDate));
+        System.out.printf("Nhân viên    : %s%n", employee == null ? "" : employee.getFullName());
+        System.out.printf("Nhà cung cấp : %s%n", supplier == null ? "" : supplier.getSupplierName());
+        System.out.printf("Vị trí kho   : %s%n", warehouseLocation == null || warehouseLocation.isEmpty() ? "(trống)" : warehouseLocation);
+        System.out.printf("Ghi chú      : %s%n", notes == null || notes.isEmpty() ? "(trống)" : notes);
+        System.out.printf("Tổng chi phí : %.2f%n", totalCost);
+        System.out.println("Danh sách sản phẩm:");
+        if (receivedProducts == null) {
+            System.out.println("(không có sản phẩm)");
+        } else {
+            Product[] products = receivedProducts.getAll();
+            boolean hasProduct = false;
+            for (Product product : products) {
+                if (product == null) {
+                    continue;
+                }
+                hasProduct = true;
+                System.out.printf("- %s | %s | SL: %d | Giá vốn tổng: %.2f%n",
+                        product.getId(),
+                        product.getProductName(),
+                        product.getStockQuantity(),
+                        product.getCostPrice());
+            }
+            if (!hasProduct) {
+                System.out.println("(không có sản phẩm)");
+            }
+        }
+        System.out.println("------------------------------------------------");
+    }
+
+    private String formatDate(LocalDate date) {
+        if (date == null) {
+            return "";
+        }
+        return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
     @Override

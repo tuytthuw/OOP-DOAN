@@ -82,12 +82,7 @@ public class CustomerMenu implements MenuModule {
             if (customer == null || customer.isDeleted()) {
                 continue;
             }
-            System.out.printf("%s | %s | %s | %s | %s%n",
-                    customer.getId(),
-                    customer.getFullName(),
-                    customer.getMemberTier(),
-                    customer.getPhoneNumber(),
-                    customer.getEmail());
+            customer.display();
         }
     }
 
@@ -177,14 +172,10 @@ public class CustomerMenu implements MenuModule {
             return;
         }
         String trimmedKeywords = keywordsLine.trim().toLowerCase();
-        Tier tierFilter = MenuHelper.selectTier();
         Customer[] customers = context.getCustomerStore().getAll();
         boolean foundAny = false;
         for (Customer customer : customers) {
             if (customer == null || customer.isDeleted()) {
-                continue;
-            }
-            if (tierFilter != null && customer.getMemberTier() != tierFilter) {
                 continue;
             }
             if (trimmedKeywords.isEmpty()) {
