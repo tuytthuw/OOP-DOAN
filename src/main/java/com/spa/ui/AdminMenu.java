@@ -83,14 +83,21 @@ public class AdminMenu implements MenuModule {
 
     private void listAdmins() {
         Admin[] admins = context.getEmployeeStore().getAllAdmins();
-        if (admins.length == 0) {
-            System.out.println("Chưa có quản trị viên nào.");
-            return;
-        }
+        System.out.println();
+        System.out.println("--- DANH SÁCH QUẢN TRỊ VIÊN ---");
+        boolean hasData = false;
+        String header = adminHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Admin admin : admins) {
-            if (admin != null && !admin.isDeleted()) {
-                admin.display();
+            if (admin == null || admin.isDeleted()) {
+                continue;
             }
+            printAdminRow(admin);
+            hasData = true;
+        }
+        if (!hasData) {
+            System.out.println("Chưa có quản trị viên nào.");
         }
     }
 
@@ -98,13 +105,20 @@ public class AdminMenu implements MenuModule {
         String moduleKey = Validation.getString("Nhập module cần tìm: ");
         Admin[] admins = context.getEmployeeStore().getAllAdmins();
         boolean found = false;
+        boolean headerPrinted = false;
         for (Admin admin : admins) {
             if (admin == null || admin.isDeleted()) {
                 continue;
             }
             if (admin.canAccess(moduleKey)) {
+                if (!headerPrinted) {
+                    String header = adminHeader();
+                    System.out.println(header);
+                    System.out.println("-".repeat(header.length()));
+                    headerPrinted = true;
+                }
                 found = true;
-                admin.display();
+                printAdminRow(admin);
             }
         }
         if (!found) {
@@ -135,5 +149,36 @@ public class AdminMenu implements MenuModule {
         admin.setSuperAdmin(!admin.isSuperAdmin());
         context.getEmployeeStore().writeFile();
         System.out.println(admin.isSuperAdmin() ? "Đã bật chế độ super admin." : "Đã tắt chế độ super admin.");
+    }
+
+    private String adminHeader() {
+        return String.format("%-8s | %-18s | %-12s | %-18s | %-18s | %-6s | %-6s | %-20s",
+                "MÃ", "HỌ TÊN", "SĐT", "EMAIL", "ĐỊA CHỈ", "SUPER", "KHÓA", "NHÓM QUYỀN");
+    }
+
+    private void printAdminRow(Admin admin) {
+        System.out.printf("%-8s | %-18s | %-12s | %-18s | %-18s | %-6s | %-6s | %-20s%n",
+                nullToEmpty(admin.getId()),
+                nullToEmpty(admin.getFullName()),
+                nullToEmpty(admin.getPhoneNumber()),
+                nullToEmpty(limitLength(admin.getEmail(), 18)),
+                nullToEmpty(limitLength(admin.getAddress(), 18)),
+                admin.isSuperAdmin() ? "Có" : "Không",
+                admin.isDeleted() ? "Có" : "Không",
+                nullToEmpty(limitLength(admin.getPermissionGroup(), 20)));
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String limitLength(String value, int maxLength) {
+        if (value == null) {
+            return "";
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, Math.max(0, maxLength - 3)) + "...";
     }
 }

@@ -1,1 +1,1 @@
-CUS001|Tín|09999|true|2003-11-11|lkajdf|lkfaj|false|GOLD|lkajfd|6840|2025-10-29
+CUS001|Tín|09999|true|2003-11-11|lkajdf|lkfaj|false|GOLD|lkajfd|10104|2025-10-29

@@ -63,12 +63,15 @@ public class GoodsReceiptMenu implements MenuModule {
         System.out.println("--- DANH SÁCH PHIẾU NHẬP ---");
         GoodsReceipt[] receipts = context.getGoodsReceiptStore().getAll();
         boolean hasData = false;
+        String header = goodsReceiptHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (GoodsReceipt receipt : receipts) {
             if (receipt == null) {
                 continue;
             }
+            printGoodsReceiptRow(receipt);
             hasData = true;
-            displayReceipt(receipt);
         }
         if (!hasData) {
             System.out.println("Chưa có phiếu nhập nào.");
@@ -239,10 +242,19 @@ public class GoodsReceiptMenu implements MenuModule {
             System.out.println("Đã hủy tìm kiếm.");
             return;
         }
+        boolean foundAny = false;
+        boolean headerPrinted = false;
         if (!exactId.isEmpty()) {
             GoodsReceipt receipt = context.getGoodsReceiptStore().findById(exactId);
             if (receipt != null) {
-                displayReceipt(receipt);
+                if (!headerPrinted) {
+                    String header = goodsReceiptHeader();
+                    System.out.println(header);
+                    System.out.println("-".repeat(header.length()));
+                    headerPrinted = true;
+                }
+                printGoodsReceiptRow(receipt);
+                foundAny = true;
             } else {
                 System.out.println("Không tìm thấy phiếu nhập theo mã.");
             }
@@ -268,7 +280,6 @@ public class GoodsReceiptMenu implements MenuModule {
         }
 
         GoodsReceipt[] receipts = context.getGoodsReceiptStore().getAll();
-        boolean foundAny = false;
         for (GoodsReceipt receipt : receipts) {
             if (receipt == null) {
                 continue;
@@ -276,7 +287,13 @@ public class GoodsReceiptMenu implements MenuModule {
             if (!matchesReceiptFilters(receipt, fromDate, toDate, supplierId, employeeId)) {
                 continue;
             }
-            displayReceipt(receipt);
+            if (!headerPrinted) {
+                String header = goodsReceiptHeader();
+                System.out.println(header);
+                System.out.println("-".repeat(header.length()));
+                headerPrinted = true;
+            }
+            printGoodsReceiptRow(receipt);
             foundAny = true;
         }
         if (!foundAny) {
@@ -370,6 +387,45 @@ public class GoodsReceiptMenu implements MenuModule {
                     product.getCostPrice());
         }
         System.out.println("---------------------------------------------");
+    }
+
+    private String goodsReceiptHeader() {
+        return String.format("%-8s | %-12s | %-18s | %-18s | %-12s | %-10s | %-15s",
+                "MÃ", "NGÀY", "NHÂN VIÊN", "NHÀ CUNG CẤP", "KHO", "TỔNG", "GHI CHÚ");
+    }
+
+    private void printGoodsReceiptRow(GoodsReceipt receipt) {
+        String employeeName = receipt.getEmployee() == null ? "" : receipt.getEmployee().getFullName();
+        String supplierName = receipt.getSupplier() == null ? "" : receipt.getSupplier().getSupplierName();
+        System.out.printf("%-8s | %-12s | %-18s | %-18s | %-12s | %-10.2f | %-15s%n",
+                nullToEmpty(receipt.getId()),
+                formatDate(receipt.getReceiptDate()),
+                nullToEmpty(limitLength(employeeName, 18)),
+                nullToEmpty(limitLength(supplierName, 18)),
+                nullToEmpty(limitLength(receipt.getWarehouseLocation(), 12)),
+                receipt.getTotalCost(),
+                nullToEmpty(limitLength(receipt.getNotes(), 15)));
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String limitLength(String value, int maxLength) {
+        if (value == null) {
+            return "";
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, Math.max(0, maxLength - 3)) + "...";
+    }
+
+    private String formatDate(LocalDate date) {
+        if (date == null) {
+            return "";
+        }
+        return date.format(DATE_FORMAT);
     }
 
     private Employee resolveCurrentEmployee() {

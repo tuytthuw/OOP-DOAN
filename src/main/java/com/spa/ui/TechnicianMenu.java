@@ -80,15 +80,22 @@ public class TechnicianMenu implements MenuModule {
     }
 
     private void listTechnicians() {
+        System.out.println();
+        System.out.println("--- DANH SÁCH KỸ THUẬT VIÊN ---");
         Technician[] technicians = context.getEmployeeStore().getAllTechnicians();
-        if (technicians.length == 0) {
-            System.out.println("Chưa có kỹ thuật viên nào.");
-            return;
-        }
+        boolean hasData = false;
+        String header = technicianHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Technician technician : technicians) {
-            if (technician != null && !technician.isDeleted()) {
-                technician.display();
+            if (technician == null || technician.isDeleted()) {
+                continue;
             }
+            printTechnicianRow(technician);
+            hasData = true;
+        }
+        if (!hasData) {
+            System.out.println("Chưa có kỹ thuật viên nào.");
         }
     }
 
@@ -96,17 +103,25 @@ public class TechnicianMenu implements MenuModule {
         String keyword = Validation.getString("Từ khóa tìm kiếm: ").toLowerCase();
         Technician[] technicians = context.getEmployeeStore().getAllTechnicians();
         boolean found = false;
+        boolean headerPrinted = false;
         for (Technician technician : technicians) {
             if (technician == null || technician.isDeleted()) {
                 continue;
             }
-            String data = (technician.getFullName() + " "
-                    + technician.getSkill() + " "
-                    + technician.getCertifications()).toLowerCase();
-            if (data.contains(keyword)) {
-                found = true;
-                technician.display();
+            String data = (nullToEmpty(technician.getFullName()) + " "
+                    + nullToEmpty(technician.getSkill()) + " "
+                    + nullToEmpty(technician.getCertifications())).toLowerCase();
+            if (!data.contains(keyword)) {
+                continue;
             }
+            if (!headerPrinted) {
+                String header = technicianHeader();
+                System.out.println(header);
+                System.out.println("-".repeat(header.length()));
+                headerPrinted = true;
+            }
+            printTechnicianRow(technician);
+            found = true;
         }
         if (!found) {
             System.out.println("Không tìm thấy kỹ thuật viên phù hợp.");
@@ -138,5 +153,37 @@ public class TechnicianMenu implements MenuModule {
             System.out.printf("%s - %s | Lịch hẹn hoàn thành: %d%n",
                     technician.getId(), technician.getFullName(), completed);
         }
+    }
+
+    private String technicianHeader() {
+        return String.format("%-8s | %-18s | %-12s | %-12s | %-10s | %-6s | %-12s | %-12s | %-6s",
+                "MÃ", "HỌ TÊN", "SĐT", "EMAIL", "KỸ NĂNG", "KHÓA", "CHỨNG CHỈ", "NGÀY VÀO", "HOA HỒNG");
+    }
+
+    private void printTechnicianRow(Technician technician) {
+        System.out.printf("%-8s | %-18s | %-12s | %-12s | %-10s | %-6s | %-12s | %-12s | %-6.2f%n",
+                nullToEmpty(technician.getId()),
+                nullToEmpty(technician.getFullName()),
+                nullToEmpty(technician.getPhoneNumber()),
+                nullToEmpty(limitLength(technician.getEmail(), 12)),
+                nullToEmpty(limitLength(technician.getSkill(), 10)),
+                technician.isDeleted() ? "Có" : "Không",
+                nullToEmpty(limitLength(technician.getCertifications(), 12)),
+                technician.getHireDate() == null ? "" : technician.getHireDate().toString(),
+                technician.getCommissionRate());
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String limitLength(String value, int maxLength) {
+        if (value == null) {
+            return "";
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, Math.max(0, maxLength - 3)) + "...";
     }
 }

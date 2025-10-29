@@ -77,14 +77,21 @@ public class ReceptionistMenu implements MenuModule {
 
     private void listReceptionists() {
         Receptionist[] receptionists = context.getEmployeeStore().getAllReceptionists();
-        if (receptionists.length == 0) {
-            System.out.println("Chưa có lễ tân nào.");
-            return;
-        }
+        System.out.println();
+        System.out.println("--- DANH SÁCH LỄ TÂN ---");
+        boolean hasData = false;
+        String header = receptionistHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Receptionist receptionist : receptionists) {
-            if (receptionist != null && !receptionist.isDeleted()) {
-                receptionist.display();
+            if (receptionist == null || receptionist.isDeleted()) {
+                continue;
             }
+            printReceptionistRow(receptionist);
+            hasData = true;
+        }
+        if (!hasData) {
+            System.out.println("Chưa có lễ tân nào.");
         }
     }
 
@@ -93,6 +100,7 @@ public class ReceptionistMenu implements MenuModule {
         String[] tokens = keyword.split("\\s+");
         Receptionist[] receptionists = context.getEmployeeStore().getAllReceptionists();
         boolean found = false;
+        boolean headerPrinted = false;
         for (Receptionist receptionist : receptionists) {
             if (receptionist == null || receptionist.isDeleted()) {
                 continue;
@@ -101,8 +109,14 @@ public class ReceptionistMenu implements MenuModule {
                     + receptionist.getPhoneNumber() + " "
                     + receptionist.getEmail()).toLowerCase();
             if (matchesAllTokens(data, tokens)) {
+                if (!headerPrinted) {
+                    String header = receptionistHeader();
+                    System.out.println(header);
+                    System.out.println("-".repeat(header.length()));
+                    headerPrinted = true;
+                }
                 found = true;
-                receptionist.display();
+                printReceptionistRow(receptionist);
             }
         }
         if (!found) {
@@ -132,5 +146,36 @@ public class ReceptionistMenu implements MenuModule {
             }
         }
         return true;
+    }
+
+    private String receptionistHeader() {
+        return String.format("%-8s | %-18s | %-12s | %-18s | %-18s | %-6s | %-10s | %-10s",
+                "MÃ", "HỌ TÊN", "SĐT", "EMAIL", "ĐỊA CHỈ", "KHÓA", "THƯỞNG", "NGÀY VÀO");
+    }
+
+    private void printReceptionistRow(Receptionist receptionist) {
+        System.out.printf("%-8s | %-18s | %-12s | %-18s | %-18s | %-6s | %-10.2f | %-10s%n",
+                nullToEmpty(receptionist.getId()),
+                nullToEmpty(receptionist.getFullName()),
+                nullToEmpty(receptionist.getPhoneNumber()),
+                nullToEmpty(limitLength(receptionist.getEmail(), 18)),
+                nullToEmpty(limitLength(receptionist.getAddress(), 18)),
+                receptionist.isDeleted() ? "Có" : "Không",
+                receptionist.getMonthlyBonus(),
+                receptionist.getHireDate() == null ? "" : receptionist.getHireDate().toString());
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String limitLength(String value, int maxLength) {
+        if (value == null) {
+            return "";
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, Math.max(0, maxLength - 3)) + "...";
     }
 }
