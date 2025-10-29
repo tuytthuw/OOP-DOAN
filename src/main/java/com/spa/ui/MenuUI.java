@@ -18,8 +18,6 @@ import com.spa.model.Payment;
 import com.spa.model.Product;
 import com.spa.model.Promotion;
 import com.spa.model.Service;
-import com.spa.model.Receptionist;
-import com.spa.model.Technician;
 import com.spa.model.Supplier;
 import com.spa.model.enums.DiscountType;
 import com.spa.model.enums.PaymentMethod;
@@ -63,6 +61,7 @@ public class MenuUI {
     private final AppointmentMenu appointmentMenu;
     private final InvoiceMenu invoiceMenu;
     private final GoodsReceiptMenu goodsReceiptMenu;
+    private final EmployeeManagementMenu employeeManagementMenu;
 
     public MenuUI(AuthService authService,
                   EmployeeStore employeeStore,
@@ -97,138 +96,7 @@ public class MenuUI {
         appointmentMenu = new AppointmentMenu(context);
         invoiceMenu = new InvoiceMenu(context);
         goodsReceiptMenu = new GoodsReceiptMenu(context);
-    }
-
-    private void handleEmployeeMenu() {
-        boolean back = false;
-        while (!back) {
-            System.out.println();
-            System.out.println("--- QUẢN LÝ NHÂN SỰ ---");
-            System.out.println("1. Xem danh sách nhân viên");
-            System.out.println("2. Thêm kỹ thuật viên");
-            System.out.println("3. Thêm lễ tân");
-            System.out.println("4. Khóa/Mở khóa nhân viên");
-            System.out.println("0. Quay lại");
-
-            int choice = Validation.getInt("Chọn chức năng: ", 0, 4);
-            switch (choice) {
-                case 1:
-                    listEmployees();
-                    Validation.pause();
-                    break;
-                case 2:
-                    addTechnician();
-                    Validation.pause();
-                    break;
-                case 3:
-                    addReceptionist();
-                    Validation.pause();
-                    break;
-                case 4:
-                    toggleEmployeeLock();
-                    Validation.pause();
-                    break;
-                case 0:
-                default:
-                    back = true;
-                    break;
-            }
-        }
-    }
-
-    private void listEmployees() {
-        System.out.println();
-        System.out.println("--- DANH SÁCH NHÂN VIÊN ---");
-        Employee[] employees = employeeStore.getAll();
-        boolean hasData = false;
-        for (Employee employee : employees) {
-            if (employee == null) {
-                continue;
-            }
-            hasData = true;
-            System.out.printf("%s | %s | Vai trò: %s | Trạng thái: %s%n",
-                    employee.getId(),
-                    employee.getFullName(),
-                    employee.getRole(),
-                    employee.isDeleted() ? "Đã khóa" : "Hoạt động");
-        }
-        if (!hasData) {
-            System.out.println("Chưa có nhân viên nào.");
-        }
-    }
-
-    private void addTechnician() {
-        System.out.println();
-        System.out.println("--- THÊM KỸ THUẬT VIÊN ---");
-        Technician technician = buildTechnician();
-        if (technician == null) {
-            return;
-        }
-        employeeStore.add(technician);
-        employeeStore.writeFile();
-        System.out.println("Đã thêm kỹ thuật viên thành công.");
-    }
-
-    private Technician buildTechnician() {
-        Technician technician = new Technician();
-        technician.setPersonId(employeeStore.generateNextId(Technician.class));
-        technician.setFullName(Validation.getString("Họ tên: "));
-        technician.setPhoneNumber(Validation.getString("Số điện thoại: "));
-        technician.setEmail(Validation.getString("Email: "));
-        technician.setAddress(Validation.getString("Địa chỉ: "));
-        technician.setMale(Validation.getBoolean("Giới tính nam?"));
-        technician.setBirthDate(Validation.getDate("Ngày sinh (yyyy-MM-dd): ", DATE_FORMAT));
-        technician.setHireDate(Validation.getDate("Ngày vào làm (yyyy-MM-dd): ", DATE_FORMAT));
-        technician.setSalary(Validation.getDouble("Lương cơ bản: ", 0.0, 1_000_000_000.0));
-        technician.setSkill(Validation.getString("Kỹ năng chính: "));
-        technician.setCertifications(Validation.getString("Chứng chỉ: "));
-        technician.setCommissionRate(Validation.getDouble("Hoa hồng (0-1): ", 0.0, 1.0));
-        String password = Validation.getString("Mật khẩu khởi tạo: ");
-        technician.setPasswordHash(encryptPassword(password));
-        technician.setDeleted(false);
-        return technician;
-    }
-
-    private void addReceptionist() {
-        System.out.println();
-        System.out.println("--- THÊM LỄ TÂN ---");
-        Receptionist receptionist = buildReceptionist();
-        if (receptionist == null) {
-            return;
-        }
-        employeeStore.add(receptionist);
-        employeeStore.writeFile();
-        System.out.println("Đã thêm lễ tân thành công.");
-    }
-
-    private Receptionist buildReceptionist() {
-        Receptionist receptionist = new Receptionist();
-        receptionist.setPersonId(employeeStore.generateNextId(Receptionist.class));
-        receptionist.setFullName(Validation.getString("Họ tên: "));
-        receptionist.setPhoneNumber(Validation.getString("Số điện thoại: "));
-        receptionist.setEmail(Validation.getString("Email: "));
-        receptionist.setAddress(Validation.getString("Địa chỉ: "));
-        receptionist.setMale(Validation.getBoolean("Giới tính nam?"));
-        receptionist.setBirthDate(Validation.getDate("Ngày sinh (yyyy-MM-dd): ", DATE_FORMAT));
-        receptionist.setHireDate(Validation.getDate("Ngày vào làm (yyyy-MM-dd): ", DATE_FORMAT));
-        receptionist.setSalary(Validation.getDouble("Lương cơ bản: ", 0.0, 1_000_000_000.0));
-        receptionist.setMonthlyBonus(Validation.getDouble("Thưởng hàng tháng: ", 0.0, 1_000_000_000.0));
-        String password = Validation.getString("Mật khẩu khởi tạo: ");
-        receptionist.setPasswordHash(encryptPassword(password));
-        receptionist.setDeleted(false);
-        return receptionist;
-    }
-
-    private void toggleEmployeeLock() {
-        String id = Validation.getString("Mã nhân viên: ");
-        Employee employee = employeeStore.findById(id);
-        if (employee == null) {
-            System.out.println("Không tìm thấy nhân viên.");
-            return;
-        }
-        employee.setDeleted(!employee.isDeleted());
-        employeeStore.writeFile();
-        System.out.println(employee.isDeleted() ? "Đã khóa nhân viên." : "Đã mở khóa nhân viên.");
+        employeeManagementMenu = new EmployeeManagementMenu(context);
     }
 
     /**
@@ -239,8 +107,8 @@ public class MenuUI {
         boolean running = true;
         while (running) {
             printHeader();
-            boolean canManageCore = canManageCoreData();
-            boolean canManageEmployeesMenu = canManageEmployees();
+            boolean canManageCore = canAccess("CORE_DATA");
+            boolean canManageEmployeesMenu = canAccess("HR_MANAGEMENT");
             System.out.println("1. Quản lý khách hàng" + (canManageCore ? "" : " (không khả dụng)"));
             System.out.println("2. Quản lý dịch vụ" + (canManageCore ? "" : " (không khả dụng)"));
             System.out.println("3. Quản lý sản phẩm" + (canManageCore ? "" : " (không khả dụng)"));
@@ -320,7 +188,7 @@ public class MenuUI {
                     break;
                 case 11:
                     if (canManageEmployeesMenu) {
-                        handleEmployeeMenu();
+                        employeeManagementMenu.show();
                     } else {
                         noPermission();
                     }
@@ -407,16 +275,19 @@ public class MenuUI {
         Validation.pause();
     }
 
-    private boolean canManageCoreData() {
-        String role = authService.getCurrentRole();
-        return "RECEPTIONIST".equalsIgnoreCase(role)
-                || "MANAGER".equalsIgnoreCase(role)
-                || "ADMIN".equalsIgnoreCase(role);
-    }
-
-    private boolean canManageEmployees() {
-        String role = authService.getCurrentRole();
-        return "MANAGER".equalsIgnoreCase(role) || "ADMIN".equalsIgnoreCase(role);
+    private boolean canAccess(String moduleKey) {
+        Employee current = authService.getCurrentUser();
+        if (current == null) {
+            return false;
+        }
+        if ("CORE_DATA".equalsIgnoreCase(moduleKey)) {
+            return true;
+        }
+        if (current instanceof com.spa.model.Admin) {
+            com.spa.model.Admin admin = (com.spa.model.Admin) current;
+            return admin.canAccess(moduleKey);
+        }
+        return false;
     }
 
     private String encryptPassword(String raw) {

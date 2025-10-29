@@ -71,12 +71,15 @@ public class SupplierMenu implements MenuModule {
         System.out.println("--- DANH SÁCH NHÀ CUNG CẤP ---");
         Supplier[] suppliers = context.getSupplierStore().getAll();
         boolean hasData = false;
+        String header = supplierHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Supplier supplier : suppliers) {
-            if (supplier == null || supplier.isDeleted()) {
+            if (supplier == null) {
                 continue;
             }
+            printSupplierRow(supplier);
             hasData = true;
-            supplier.display();
         }
         if (!hasData) {
             System.out.println("Chưa có nhà cung cấp nào.");
@@ -201,6 +204,7 @@ public class SupplierMenu implements MenuModule {
 
         Supplier[] suppliers = context.getSupplierStore().getAll();
         boolean foundAny = false;
+        boolean headerPrinted = false;
         for (Supplier supplier : suppliers) {
             if (supplier == null) {
                 continue;
@@ -211,7 +215,13 @@ public class SupplierMenu implements MenuModule {
             if (!matchesTokens(supplier, trimmedKeywords.split("\\s+"))) {
                 continue;
             }
-            supplier.display();
+            if (!headerPrinted) {
+                String header = supplierHeader();
+                System.out.println(header);
+                System.out.println("-".repeat(header.length()));
+                headerPrinted = true;
+            }
+            printSupplierRow(supplier);
             foundAny = true;
         }
         if (!foundAny) {
@@ -293,5 +303,34 @@ public class SupplierMenu implements MenuModule {
             return false;
         }
         return source.toLowerCase().contains(token);
+    }
+
+    private String supplierHeader() {
+        return String.format("%-8s | %-20s | %-18s | %-12s | %-30s | %-25s | %-10s | %-8s",
+                "MÃ", "TÊN NHÀ CUNG CẤP", "NGƯỜI LIÊN HỆ", "SĐT", "ĐỊA CHỈ", "EMAIL", "GHI CHÚ", "TRẠNG");
+    }
+
+    private void printSupplierRow(Supplier supplier) {
+        String status = supplier.isDeleted() ? "Đã khóa" : "Hoạt động";
+        System.out.printf("%-8s | %-20s | %-18s | %-12s | %-30s | %-25s | %-10s | %-8s%n",
+                nullToEmpty(supplier.getId()),
+                nullToEmpty(supplier.getSupplierName()),
+                nullToEmpty(supplier.getContactPerson()),
+                nullToEmpty(supplier.getPhoneNumber()),
+                nullToEmpty(supplier.getAddress()),
+                nullToEmpty(supplier.getEmail()),
+                truncateNotes(supplier.getNotes()),
+                status);
+    }
+
+    private String truncateNotes(String notes) {
+        if (notes == null) {
+            return "";
+        }
+        return notes.length() <= 10 ? notes : notes.substring(0, 7) + "...";
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 }

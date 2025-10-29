@@ -76,12 +76,15 @@ public class AppointmentMenu implements MenuModule {
         System.out.println("--- DANH SÁCH LỊCH HẸN ---");
         Appointment[] appointments = context.getAppointmentStore().getAll();
         boolean hasData = false;
+        String header = appointmentHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Appointment appointment : appointments) {
             if (appointment == null) {
                 continue;
             }
+            printAppointmentRow(appointment);
             hasData = true;
-            appointment.display();
         }
         if (!hasData) {
             System.out.println("Chưa có lịch hẹn nào.");
@@ -232,6 +235,7 @@ public class AppointmentMenu implements MenuModule {
         Appointment[] appointments = context.getAppointmentStore().getAll();
         boolean foundAny = false;
         String[] tokens = trimmedKeywords.isEmpty() ? new String[]{""} : trimmedKeywords.split("\\s+");
+        boolean headerPrinted = false;
         for (Appointment appointment : appointments) {
             if (appointment == null) {
                 continue;
@@ -263,7 +267,13 @@ public class AppointmentMenu implements MenuModule {
             if (!matchesTokens(appointment, tokens)) {
                 continue;
             }
-            appointment.display();
+            if (!headerPrinted) {
+                String header = appointmentHeader();
+                System.out.println(header);
+                System.out.println("-".repeat(header.length()));
+                headerPrinted = true;
+            }
+            printAppointmentRow(appointment);
             foundAny = true;
         }
         if (!foundAny) {
@@ -482,4 +492,42 @@ public class AppointmentMenu implements MenuModule {
     }
 
     private static final LocalDateTime CANCELLED_MARK = LocalDateTime.MIN;
+
+    private String appointmentHeader() {
+        return String.format("%-8s | %-18s | %-18s | %-18s | %-16s | %-16s | %-10s | %-6s | %-15s | %-15s",
+                "MÃ", "KHÁCH HÀNG", "KỸ THUẬT", "DỊCH VỤ", "BẮT ĐẦU", "KẾT THÚC", "TRẠNG THÁI", "ĐÁNH GIÁ", "GHI CHÚ", "PHẢN HỒI");
+    }
+
+    private void printAppointmentRow(Appointment appointment) {
+        String customerName = appointment.getCustomer() == null ? "" : appointment.getCustomer().getFullName();
+        String technicianName = appointment.getTechnician() == null ? "" : appointment.getTechnician().getFullName();
+        String serviceName = appointment.getService() == null ? "" : appointment.getService().getServiceName();
+        String notes = limitLength(appointment.getNotes(), 15);
+        String feedback = limitLength(appointment.getFeedback(), 15);
+        System.out.printf("%-8s | %-18s | %-18s | %-18s | %-16s | %-16s | %-10s | %-6d | %-15s | %-15s%n",
+                nullToEmpty(appointment.getId()),
+                nullToEmpty(customerName),
+                nullToEmpty(technicianName),
+                nullToEmpty(serviceName),
+                formatDateTime(appointment.getStartTime()),
+                formatDateTime(appointment.getEndTime()),
+                appointment.getStatus() == null ? "" : appointment.getStatus().name(),
+                appointment.getRating(),
+                notes,
+                feedback);
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String limitLength(String value, int maxLength) {
+        if (value == null) {
+            return "";
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength - 3) + "...";
+    }
 }

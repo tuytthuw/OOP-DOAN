@@ -74,15 +74,29 @@ public class CustomerMenu implements MenuModule {
         System.out.println();
         System.out.println("--- DANH SÁCH KHÁCH HÀNG ---");
         Customer[] customers = context.getCustomerStore().getAll();
-        if (customers.length == 0) {
-            System.out.println("Chưa có khách hàng nào.");
-            return;
-        }
+        boolean hasData = false;
+        String header = String.format("%-10s | %-22s | %-12s | %-25s | %-10s | %-7s | %-12s | %-8s",
+                "MÃ", "HỌ TÊN", "SĐT", "EMAIL", "HẠNG", "ĐIỂM", "LẦN GHÉ", "TRẠNG THÁI");
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Customer customer : customers) {
-            if (customer == null || customer.isDeleted()) {
+            if (customer == null) {
                 continue;
             }
-            customer.display();
+            String status = customer.isDeleted() ? "Đã khóa" : "Hoạt động";
+            System.out.printf("%-10s | %-22s | %-12s | %-25s | %-10s | %-7d | %-12s | %-8s%n",
+                    nullToEmpty(customer.getId()),
+                    nullToEmpty(customer.getFullName()),
+                    nullToEmpty(customer.getPhoneNumber()),
+                    nullToEmpty(customer.getEmail()),
+                    customer.getMemberTier() == null ? "" : customer.getMemberTier().name(),
+                    customer.getPoints(),
+                    customer.getLastVisitDate() == null ? "" : customer.getLastVisitDate().toString(),
+                    status);
+            hasData = true;
+        }
+        if (!hasData) {
+            System.out.println("Chưa có khách hàng nào.");
         }
     }
 
@@ -331,5 +345,9 @@ public class CustomerMenu implements MenuModule {
             return false;
         }
         return source.toLowerCase().contains(token);
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 }

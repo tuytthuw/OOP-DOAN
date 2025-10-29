@@ -76,12 +76,15 @@ public class ProductMenu implements MenuModule {
         System.out.println("--- DANH SÁCH SẢN PHẨM ---");
         Product[] products = context.getProductStore().getAll();
         boolean hasData = false;
+        String header = productHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Product product : products) {
-            if (product == null || product.isDeleted()) {
+            if (product == null) {
                 continue;
             }
+            printProductRow(product);
             hasData = true;
-            product.display();
         }
         if (!hasData) {
             System.out.println("Chưa có sản phẩm nào.");
@@ -268,6 +271,7 @@ public class ProductMenu implements MenuModule {
 
         Product[] products = context.getProductStore().getAll();
         boolean foundAny = false;
+        boolean headerPrinted = false;
         for (Product product : products) {
             if (product == null || product.isDeleted()) {
                 continue;
@@ -281,7 +285,13 @@ public class ProductMenu implements MenuModule {
             if (!trimmedKeywords.isEmpty() && !matchesTokens(product, trimmedKeywords.split("\\s+"))) {
                 continue;
             }
-            product.display();
+            if (!headerPrinted) {
+                String header = productHeader();
+                System.out.println(header);
+                System.out.println("-".repeat(header.length()));
+                headerPrinted = true;
+            }
+            printProductRow(product);
             foundAny = true;
         }
         if (!foundAny) {
@@ -366,5 +376,30 @@ public class ProductMenu implements MenuModule {
             return false;
         }
         return source.toLowerCase().contains(token);
+    }
+
+    private String productHeader() {
+        return String.format("%-8s | %-22s | %-12s | %-10s | %-8s | %-5s | %-11s | %-11s | %-8s | %-10s",
+                "MÃ", "TÊN SẢN PHẨM", "THƯƠNG HIỆU", "GIÁ BÁN", "GIÁ VỐN", "TỒN", "NGƯỠNG", "HẾT HẠN", "TRẠNG", "NHÀ CUNG CẤP");
+    }
+
+    private void printProductRow(Product product) {
+        String status = product.isDeleted() ? "Đã khóa" : "Hoạt động";
+        String supplierName = product.getSupplier() == null ? "" : product.getSupplier().getSupplierName();
+        System.out.printf("%-8s | %-22s | %-12s | %-10s | %-8.2f | %-5d | %-11d | %-11s | %-8s | %-10s%n",
+                nullToEmpty(product.getId()),
+                nullToEmpty(product.getProductName()),
+                nullToEmpty(product.getBrand()),
+                product.getBasePrice() == null ? "" : product.getBasePrice().toPlainString(),
+                product.getCostPrice(),
+                product.getStockQuantity(),
+                product.getReorderLevel(),
+                product.getExpiryDate() == null ? "" : product.getExpiryDate().toString(),
+                status,
+                supplierName);
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 }

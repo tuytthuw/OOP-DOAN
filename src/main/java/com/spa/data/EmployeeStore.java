@@ -1,5 +1,6 @@
 package com.spa.data;
 
+import com.spa.model.Admin;
 import com.spa.model.Employee;
 import com.spa.model.Receptionist;
 import com.spa.model.Technician;
@@ -15,6 +16,33 @@ public class EmployeeStore extends DataStore<Employee> {
 
     public EmployeeStore(String dataFilePath) {
         super(Employee.class, dataFilePath);
+    }
+
+    public Admin[] getAllAdmins() {
+        Employee[] employees = getAll();
+        int count = 0;
+        for (Employee employee : employees) {
+            if (employee instanceof Admin && !employee.isDeleted()) {
+                count++;
+            }
+        }
+        Admin[] result = new Admin[count];
+        int index = 0;
+        for (Employee employee : employees) {
+            if (employee instanceof Admin && !employee.isDeleted()) {
+                result[index] = (Admin) employee;
+                index++;
+            }
+        }
+        return result;
+    }
+
+    public Admin findAdminById(String id) {
+        Employee employee = findById(id);
+        if (employee instanceof Admin && !employee.isDeleted()) {
+            return (Admin) employee;
+        }
+        return null;
     }
 
     public Receptionist[] getAllReceptionists() {
@@ -77,9 +105,10 @@ public class EmployeeStore extends DataStore<Employee> {
             return "";
         }
         StringBuilder builder = new StringBuilder();
+        String roleToken = item instanceof Admin ? "ADMIN" : item.getRole();
         builder.append(item.getId()).append(SEPARATOR)
                 .append(item.getFullName()).append(SEPARATOR)
-                .append(item.getRole()).append(SEPARATOR)
+                .append(roleToken).append(SEPARATOR)
                 .append(item.isDeleted()).append(SEPARATOR)
                 .append(item.getPasswordHash()).append(SEPARATOR)
                 .append(item.getPhoneNumber()).append(SEPARATOR)
@@ -89,7 +118,12 @@ public class EmployeeStore extends DataStore<Employee> {
                 .append(item.getAddress()).append(SEPARATOR)
                 .append(item.getHireDate() == null ? "" : item.getHireDate().format(DATE_FORMAT)).append(SEPARATOR)
                 .append(item.getSalary());
-        if (item instanceof Technician) {
+        if (item instanceof Admin) {
+            Admin admin = (Admin) item;
+            builder.append(SEPARATOR).append("ADM")
+                    .append(SEPARATOR).append(admin.getPermissionGroup())
+                    .append(SEPARATOR).append(admin.isSuperAdmin());
+        } else if (item instanceof Technician) {
             Technician technician = (Technician) item;
             builder.append(SEPARATOR).append("TECH")
                     .append(SEPARATOR).append(technician.getSkill())
@@ -127,6 +161,13 @@ public class EmployeeStore extends DataStore<Employee> {
         LocalDate hireDate = parts[10].isEmpty() ? null : LocalDate.parse(parts[10], DATE_FORMAT);
         double salary = Double.parseDouble(parts[11]);
 
+        if ("ADM".equalsIgnoreCase(parts[12])) {
+            String permissionGroup = parts.length > 13 ? parts[13] : "";
+            boolean superAdmin = parts.length > 14 && Boolean.parseBoolean(parts[14]);
+            Admin admin = new Admin(id, fullName, phone, male, birthDate, email, address,
+                    deleted, salary, passwordHash, hireDate, permissionGroup, superAdmin);
+            return admin;
+        }
         if ("TECH".equalsIgnoreCase(parts[12])) {
             String skill = parts.length > 13 ? parts[13] : "";
             String certifications = parts.length > 14 ? parts[14] : "";

@@ -54,16 +54,15 @@ public class InvoiceMenu implements MenuModule {
         System.out.println("--- DANH SÁCH HÓA ĐƠN ---");
         Invoice[] invoices = context.getInvoiceStore().getAll();
         boolean hasData = false;
+        String header = invoiceHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Invoice invoice : invoices) {
             if (invoice == null) {
                 continue;
             }
+            printInvoiceRow(invoice);
             hasData = true;
-            System.out.printf("%s | KH: %s | Tổng: %.2f | Trạng thái: %s%n",
-                    invoice.getId(),
-                    invoice.getCustomer() == null ? "" : invoice.getCustomer().getId(),
-                    invoice.getTotalAmount(),
-                    invoice.isStatus() ? "Đã thanh toán" : "Chưa thanh toán");
         }
         if (!hasData) {
             System.out.println("Chưa có hóa đơn nào.");
@@ -273,5 +272,40 @@ public class InvoiceMenu implements MenuModule {
             return BigDecimal.ZERO;
         }
         return basePrice.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    private String invoiceHeader() {
+        return String.format("%-8s | %-18s | %-18s | %-18s | %-12s | %-8s | %-10s | %-10s",
+                "MÃ", "KHÁCH HÀNG", "LỄ TÂN", "LỊCH HẸN", "KHUYẾN MÃI", "TRẠNG", "THUẾ", "TỔNG");
+    }
+
+    private void printInvoiceRow(Invoice invoice) {
+        String customerName = invoice.getCustomer() == null ? "" : invoice.getCustomer().getFullName();
+        String receptionistName = invoice.getReceptionist() == null ? "" : invoice.getReceptionist().getFullName();
+        String appointmentId = invoice.getAppointment() == null ? "" : invoice.getAppointment().getId();
+        String promotionName = invoice.getPromotion() == null ? "" : invoice.getPromotion().getName();
+        System.out.printf("%-8s | %-18s | %-18s | %-18s | %-12s | %-8s | %-10.2f | %-10.2f%n",
+                nullToEmpty(invoice.getId()),
+                nullToEmpty(customerName),
+                nullToEmpty(receptionistName),
+                nullToEmpty(appointmentId),
+                nullToEmpty(limitLength(promotionName, 12)),
+                invoice.isStatus() ? "Đã TT" : "Chưa TT",
+                invoice.getTaxRate() * 100,
+                invoice.getTotalAmount());
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String limitLength(String value, int maxLength) {
+        if (value == null) {
+            return "";
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, Math.max(0, maxLength - 3)) + "...";
     }
 }

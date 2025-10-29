@@ -4,7 +4,7 @@ import com.spa.model.Invoice;
 import com.spa.model.Payment;
 import com.spa.model.Receptionist;
 import com.spa.model.enums.PaymentMethod;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class PaymentStore extends DataStore<Payment> {
     private static final String SEPARATOR = "|";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public PaymentStore(String dataFilePath) {
         super(Payment.class, dataFilePath);
@@ -23,13 +23,16 @@ public class PaymentStore extends DataStore<Payment> {
         if (item == null) {
             return "";
         }
-        String date = item.getPaymentDate() == null ? "" : item.getPaymentDate().format(DATE_FORMAT);
+        String date = item.getPaymentDate() == null ? "" : item.getPaymentDate().format(DATE_TIME_FORMAT);
+        String note = item.getNote() == null ? "" : item.getNote();
         return item.getId() + SEPARATOR
                 + (item.getInvoice() == null ? "" : item.getInvoice().getId()) + SEPARATOR
                 + item.getAmount() + SEPARATOR
                 + (item.getPaymentMethod() == null ? "" : item.getPaymentMethod().name()) + SEPARATOR
                 + (item.getReceptionist() == null ? "" : item.getReceptionist().getId()) + SEPARATOR
-                + date;
+                + date + SEPARATOR
+                + note + SEPARATOR
+                + item.isRefunded();
     }
 
     @Override
@@ -38,7 +41,7 @@ public class PaymentStore extends DataStore<Payment> {
             return null;
         }
         String[] parts = line.split("\\|", -1);
-        if (parts.length < 6) {
+        if (parts.length < 8) {
             return null;
         }
         String id = parts[0];
@@ -46,11 +49,13 @@ public class PaymentStore extends DataStore<Payment> {
         double amount = parseDouble(parts[2]);
         String methodToken = parts[3];
         String receptionistId = parts[4];
-        LocalDate paymentDate = parts[5].isEmpty() ? null : LocalDate.parse(parts[5], DATE_FORMAT);
+        LocalDateTime paymentDate = parts[5].isEmpty() ? null : LocalDateTime.parse(parts[5], DATE_TIME_FORMAT);
+        String note = parts[6];
+        boolean refunded = parts.length > 7 && Boolean.parseBoolean(parts[7]);
 
         Payment payment = new Payment(id, null, amount,
                 methodToken.isEmpty() ? PaymentMethod.CASH : PaymentMethod.valueOf(methodToken),
-                null, paymentDate);
+                null, paymentDate, note, refunded);
         if (!invoiceId.isEmpty()) {
             Invoice invoice = new Invoice();
             invoice.setInvoiceId(invoiceId);

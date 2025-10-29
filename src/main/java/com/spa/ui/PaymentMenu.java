@@ -6,6 +6,7 @@ import com.spa.model.Receptionist;
 import com.spa.model.enums.PaymentMethod;
 import com.spa.service.Validation;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static com.spa.ui.MenuConstants.DATE_FORMAT;
 
@@ -52,19 +53,15 @@ public class PaymentMenu implements MenuModule {
         System.out.println("--- DANH SÁCH THANH TOÁN ---");
         Payment[] payments = context.getPaymentStore().getAll();
         boolean hasData = false;
+        String header = paymentHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Payment payment : payments) {
             if (payment == null) {
                 continue;
             }
+            printPaymentRow(payment);
             hasData = true;
-            String invoiceId = payment.getInvoice() == null ? "" : payment.getInvoice().getId();
-            String receptionistId = payment.getReceptionist() == null ? "" : payment.getReceptionist().getId();
-            System.out.printf("%s | Hóa đơn: %s | %.2f | %s | %s%n",
-                    payment.getId(),
-                    invoiceId,
-                    payment.getAmount(),
-                    payment.getPaymentMethod(),
-                    receptionistId);
         }
         if (!hasData) {
             System.out.println("Chưa có thanh toán nào.");
@@ -84,9 +81,10 @@ public class PaymentMenu implements MenuModule {
         double amount = Validation.getDouble("Số tiền thanh toán: ", 0.0, 1_000_000_000.0);
         PaymentMethod method = MenuHelper.selectPaymentMethod();
         Receptionist receptionist = pickReceptionist();
-        LocalDate date = Validation.getDate("Ngày thanh toán (yyyy-MM-dd): ", DATE_FORMAT);
+        String note = Validation.getOptionalString("Ghi chú thanh toán: ");
 
-        Payment payment = new Payment(id, invoice, amount, method, receptionist, date);
+        Payment payment = new Payment(id, invoice, amount, method, receptionist,
+                LocalDateTime.now(), note, false);
         if (!payment.processPayment()) {
             System.out.println("Thanh toán chưa đủ số tiền yêu cầu hoặc hóa đơn không hợp lệ.");
             return;
@@ -147,5 +145,46 @@ public class PaymentMenu implements MenuModule {
             return null;
         }
         return context.getEmployeeStore().findReceptionistById(employees[selected - 1].getId());
+    }
+
+    private String paymentHeader() {
+        return String.format("%-8s | %-18s | %-10s | %-12s | %-18s | %-16s | %-7s | %-20s",
+                "MÃ", "HÓA ĐƠN", "SỐ TIỀN", "PHƯƠNG THỨC", "LỄ TÂN", "THỜI GIAN", "HOÀN", "GHI CHÚ");
+    }
+
+    private void printPaymentRow(Payment payment) {
+        String invoiceId = payment.getInvoice() == null ? "" : payment.getInvoice().getId();
+        String receptionistName = payment.getReceptionist() == null ? "" : payment.getReceptionist().getFullName();
+        String note = limitLength(payment.getNote(), 20);
+        System.out.printf("%-8s | %-18s | %-10.2f | %-12s | %-18s | %-16s | %-7s | %-20s%n",
+                nullToEmpty(payment.getId()),
+                nullToEmpty(invoiceId),
+                payment.getAmount(),
+                payment.getPaymentMethod() == null ? "" : payment.getPaymentMethod().name(),
+                nullToEmpty(receptionistName),
+                formatDateTime(payment.getPaymentDate()),
+                payment.isRefunded() ? "Có" : "Không",
+                nullToEmpty(note));
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String limitLength(String value, int maxLength) {
+        if (value == null) {
+            return "";
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, Math.max(0, maxLength - 3)) + "...";
+    }
+
+    private String formatDateTime(LocalDateTime time) {
+        if (time == null) {
+            return "";
+        }
+        return time.format(MenuConstants.DATE_TIME_FORMAT);
     }
 }

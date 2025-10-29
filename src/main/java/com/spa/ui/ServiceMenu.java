@@ -75,15 +75,31 @@ public class ServiceMenu implements MenuModule {
         System.out.println();
         System.out.println("--- DANH SÁCH DỊCH VỤ ---");
         Service[] services = context.getServiceStore().getAll();
-        if (services.length == 0) {
-            System.out.println("Chưa có dịch vụ nào.");
-            return;
-        }
+        boolean hasData = false;
+        String header = String.format("%-8s | %-25s | %-12s | %-8s | %-7s | %-12s | %-10s | %-10s | %-10s",
+                "MÃ", "TÊN DỊCH VỤ", "GIÁ GỐC", "THỜI LƯỢNG", "ĐỆM", "NHÓM", "KÍCH HOẠT", "TRẠNG THÁI", "NGÀY TẠO");
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Service service : services) {
-            if (service == null || service.isDeleted()) {
+            if (service == null) {
                 continue;
             }
-            service.display();
+            String status = service.isDeleted() ? "Đã khóa" : "Hoạt động";
+            String active = service.isActive() && !service.isDeleted() ? "Đang mở" : "Tắt";
+            System.out.printf("%-8s | %-25s | %-12s | %-8d | %-7d | %-12s | %-10s | %-10s | %-10s%n",
+                    nullToEmpty(service.getId()),
+                    nullToEmpty(service.getServiceName()),
+                    service.getBasePrice() == null ? "" : service.getBasePrice().toPlainString(),
+                    service.getDurationMinutes(),
+                    service.getBufferTime(),
+                    service.getCategory() == null ? "" : service.getCategory().name(),
+                    active,
+                    status,
+                    service.getCreatedDate() == null ? "" : service.getCreatedDate().toString());
+            hasData = true;
+        }
+        if (!hasData) {
+            System.out.println("Chưa có dịch vụ nào.");
         }
     }
 
@@ -315,5 +331,9 @@ public class ServiceMenu implements MenuModule {
             return false;
         }
         return source.toLowerCase().contains(token);
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 }

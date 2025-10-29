@@ -75,12 +75,15 @@ public class PromotionMenu implements MenuModule {
         System.out.println("--- DANH SÁCH KHUYẾN MÃI ---");
         Promotion[] promotions = context.getPromotionStore().getAll();
         boolean hasData = false;
+        String header = promotionHeader();
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
         for (Promotion promotion : promotions) {
-            if (promotion == null || promotion.isDeleted()) {
+            if (promotion == null) {
                 continue;
             }
+            printPromotionRow(promotion);
             hasData = true;
-            promotion.display();
         }
         if (!hasData) {
             System.out.println("Chưa có khuyến mãi nào.");
@@ -225,6 +228,7 @@ public class PromotionMenu implements MenuModule {
 
         Promotion[] promotions = context.getPromotionStore().getAll();
         boolean foundAny = false;
+        boolean headerPrinted = false;
         for (Promotion promotion : promotions) {
             if (promotion == null || promotion.isDeleted()) {
                 continue;
@@ -235,7 +239,13 @@ public class PromotionMenu implements MenuModule {
             if (!matchesTokens(promotion, tokens)) {
                 continue;
             }
-            promotion.display();
+            if (!headerPrinted) {
+                String header = promotionHeader();
+                System.out.println(header);
+                System.out.println("-".repeat(header.length()));
+                headerPrinted = true;
+            }
+            printPromotionRow(promotion);
             foundAny = true;
         }
         if (!foundAny) {
@@ -312,5 +322,29 @@ public class PromotionMenu implements MenuModule {
 
     private String formatDate(LocalDate date) {
         return date == null ? "N/A" : date.toString();
+    }
+
+    private String promotionHeader() {
+        return String.format("%-8s | %-22s | %-12s | %-10s | %-10s | %-12s | %-12s | %-10s | %-8s",
+                "MÃ", "TÊN CHƯƠNG TRÌNH", "LOẠI", "GIÁ TRỊ", "TỐI THIỂU", "BẮT ĐẦU", "KẾT THÚC", "HIỆU LỰC", "TRẠNG");
+    }
+
+    private void printPromotionRow(Promotion promotion) {
+        String effectiveness = promotion.isValid() ? "Còn" : "Hết";
+        String status = promotion.isDeleted() ? "Đã khóa" : "Hoạt động";
+        System.out.printf("%-8s | %-22s | %-12s | %-10.2f | %-10.2f | %-12s | %-12s | %-10s | %-8s%n",
+                nullToEmpty(promotion.getId()),
+                nullToEmpty(promotion.getName()),
+                promotion.getDiscountType() == null ? "" : promotion.getDiscountType().name(),
+                promotion.getDiscountValue(),
+                promotion.getMinPurchaseAmount(),
+                promotion.getStartDate() == null ? "" : promotion.getStartDate().toString(),
+                promotion.getEndDate() == null ? "" : promotion.getEndDate().toString(),
+                effectiveness,
+                status);
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 }

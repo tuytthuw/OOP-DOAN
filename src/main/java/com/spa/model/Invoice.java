@@ -140,7 +140,7 @@ public class Invoice implements IEntity {
         }
         System.out.printf("Lễ tân lập     : %s%n", receptionist == null ? "" : receptionist.getFullName());
         System.out.printf("Lịch hẹn       : %s%n", appointment == null ? "" : appointment.getId());
-        System.out.printf("Khuyến mãi     : %s%n", promotion == null ? "(không)" : promotion.getPromotionName());
+        System.out.printf("Khuyến mãi     : %s%n", promotion == null ? "(không)" : promotion.getName());
         System.out.printf("Thuế (%%)       : %.2f%n", taxRate * 100);
         System.out.printf("Phí dịch vụ(%%) : %.2f%n", serviceChargeRate * 100);
         if (appointment != null && appointment.getService() != null) {
