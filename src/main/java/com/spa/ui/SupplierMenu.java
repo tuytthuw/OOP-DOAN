@@ -19,6 +19,7 @@ public class SupplierMenu implements MenuModule {
         while (!back) {
             System.out.println();
             System.out.println("--- QUẢN LÝ NHÀ CUNG CẤP ---");
+            System.out.println("(Chọn 0 để quay lại menu trước)");
             System.out.println("1. Thêm nhà cung cấp");
             System.out.println("2. Thêm nhiều nhà cung cấp");
             System.out.println("3. Xuất danh sách");
@@ -140,30 +141,13 @@ public class SupplierMenu implements MenuModule {
     }
 
     private Supplier promptSupplier(String id, Supplier base) {
-        String name = Validation.getStringOrCancel(buildPrompt("Tên nhà cung cấp", base == null ? null : base.getSupplierName()));
-        if (name == null) {
-            return null;
-        }
-        String contact = Validation.getStringOrCancel(buildPrompt("Người liên hệ", base == null ? null : base.getContactPerson()));
-        if (contact == null) {
-            return null;
-        }
-        String phone = Validation.getStringOrCancel(buildPrompt("Số điện thoại", base == null ? null : base.getPhoneNumber()));
-        if (phone == null) {
-            return null;
-        }
-        String address = Validation.getStringOrCancel(buildPrompt("Địa chỉ", base == null ? null : base.getAddress()));
-        if (address == null) {
-            return null;
-        }
-        String email = Validation.getStringOrCancel(buildPrompt("Email", base == null ? null : base.getEmail()));
-        if (email == null) {
-            return null;
-        }
-        String notes = Validation.getStringOrCancel(buildPrompt("Ghi chú", base == null ? null : base.getNotes()));
-        if (notes == null) {
-            return null;
-        }
+        String name = Validation.getString(buildPrompt("Tên nhà cung cấp", base == null ? null : base.getSupplierName()));
+        String contact = Validation.getString(buildPrompt("Người liên hệ", base == null ? null : base.getContactPerson()));
+        String phone = Validation.getString(buildPrompt("Số điện thoại", base == null ? null : base.getPhoneNumber()));
+        String address = Validation.getString(buildPrompt("Địa chỉ", base == null ? null : base.getAddress()));
+        String email = Validation.getString(buildPrompt("Email", base == null ? null : base.getEmail()));
+        String notes = Validation.getString(buildPrompt("Ghi chú", base == null ? null : base.getNotes()));
+
         Supplier supplier = new Supplier(id, name, contact, phone, address, email, notes, false);
         if (base != null && base.isDeleted()) {
             supplier.setDeleted(true);
@@ -172,20 +156,13 @@ public class SupplierMenu implements MenuModule {
     }
 
     private void addMultipleSuppliers() {
-        Integer total = Validation.getIntOrCancel("Số lượng nhà cung cấp cần thêm", 1, 1000);
-        if (total == null) {
-            System.out.println("Đã hủy thao tác.");
-            return;
-        }
+        int total = Validation.getInt("Số lượng nhà cung cấp cần thêm: ", 1, 1000);
         int added = 0;
         for (int i = 0; i < total; i++) {
             System.out.println("-- Nhà cung cấp thứ " + (i + 1));
+            System.out.println("(Để dừng thêm nhà cung cấp, hãy chọn 0 ở menu chính)");
             String id = context.getSupplierStore().generateNextId();
             Supplier supplier = promptSupplier(id, null);
-            if (supplier == null) {
-                System.out.println("Dừng thêm nhà cung cấp.");
-                break;
-            }
             context.getSupplierStore().add(supplier);
             added++;
         }
@@ -194,13 +171,9 @@ public class SupplierMenu implements MenuModule {
     }
 
     private void searchSuppliers() {
-        String keywordsLine = Validation.getOptionalStringOrCancel("Nhập từ khóa (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
-        if (keywordsLine == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
+        String keywordsLine = Validation.getOptionalString("Nhập từ khóa (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
         String trimmedKeywords = keywordsLine.trim().toLowerCase();
-        Boolean activeFilter = Validation.getBooleanOrCancel("Chỉ hiển thị nhà cung cấp đang hoạt động?");
+        Boolean activeFilter = Validation.getOptionalBoolean("Chỉ hiển thị nhà cung cấp đang hoạt động?");
 
         Supplier[] suppliers = context.getSupplierStore().getAll();
         boolean foundAny = false;

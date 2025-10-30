@@ -29,6 +29,7 @@ public class AppointmentMenu implements MenuModule {
         while (!back) {
             System.out.println();
             System.out.println("--- QUẢN LÝ LỊCH HẸN ---");
+            System.out.println("(Chọn 0 để quay lại menu trước)");
             System.out.println("1. Tạo lịch hẹn");
             System.out.println("2. Thêm nhiều lịch hẹn");
             System.out.println("3. Xuất danh sách");
@@ -92,25 +93,18 @@ public class AppointmentMenu implements MenuModule {
     }
 
     private void createAppointment() {
-        if (!createAppointmentInternal()) {
-            System.out.println("Không tạo được lịch hẹn.");
-        }
+        createAppointmentInternal();
     }
 
     private void addMultipleAppointments() {
-        Integer total = Validation.getIntOrCancel("Số lượng lịch hẹn cần thêm", 1, 1000);
-        if (total == null) {
-            System.out.println("Đã hủy thao tác.");
-            return;
-        }
+        int total = Validation.getInt("Số lượng lịch hẹn cần thêm: ", 1, 1000);
         int added = 0;
         for (int i = 0; i < total; i++) {
             System.out.println("-- Lịch hẹn thứ " + (i + 1));
-            if (!createAppointmentInternal()) {
-                System.out.println("Dừng thêm lịch hẹn.");
-                break;
+            System.out.println("(Để dừng thêm lịch hẹn, hãy chọn 0 ở menu chính)");
+            if (createAppointmentInternal()) {
+                added++;
             }
-            added++;
         }
         System.out.printf("Đã thêm %d lịch hẹn.%n", added);
     }
@@ -193,44 +187,25 @@ public class AppointmentMenu implements MenuModule {
     }
 
     private void searchAppointments() {
-        String keywordLine = Validation.getOptionalStringOrCancel("Nhập từ khóa (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
-        if (keywordLine == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
+        String keywordLine = Validation.getOptionalString("Nhập từ khóa (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
         String trimmedKeywords = keywordLine.trim().toLowerCase();
+
         AppointmentStatus[] statuses = AppointmentStatus.values();
-        Integer statusChoice = Validation.getIntOrCancel("Chọn trạng thái (0 để bỏ qua): ", 0, statuses.length);
-        if (statusChoice == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
+        System.out.println("Chọn trạng thái (0 để bỏ qua):");
+        for (int i = 0; i < statuses.length; i++) {
+            System.out.printf("%d. %s%n", i + 1, statuses[i]);
         }
+        int statusChoice = Validation.getInt("Lựa chọn: ", 0, statuses.length);
         AppointmentStatus statusFilter = statusChoice == 0 ? null : statuses[statusChoice - 1];
 
-        String technicianInput = Validation.getOptionalStringOrCancel("Nhập mã/ tên kỹ thuật viên (bỏ trống nếu không lọc): ");
-        if (technicianInput == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
+        String technicianInput = Validation.getOptionalString("Nhập mã/ tên kỹ thuật viên (Enter để bỏ qua): ");
         String technicianFilter = technicianInput.trim().toLowerCase();
 
-        String customerInput = Validation.getOptionalStringOrCancel("Nhập mã/ tên khách hàng (bỏ trống nếu không lọc): ");
-        if (customerInput == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
+        String customerInput = Validation.getOptionalString("Nhập mã/ tên khách hàng (Enter để bỏ qua): ");
         String customerFilter = customerInput.trim().toLowerCase();
 
         LocalDateTime fromDate = readOptionalDateTime("Thời gian bắt đầu (dd/MM/yyyy HH:mm)");
-        if (fromDate == CANCELLED_MARK) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
         LocalDateTime toDate = readOptionalDateTime("Thời gian kết thúc (dd/MM/yyyy HH:mm)");
-        if (toDate == CANCELLED_MARK) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
 
         Appointment[] appointments = context.getAppointmentStore().getAll();
         boolean foundAny = false;
@@ -446,23 +421,16 @@ public class AppointmentMenu implements MenuModule {
     }
 
     private LocalDateTime readOptionalDateTime(String prompt) {
-        while (true) {
-            String input = Validation.getOptionalStringOrCancel(prompt + " (bỏ trống nếu không lọc): ");
-            if (input == null) {
-                return CANCELLED_MARK;
-            }
-            if (input.trim().isEmpty()) {
-                return null;
-            }
-            try {
-                return LocalDateTime.parse(input.trim(), DATE_TIME_FORMAT);
-            } catch (DateTimeParseException ex) {
-                try {
-                    return LocalDateTime.parse(input.trim());
-                } catch (DateTimeParseException ignore) {
-                    System.out.println("Thời gian không hợp lệ. Vui lòng nhập lại.");
-                }
-            }
+        System.out.print(prompt + " (Enter để bỏ qua): ");
+        String input = Validation.getOptionalString("");
+        if (input.isEmpty()) {
+            return null;
+        }
+        try {
+            return LocalDateTime.parse(input, DATE_TIME_FORMAT);
+        } catch (DateTimeParseException e) {
+            System.out.println("Định dạng không hợp lệ.");
+            return null;
         }
     }
 

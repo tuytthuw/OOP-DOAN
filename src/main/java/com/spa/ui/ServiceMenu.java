@@ -4,6 +4,7 @@ import com.spa.model.Service;
 import com.spa.model.enums.ServiceCategory;
 import com.spa.service.Validation;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 import static com.spa.ui.MenuConstants.DATE_FORMAT;
@@ -24,6 +25,7 @@ public class ServiceMenu implements MenuModule {
         while (!back) {
             System.out.println();
             System.out.println("--- QUẢN LÝ DỊCH VỤ ---");
+            System.out.println("(Chọn 0 để quay lại menu trước)");
             System.out.println("1. Thêm dịch vụ mới");
             System.out.println("2. Thêm nhiều dịch vụ");
             System.out.println("3. Xuất danh sách");
@@ -160,20 +162,13 @@ public class ServiceMenu implements MenuModule {
     }
 
     private void addMultipleServices() {
-        Integer total = Validation.getIntOrCancel("Số lượng dịch vụ cần thêm", 1, 1000);
-        if (total == null) {
-            System.out.println("Đã hủy thao tác.");
-            return;
-        }
+        int total = Validation.getInt("Số lượng dịch vụ cần thêm: ", 1, 1000);
         int added = 0;
         for (int i = 0; i < total; i++) {
             System.out.println("-- Dịch vụ thứ " + (i + 1));
+            System.out.println("(Để dừng thêm dịch vụ, hãy chọn 0 ở menu chính)");
             String id = context.getServiceStore().generateNextId();
             Service service = promptService(id, null);
-            if (service == null) {
-                System.out.println("Dừng thêm dịch vụ.");
-                break;
-            }
             context.getServiceStore().add(service);
             added++;
         }
@@ -182,14 +177,10 @@ public class ServiceMenu implements MenuModule {
     }
 
     private void searchServices() {
-        String keywordLine = Validation.getOptionalStringOrCancel("Nhập từ khóa (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
-        if (keywordLine == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
+        String keywordLine = Validation.getOptionalString("Nhập từ khóa (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
         String trimmedKeywords = keywordLine.trim().toLowerCase();
         ServiceCategory selectedCategory = MenuHelper.selectServiceCategory();
-        Boolean activeFilter = Validation.getBooleanOrCancel("Chỉ lấy dịch vụ đang mở?");
+        Boolean activeFilter = Validation.getOptionalBoolean("Chỉ lấy dịch vụ đang mở?");
 
         Service[] services = context.getServiceStore().getAll();
         boolean foundAny = false;
@@ -256,46 +247,26 @@ public class ServiceMenu implements MenuModule {
             System.out.printf("- %s: %d%n", categories[i], categoryCounts[i]);
         }
         System.out.printf("Tổng giá gốc: %s%n", totalPrice);
-        System.out.printf("Giá trung bình: %s%n", total == 0 ? BigDecimal.ZERO : totalPrice.divide(BigDecimal.valueOf(total), BigDecimal.ROUND_HALF_UP));
+        System.out.printf("Giá trung bình: %s%n", total == 0 ? BigDecimal.ZERO : totalPrice.divide(BigDecimal.valueOf(total), RoundingMode.HALF_UP));
         System.out.printf("Thời lượng trung bình: %.2f phút%n", total == 0 ? 0.0 : (double) totalDuration / total);
     }
 
     private Service promptService(String id, Service base) {
-        String name = Validation.getStringOrCancel(buildPrompt("Tên dịch vụ", base == null ? null : base.getServiceName()));
-        if (name == null) {
-            return null;
-        }
-        Double price = Validation.getDoubleOrCancel(buildPrompt("Giá gốc", base == null || base.getBasePrice() == null ? null : base.getBasePrice().toString()), 0.0, 1_000_000_000.0);
-        if (price == null) {
-            return null;
-        }
-        Integer duration = Validation.getIntOrCancel(buildPrompt("Thời lượng (phút)", base == null ? null : Integer.toString(base.getDurationMinutes())), 10, 600);
-        if (duration == null) {
-            return null;
-        }
-        Integer buffer = Validation.getIntOrCancel(buildPrompt("Thời gian đệm (phút)", base == null ? null : Integer.toString(base.getBufferTime())), 0, 120);
-        if (buffer == null) {
-            return null;
-        }
-        String description = Validation.getStringOrCancel(buildPrompt("Mô tả", base == null ? null : base.getDescription()));
-        if (description == null) {
-            return null;
-        }
+        String name = Validation.getString(buildPrompt("Tên dịch vụ", base == null ? null : base.getServiceName()));
+        double price = Validation.getDouble(buildPrompt("Giá gốc", base == null || base.getBasePrice() == null ? null : base.getBasePrice().toString()), 0.0, 1_000_000_000.0);
+        int duration = Validation.getInt(buildPrompt("Thời lượng (phút)", base == null ? null : Integer.toString(base.getDurationMinutes())), 10, 600);
+        int buffer = Validation.getInt(buildPrompt("Thời gian đệm (phút)", base == null ? null : Integer.toString(base.getBufferTime())), 0, 120);
+        String description = Validation.getString(buildPrompt("Mô tả", base == null ? null : base.getDescription()));
+
         LocalDate createdDate;
-        Boolean active;
+        boolean active;
         if (base == null) {
             createdDate = LocalDate.now();
-            active = Boolean.TRUE;
+            active = true;
         } else {
-            createdDate = Validation.getFutureOrTodayDateOrCancel(buildPrompt("Ngày tạo (dd/MM/yyyy)",
+            createdDate = Validation.getFutureOrTodayDate(buildPrompt("Ngày tạo (dd/MM/yyyy)",
                     base.getCreatedDate() == null ? null : base.getCreatedDate().format(DATE_FORMAT)), DATE_FORMAT);
-            if (createdDate == null) {
-                return null;
-            }
-            active = Validation.getBooleanOrCancel(buildPrompt("Kích hoạt dịch vụ?", base.isActive() ? "Y" : "N"));
-            if (active == null) {
-                return null;
-            }
+            active = Validation.getBoolean(buildPrompt("Kích hoạt dịch vụ?", base.isActive() ? "Y" : "N"));
         }
         if (base != null) {
             System.out.println("Nhóm dịch vụ hiện tại: " + base.getCategory());

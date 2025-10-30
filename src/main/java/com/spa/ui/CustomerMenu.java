@@ -23,7 +23,8 @@ public class CustomerMenu implements MenuModule {
         while (!back) {
             System.out.println();
             System.out.println("--- QUẢN LÝ KHÁCH HÀNG ---");
-            System.out.println("1. Thêm khách hàng mới");
+            System.out.println("(Chọn 0 để quay lại menu trước)");
+            System.out.println("1. Thêm khách hàng");
             System.out.println("2. Thêm nhiều khách hàng");
             System.out.println("3. Xuất danh sách");
             System.out.println("4. Cập nhật khách hàng");
@@ -157,34 +158,26 @@ public class CustomerMenu implements MenuModule {
     }
 
     private void addMultipleCustomers() {
-        Integer total = Validation.getIntOrCancel("Số lượng khách hàng cần thêm", 1, 1000);
-        if (total == null) {
-            System.out.println("Đã hủy thao tác.");
-            return;
-        }
+        int total = Validation.getInt("Số lượng khách hàng cần thêm: ", 1, 1000);
         int added = 0;
         for (int i = 0; i < total; i++) {
             System.out.println("-- Khách hàng thứ " + (i + 1));
+            System.out.println("(Để dừng thêm khách hàng, hãy chọn 0 ở menu chính)");
             String id = context.getCustomerStore().generateNextId();
             Customer customer = promptCustomer(id, null);
-            if (customer == null) {
-                System.out.println("Dừng thêm khách hàng.");
-                break;
+            if (customer != null) {
+                context.getCustomerStore().add(customer);
+                added++;
             }
-            context.getCustomerStore().add(customer);
-            added++;
         }
         context.getCustomerStore().writeFile();
         System.out.printf("Đã thêm %d khách hàng mới.%n", added);
     }
 
     private void searchCustomers() {
-        String keywordsLine = Validation.getOptionalStringOrCancel("Nhập từ khóa tìm kiếm (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
-        if (keywordsLine == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
+        String keywordsLine = Validation.getOptionalString("Nhập từ khóa tìm kiếm (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
         String trimmedKeywords = keywordsLine.trim().toLowerCase();
+
         Customer[] customers = context.getCustomerStore().getAll();
         boolean foundAny = false;
         for (Customer customer : customers) {
@@ -253,35 +246,15 @@ public class CustomerMenu implements MenuModule {
     }
 
     private Customer promptCustomer(String id, Customer base) {
-        String fullName = Validation.getStringOrCancel(buildPrompt("Họ tên", base == null ? null : base.getFullName()));
-        if (fullName == null) {
-            return null;
-        }
-        String phone = Validation.getStringOrCancel(buildPrompt("Số điện thoại", base == null ? null : base.getPhoneNumber()));
-        if (phone == null) {
-            return null;
-        }
-        String email = Validation.getStringOrCancel(buildPrompt("Email", base == null ? null : base.getEmail()));
-        if (email == null) {
-            return null;
-        }
-        String address = Validation.getStringOrCancel(buildPrompt("Địa chỉ", base == null ? null : base.getAddress()));
-        if (address == null) {
-            return null;
-        }
-        Boolean male = Validation.getBooleanOrCancel(buildPrompt("Giới tính nam?", base == null ? null : (base.isMale() ? "Y" : "N")));
-        if (male == null) {
-            return null;
-        }
-        LocalDate birthDate = Validation.getDateOrCancel(buildPrompt("Ngày sinh (dd/MM/yyyy)",
+        String fullName = Validation.getString(buildPrompt("Họ tên", base == null ? null : base.getFullName()));
+        String phone = Validation.getString(buildPrompt("Số điện thoại", base == null ? null : base.getPhoneNumber()));
+        String email = Validation.getString(buildPrompt("Email", base == null ? null : base.getEmail()));
+        String address = Validation.getString(buildPrompt("Địa chỉ", base == null ? null : base.getAddress()));
+        boolean male = Validation.getBoolean(buildPrompt("Giới tính nam?", base == null ? null : (base.isMale() ? "Y" : "N")));
+        LocalDate birthDate = Validation.getDate(buildPrompt("Ngày sinh (dd/MM/yyyy)",
                 base == null || base.getBirthDate() == null ? null : base.getBirthDate().format(DATE_FORMAT)), DATE_FORMAT);
-        if (birthDate == null) {
-            return null;
-        }
-        String notes = Validation.getStringOrCancel(buildPrompt("Ghi chú", base == null ? null : base.getNotes()));
-        if (notes == null) {
-            return null;
-        }
+        String notes = Validation.getString(buildPrompt("Ghi chú", base == null ? null : base.getNotes()));
+
         int points;
         LocalDate lastVisit;
         Tier tier;
@@ -290,17 +263,9 @@ public class CustomerMenu implements MenuModule {
             lastVisit = LocalDate.now();
             tier = Tier.STANDARD;
         } else {
-            Integer inputPoints = Validation.getIntOrCancel(buildPrompt("Điểm tích lũy", Integer.toString(base.getPoints())), 0, 1_000_000);
-            if (inputPoints == null) {
-                return null;
-            }
-            points = inputPoints;
-            LocalDate inputVisit = Validation.getDateOrCancel(buildPrompt("Lần ghé gần nhất (dd/MM/yyyy)",
+            points = Validation.getInt(buildPrompt("Điểm tích lũy", Integer.toString(base.getPoints())), 0, 1_000_000);
+            lastVisit = Validation.getDate(buildPrompt("Lần ghé gần nhất (dd/MM/yyyy)",
                     base.getLastVisitDate() == null ? null : base.getLastVisitDate().format(DATE_FORMAT)), DATE_FORMAT);
-            if (inputVisit == null) {
-                return null;
-            }
-            lastVisit = inputVisit;
             System.out.println("Hạng hiện tại: " + base.getMemberTier());
             Tier selectedTier = MenuHelper.selectTier();
             if (selectedTier == null) {
@@ -308,8 +273,8 @@ public class CustomerMenu implements MenuModule {
             }
             tier = selectedTier;
         }
-        return new Customer(id, fullName, phone, male, birthDate, email, address,
-                base != null && base.isDeleted(), tier, notes, points, lastVisit);
+        // Constructor: (id, fullName, phone, male, birthDate, email, address, deleted, tier, notes, points, lastVisit)
+        return new Customer(id, fullName, phone, male, birthDate, email, address, false, tier, notes, points, lastVisit);
     }
 
     private String buildPrompt(String label, String current) {

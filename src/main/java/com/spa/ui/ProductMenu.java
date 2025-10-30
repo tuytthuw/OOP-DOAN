@@ -4,6 +4,7 @@ import com.spa.model.Product;
 import com.spa.model.Supplier;
 import com.spa.service.Validation;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 import static com.spa.ui.MenuConstants.DATE_FORMAT;
@@ -148,45 +149,23 @@ public class ProductMenu implements MenuModule {
     }
 
     private Product promptProduct(String id, Product base, boolean allowStockInput) {
-        String name = Validation.getStringOrCancel(buildPrompt("Tên sản phẩm", base == null ? null : base.getProductName()));
-        if (name == null) {
-            return null;
-        }
-        String brand = Validation.getStringOrCancel(buildPrompt("Thương hiệu", base == null ? null : base.getBrand()));
-        if (brand == null) {
-            return null;
-        }
-        Double basePrice = Validation.getDoubleOrCancel(buildPrompt("Giá bán", base == null || base.getBasePrice() == null ? null : base.getBasePrice().toString()), 0.0, 1_000_000_000.0);
-        if (basePrice == null) {
-            return null;
-        }
-        Double costPrice = Validation.getDoubleOrCancel(buildPrompt("Giá vốn", base == null ? null : Double.toString(base.getCostPrice())), 0.0, 1_000_000_000.0);
-        if (costPrice == null) {
-            return null;
-        }
-        String unit = Validation.getStringOrCancel(buildPrompt("Đơn vị tính", base == null ? null : base.getUnit()));
-        if (unit == null) {
-            return null;
-        }
+        String name = Validation.getString(buildPrompt("Tên sản phẩm", base == null ? null : base.getProductName()));
+        String brand = Validation.getString(buildPrompt("Thương hiệu", base == null ? null : base.getBrand()));
+        double basePrice = Validation.getDouble(buildPrompt("Giá bán", base == null || base.getBasePrice() == null ? null : base.getBasePrice().toString()), 0.0, 1_000_000_000.0);
+        double costPrice = Validation.getDouble(buildPrompt("Giá vốn", base == null ? null : Double.toString(base.getCostPrice())), 0.0, 1_000_000_000.0);
+        String unit = Validation.getString(buildPrompt("Đơn vị tính", base == null ? null : base.getUnit()));
+
         int stock = 0;
         if (allowStockInput) {
-            Integer stockInput = Validation.getIntOrCancel(buildPrompt("Số lượng tồn", Integer.toString(base.getStockQuantity())), 0, 1_000_000);
-            if (stockInput == null) {
-                return null;
-            }
-            stock = stockInput;
+            stock = Validation.getInt(buildPrompt("Số lượng tồn", Integer.toString(base.getStockQuantity())), 0, 1_000_000);
         } else {
             System.out.println("Tồn kho mặc định 0. Vui lòng nhập hàng qua phiếu nhập kho.");
         }
-        Integer reorder = Validation.getIntOrCancel(buildPrompt("Ngưỡng đặt hàng lại", base == null ? null : Integer.toString(base.getReorderLevel())), 0, 1_000_000);
-        if (reorder == null) {
-            return null;
-        }
-        LocalDate expiry = Validation.getDateOrCancel(buildPrompt("Ngày hết hạn (dd/MM/yyyy)",
+
+        int reorder = Validation.getInt(buildPrompt("Ngưỡng đặt hàng lại", base == null ? null : Integer.toString(base.getReorderLevel())), 0, 1_000_000);
+        LocalDate expiry = Validation.getDate(buildPrompt("Ngày hết hạn (dd/MM/yyyy)",
                 base == null || base.getExpiryDate() == null ? null : base.getExpiryDate().format(DATE_FORMAT)), DATE_FORMAT);
-        if (expiry == null) {
-            return null;
-        }
+
         Supplier supplier = pickSupplier(base == null ? null : base.getSupplier());
 
         Product product = new Product(id, name, brand, BigDecimal.valueOf(basePrice), costPrice,
@@ -198,20 +177,13 @@ public class ProductMenu implements MenuModule {
     }
 
     private void addMultipleProducts() {
-        Integer total = Validation.getIntOrCancel("Số lượng sản phẩm cần thêm", 1, 1000);
-        if (total == null) {
-            System.out.println("Đã hủy thao tác.");
-            return;
-        }
+        int total = Validation.getInt("Số lượng sản phẩm cần thêm: ", 1, 1000);
         int added = 0;
         for (int i = 0; i < total; i++) {
             System.out.println("-- Sản phẩm thứ " + (i + 1));
+            System.out.println("(Để dừng thêm sản phẩm, hãy chọn 0 ở menu chính)");
             String id = context.getProductStore().generateNextId();
             Product product = promptProduct(id, null, false);
-            if (product == null) {
-                System.out.println("Dừng thêm sản phẩm.");
-                break;
-            }
             context.getProductStore().add(product);
             added++;
         }
@@ -261,14 +233,10 @@ public class ProductMenu implements MenuModule {
     }
 
     private void searchProducts() {
-        String keywordsLine = Validation.getOptionalStringOrCancel("Nhập từ khóa (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
-        if (keywordsLine == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
+        String keywordsLine = Validation.getOptionalString("Nhập từ khóa (cách nhau bởi dấu cách) hoặc bỏ trống để xem tất cả: ");
         String trimmedKeywords = keywordsLine.trim().toLowerCase();
-        Boolean expiredFilter = Validation.getBooleanOrCancel("Chỉ hiển thị sản phẩm quá hạn?");
-        Boolean reorderFilter = Validation.getBooleanOrCancel("Chỉ hiển thị sản phẩm dưới ngưỡng đặt hàng?");
+        Boolean expiredFilter = Validation.getOptionalBoolean("Chỉ hiển thị sản phẩm quá hạn?");
+        Boolean reorderFilter = Validation.getOptionalBoolean("Chỉ hiển thị sản phẩm dưới ngưỡng đặt hàng?");
 
         Product[] products = context.getProductStore().getAll();
         boolean foundAny = false;
@@ -340,7 +308,7 @@ public class ProductMenu implements MenuModule {
         System.out.printf("Sản phẩm quá hạn: %d%n", expired);
         System.out.printf("Cần đặt hàng lại: %d%n", reorderNeed);
         System.out.printf("Tổng giá bán: %s%n", totalBasePrice);
-        System.out.printf("Giá bán trung bình: %s%n", total == 0 ? BigDecimal.ZERO : totalBasePrice.divide(BigDecimal.valueOf(total), BigDecimal.ROUND_HALF_UP));
+        System.out.printf("Giá bán trung bình: %s%n", total == 0 ? BigDecimal.ZERO : totalBasePrice.divide(BigDecimal.valueOf(total), RoundingMode.HALF_UP));
         System.out.printf("Giá vốn trung bình: %.2f%n", total == 0 ? 0.0 : totalCostPrice / total);
     }
 

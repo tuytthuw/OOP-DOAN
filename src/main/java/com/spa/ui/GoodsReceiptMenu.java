@@ -26,6 +26,7 @@ public class GoodsReceiptMenu implements MenuModule {
         while (!back) {
             System.out.println();
             System.out.println("--- QUẢN LÝ PHIẾU NHẬP KHO ---");
+            System.out.println("(Chọn 0 để quay lại menu trước)");
             System.out.println("1. Tạo phiếu nhập kho");
             System.out.println("2. Xuất danh sách");
             System.out.println("3. Tìm kiếm phiếu nhập");
@@ -144,14 +145,9 @@ public class GoodsReceiptMenu implements MenuModule {
     }
 
     private void appendReceiptItem(GoodsReceipt receipt, Product baseProduct) {
-        Integer quantity = Validation.getIntOrCancel("Số lượng nhập", 1, 1_000_000);
-        if (quantity == null) {
-            return;
-        }
-        Double costPrice = Validation.getDoubleOrCancel("Giá vốn mỗi đơn vị", 0.0, 1_000_000_000.0);
-        if (costPrice == null) {
-            return;
-        }
+        int quantity = Validation.getInt("Số lượng nhập: ", 1, 1_000_000);
+        double costPrice = Validation.getDouble("Giá vốn mỗi đơn vị: ", 0.0, 1_000_000_000.0);
+
         Product receiptItem = new Product(baseProduct.getId(), baseProduct.getProductName(), baseProduct.getBrand(),
                 baseProduct.getBasePrice(), costPrice * quantity, baseProduct.getUnit(), baseProduct.getSupplier(),
                 quantity, baseProduct.getExpiryDate(), false, baseProduct.getReorderLevel());
@@ -161,13 +157,7 @@ public class GoodsReceiptMenu implements MenuModule {
     }
 
     private Product selectProductById() {
-        String productId = Validation.getStringOrCancel("Nhập mã sản phẩm (nhập '" + Validation.cancelKeyword() + "' để hủy)");
-        if ("0".equals(productId)) {
-            return null;
-        }
-        if (productId == null) {
-            return null;
-        }
+        String productId = Validation.getString("Nhập mã sản phẩm: ");
         Product product = context.getProductStore().findById(productId);
         if (product == null || product.isDeleted()) {
             System.out.println("Sản phẩm không tồn tại hoặc đã bị khóa.");
@@ -177,10 +167,7 @@ public class GoodsReceiptMenu implements MenuModule {
     }
 
     private Product searchProduct() {
-        String keyword = Validation.getStringOrCancel("Từ khóa tìm kiếm (nhập '" + Validation.cancelKeyword() + "' để hủy)");
-        if (keyword == null) {
-            return null;
-        }
+        String keyword = Validation.getString("Từ khóa tìm kiếm: ");
         if (keyword.isEmpty()) {
             System.out.println("Từ khóa không được bỏ trống.");
             return null;
@@ -237,11 +224,7 @@ public class GoodsReceiptMenu implements MenuModule {
     }
 
     private void searchGoodsReceipts() {
-        String exactId = Validation.getStringOrCancel("Nhập mã phiếu nhập để tìm nhanh (nhập '" + Validation.cancelKeyword() + "' để bỏ qua)");
-        if (exactId == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
+        String exactId = Validation.getOptionalString("Nhập mã phiếu nhập để tìm nhanh (Enter để bỏ qua): ");
         boolean foundAny = false;
         boolean headerPrinted = false;
         if (!exactId.isEmpty()) {
@@ -260,24 +243,10 @@ public class GoodsReceiptMenu implements MenuModule {
             }
         }
 
-        LocalDate fromDate = Validation.getDateOrCancel("Ngày bắt đầu (dd/MM/yyyy, nhập '" + Validation.cancelKeyword() + "' để bỏ qua)", DATE_FORMAT);
-        if (fromDate == null && !Validation.cancelKeyword().equalsIgnoreCase("Q")) {
-            // null do hủy
-        }
-        LocalDate toDate = Validation.getDateOrCancel("Ngày kết thúc (dd/MM/yyyy, nhập '" + Validation.cancelKeyword() + "' để bỏ qua)", DATE_FORMAT);
-        if (toDate == null && !Validation.cancelKeyword().equalsIgnoreCase("Q")) {
-            // null do hủy
-        }
-        String supplierId = Validation.getStringOrCancel("Nhập mã nhà cung cấp (bỏ qua nếu trống)");
-        if (supplierId == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
-        String employeeId = Validation.getStringOrCancel("Nhập mã nhân viên (bỏ qua nếu trống)");
-        if (employeeId == null) {
-            System.out.println("Đã hủy tìm kiếm.");
-            return;
-        }
+        LocalDate fromDate = Validation.getOptionalDate("Ngày bắt đầu (dd/MM/yyyy, Enter để bỏ qua): ", DATE_FORMAT);
+        LocalDate toDate = Validation.getOptionalDate("Ngày kết thúc (dd/MM/yyyy, Enter để bỏ qua): ", DATE_FORMAT);
+        String supplierId = Validation.getOptionalString("Nhập mã nhà cung cấp (Enter để bỏ qua): ");
+        String employeeId = Validation.getOptionalString("Nhập mã nhân viên (Enter để bỏ qua): ");
 
         GoodsReceipt[] receipts = context.getGoodsReceiptStore().getAll();
         for (GoodsReceipt receipt : receipts) {
