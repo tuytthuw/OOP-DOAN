@@ -139,7 +139,6 @@ public class CustomerMenu implements MenuModule {
         customer.setNotes(updated.getNotes());
         customer.setPoints(updated.getPoints());
         customer.setLastVisitDate(updated.getLastVisitDate());
-        customer.setMemberTier(updated.getMemberTier());
         customer.upgradeTier();
         context.getCustomerStore().writeFile();
         System.out.println("Đã cập nhật khách hàng.");
