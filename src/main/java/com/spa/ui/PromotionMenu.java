@@ -186,6 +186,10 @@ public class PromotionMenu implements MenuModule {
         if (endDate == null) {
             return null;
         }
+        if (endDate.isBefore(startDate)) {
+            System.out.println("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+            return null;
+        }
         Double minPurchase = Validation.getDoubleOrCancel(buildPrompt("Mức chi tối thiểu", base == null ? null : Double.toString(base.getMinPurchaseAmount())), 0.0, 1_000_000_000.0);
         if (minPurchase == null) {
             return null;

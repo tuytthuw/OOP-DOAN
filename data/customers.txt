@@ -3,3 +3,5 @@ CUS002|Tran Binh|0915123456|false|20/09/1998|binh@spa.com|Ha Noi|false|GOLD|Pref
 CUS003|Le Chi|0987123999|true|18/02/2000|chi@spa.com|Da Nang|false|STANDARD|New member|60|05/10/2025
 CUS004|k|k|true|10/10/2003|k|k|false|STANDARD|kjlk|0|29/10/2025
 CUS005|a|09|true|17/07/2003|@|hcm|false|STANDARD|ok|0|29/10/2025
+CUS006|Nguyễn Ngọc Tín|09|true|17/07/2003|tin@gmail.co|hcm|false|STANDARD|ok|0|30/10/2025
+CUS007|Tin|0987898|true|17/07/2003|ok|hcm|false|STANDARD|ok|0|30/10/2025
